@@ -1,0 +1,22 @@
+node_modules/
+.pnpm-store/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+.env
+.env.*
+!.env.example
+
+# Agent scratch/state
+.kilo/agent-manager.json
+.cache/
+
+# Graphify outputs (uncomment to version them)
+graph.html
+graph.json
+GRAPH_REPORT.md
+
+.DS_Store
+*.log
