@@ -3,6 +3,7 @@
   base = "apps/web"
   command = "pnpm build"
   publish = "dist"
+  functions = ".netlify/functions-internal"
 
 [build.environment]
   NODE_VERSION = "20"
