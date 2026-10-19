@@ -1,11 +1,12 @@
 // specs/extension/spec.md — extension settings, persisted in chrome.storage.
 import type { TimeFormat } from '@wsb/core'
 import { DEFAULT_TIME_FORMAT, DEFAULT_DISTRICT, resolveDistrict, isTimeFormat, type District } from '@wsb/core'
+import type { Locale } from './i18n.js'
 
 export interface ExtensionSettings {
   notifications: boolean
   header: boolean
-  locale: 'ms' | 'en'
+  locale: Locale
   timeFormat: TimeFormat
   district: District
 }
@@ -20,12 +21,18 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   district: DEFAULT_DISTRICT,
 }
 
+const LOCALES: readonly Locale[] = ['ms', 'ms-Arab', 'ar', 'en']
+
+function isLocale(value: unknown): value is Locale {
+  return typeof value === 'string' && (LOCALES as readonly string[]).includes(value)
+}
+
 export function resolveSettings(value: unknown): ExtensionSettings {
   const stored = (value ?? {}) as Partial<ExtensionSettings>
   return {
     notifications: stored.notifications === true,
     header: stored.header !== false,
-    locale: stored.locale === 'en' ? 'en' : 'ms',
+    locale: isLocale(stored.locale) ? stored.locale : 'ms',
     timeFormat: isTimeFormat(stored.timeFormat)
       ? stored.timeFormat
       : DEFAULT_SETTINGS.timeFormat,

@@ -34,6 +34,24 @@
   --primary-fg: #1c1917;
 }
 
+/* specs/web/spec.md — Arabic-script locales (Arabic, Jawi Malay) use Noto
+   Naskh Arabic. Self-hosted Woff2, SIL OFL (see /fonts/OFL.txt). */
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  src: url('/fonts/NotoNaskhArabic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  src: url('/fonts/NotoNaskhArabic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 html,
 body {
   background: var(--bg);
@@ -45,6 +63,20 @@ body {
     Roboto,
     sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+:root[lang='ar'],
+:root[lang='ar'] body,
+:root[lang='ms-Arab'],
+:root[lang='ms-Arab'] body {
+  font-family:
+    'Noto Naskh Arabic',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.6;
 }
 
 body {

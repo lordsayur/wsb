@@ -34,4 +34,7 @@ withDefaults(defineProps<{ label: string; time: string; current?: boolean }>(), 
   border-bottom-color: transparent;
   box-shadow: inset 3px 0 0 var(--primary);
 }
+:dir(rtl) .prayer-row.current {
+  box-shadow: inset -3px 0 0 var(--primary);
+}
 </style>

@@ -220,22 +220,85 @@ export function adjustForDistrict(
   }))
 }
 
+// ponytail: CLDR has no Jawi (ms-Arab) data, so Malay names are transliterated
+// with a small table. Upgrade path is a Jawi CLDR/ICU locale when one exists.
+const ARABIC_SCRIPT_LOCALES = new Set(['ar', 'ms-Arab'])
+
+const JAWI_WORDS: Record<string, string> = {
+  // Weekdays
+  ahad: 'احد',
+  isnin: 'اثنين',
+  selasa: 'ثلاث',
+  rabu: 'رابو',
+  khamis: 'خميس',
+  jumaat: 'جمعة',
+  sabtu: 'سبت',
+  // Gregorian months
+  januari: 'جنواري',
+  februari: 'فيبرواري',
+  mac: 'مک',
+  april: 'اڤريل',
+  mei: 'مي',
+  jun: 'جون',
+  julai: 'جولاي',
+  ogos: 'اوݢوس',
+  september: 'سيڤتيمبر',
+  oktober: 'اوکتوبر',
+  november: 'نوۏيمبر',
+  disember: 'ديسيمبر',
+  // Hijri months as written by the MORA source
+  muharam: 'محرم',
+  safar: 'صفر',
+  rabiulawal: 'ربيع الأول',
+  rabiulakhir: 'ربيع الآخر',
+  jamadilawal: 'جمادى الأولى',
+  jamadilakhir: 'جمادى الآخرة',
+  rejab: 'رجب',
+  syaaban: 'شعبان',
+  ramadan: 'رمضان',
+  syawal: 'شوال',
+  zulkaedah: 'ذو القعدة',
+  zulhijjah: 'ذو الحجة',
+}
+
+/** Transliterates Latin Malay calendar words into Jawi, leaving the rest. */
+function toJawi(text: string): string {
+  return text.replace(/[A-Za-z]+/g, (word) => JAWI_WORDS[word.toLowerCase()] ?? word)
+}
+
+/** Maps ASCII digits to Arabic-Indic digits (٠١٢…). */
+function toArabicIndic(text: string): string {
+  return text.replace(/[0-9]/g, (digit) => String.fromCharCode(0x0660 + Number(digit)))
+}
+
+/**
+ * CLDR defaults `ar` to Latin digits; Arabic-script locales ask for the
+ * `arab` numbering system explicitly so times and dates use ٠١٢… digits.
+ */
+function intlLocale(locale: string): string {
+  if (!ARABIC_SCRIPT_LOCALES.has(locale)) return locale
+  const base = locale === 'ms-Arab' ? 'ms' : locale
+  return `${base}-u-nu-arab`
+}
+
 /** Formats an ISO date (YYYY-MM-DD) for an explicit locale (display-ready). */
 export function formatDate(date: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
+  const text = new Intl.DateTimeFormat(intlLocale(locale), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${date}T00:00:00Z`))
+  return locale === 'ms-Arab' ? toJawi(text) : text
 }
 
 /** Formats the weekday of an ISO date for an explicit locale. */
 export function formatWeekday(date: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
+  const text = new Intl.DateTimeFormat(intlLocale(locale), {
     weekday: 'long',
     timeZone: 'UTC',
   }).format(new Date(`${date}T00:00:00Z`))
+  return locale === 'ms-Arab' ? toJawi(text) : text
 }
 
 /**
@@ -248,6 +311,17 @@ export function formatHijriDate(
   hijriDate = '',
 ): string {
   const source = hijriDate.trim()
+  if (ARABIC_SCRIPT_LOCALES.has(locale)) {
+    if (source) return toArabicIndic(toJawi(source)).replace(/\s+H$/i, ' هـ')
+    return new Intl.DateTimeFormat('ar-u-ca-islamic-umalqura-nu-arab', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+      .format(new Date(`${date}T00:00:00Z`))
+      .replace(/\s+هـ$/u, ' هـ')
+  }
   if (source) return source
   return new Intl.DateTimeFormat(`${locale}-u-ca-islamic-umalqura`, {
     day: 'numeric',
@@ -272,12 +346,17 @@ export function formatTime(
   format: TimeFormat = DEFAULT_TIME_FORMAT,
 ): string {
   const date = new Date(Date.UTC(1970, 0, 1, 0, wrapMinutes(minutes)))
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(intlLocale(locale), {
     hour: '2-digit',
     minute: '2-digit',
     hourCycle: format === '12h' ? 'h12' : 'h23',
     timeZone: 'UTC',
   }).format(date)
+}
+
+/** Formats a whole number for an explicit locale (Arabic-Indic for ar/Jawi). */
+export function formatNumber(value: number, locale: string): string {
+  return new Intl.NumberFormat(intlLocale(locale)).format(value)
 }
 
 export function createPrayerTimes(

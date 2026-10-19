@@ -3,7 +3,7 @@
 import { DISTRICTS, resolveDistrict } from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
 import { loadDay, type LoadedDay } from '../shared/day.js'
-import { t } from '../shared/i18n.js'
+import { isRtl, t } from '../shared/i18n.js'
 import {
   getSettings,
   saveSettings,
@@ -16,6 +16,8 @@ import { RELEASES_URL } from '../shared/constants.js'
 const root = document.querySelector<HTMLElement>('#app')!
 const LOCALES = [
   { code: 'ms', label: 'Bahasa Melayu' },
+  { code: 'ms-Arab', label: 'بهاس ملايو (Jawi)' },
+  { code: 'ar', label: 'العربية' },
   { code: 'en', label: 'English' },
 ] as const
 
@@ -143,7 +145,9 @@ function render(): void {
       LOCALES.map((entry) => ({ value: entry.code, label: entry.label })),
       settings.locale,
       (value) => {
-        if (value === 'ms' || value === 'en') void updateSettings({ locale: value })
+        if (LOCALES.some((entry) => entry.code === value)) {
+          void updateSettings({ locale: value as ExtensionSettings['locale'] })
+        }
       },
     ),
   )
@@ -217,9 +221,14 @@ async function reload(): Promise<void> {
   render()
 }
 
+function applyDirection(locale: ExtensionSettings['locale']): void {
+  document.documentElement.lang = locale
+  document.documentElement.dir = isRtl(locale) ? 'rtl' : 'ltr'
+}
+
 async function init(): Promise<void> {
   settings = await getSettings()
-  document.documentElement.lang = settings.locale
+  applyDirection(settings.locale)
   render()
   day = await loadDay()
   loading = false
@@ -236,7 +245,7 @@ chrome.storage.onChanged.addListener((changes) => {
   if ('wsb.extension.settings' in changes) {
     void getSettings().then((next) => {
       settings = next
-      document.documentElement.lang = settings.locale
+      applyDirection(settings.locale)
       render()
     })
   }

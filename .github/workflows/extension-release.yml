@@ -1,0 +1,31 @@
+name: Extension Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @wsb/extension zip
+        env:
+          WSB_SUPABASE_URL: ${{ secrets.WSB_SUPABASE_URL }}
+          WSB_SUPABASE_ANON_KEY: ${{ secrets.WSB_SUPABASE_ANON_KEY }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: apps/extension/wsb-extension.zip
+          generate_release_notes: true

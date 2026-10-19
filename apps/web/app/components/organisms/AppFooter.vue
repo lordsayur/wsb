@@ -255,7 +255,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 .menu-panel {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   bottom: calc(100% + 0.5rem);
   z-index: 10;
   min-width: 12rem;
@@ -288,7 +288,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 .menu-panel button {
   font: inherit;
-  text-align: left;
+  text-align: start;
   padding: 0.4rem 0.5rem;
   border-radius: 8px;
   background: transparent;

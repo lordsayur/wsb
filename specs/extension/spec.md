@@ -17,9 +17,13 @@ glue only; no domain rules.
 
 - The toolbar popup shows the same six entries, day, dates, current highlight
   and duration to the next as the web shell, for the selected district.
-- A district selector, language selector (default Malay) and 12/24-hour choice
-  live in the popup; each choice is stored with `chrome.storage.local` and
-  restored on the next open.
+- A district selector, language selector (default Malay; Malay, Jawi Malay,
+  Arabic, English) and 12/24-hour choice live in the popup; each choice is
+  stored with `chrome.storage.local` and restored on the next open.
+- Arabic-script locales (`ms-Arab`, `ar`) render right-to-left and use the
+  bundled Noto Naskh Arabic webfont (SIL OFL), in the popup and on-page header.
+- Dates and the Hijri date render in the active locale's script; Arabic-script
+  locales use Arabic-Indic digits (٠١٢…) for times and dates.
 - Times come from Supabase through the Data port. The device cache in
   `chrome.storage.local` is served first; a failed refresh falls back to the
   last known day. MORA is never contacted at runtime.
@@ -44,7 +48,9 @@ glue only; no domain rules.
 - The header shows all six entries with their times, highlighting the current
   entry, plus the next entry and the duration until it.
 - When the viewport is too narrow for all entries, the header falls back to the
-  next entry and duration only.
+  next entry and duration only, prefixed with a "Next" caption. The caption is
+  hidden whenever the full entry list is visible so it is not read as a label
+  for the first entry.
 - The header can be disabled from the popup; the choice persists and applies to
   open pages immediately.
 - The header is isolated in a shadow root so page styles cannot break it and it
@@ -92,6 +98,8 @@ glue only; no domain rules.
 - [ ] Selecting Tutong/Belait shifts the entries by +1/+3 minutes.
 - [ ] The current entry is highlighted and the duration to next is shown.
 - [ ] The district, language and time format survive reopening the popup.
+- [ ] Choosing Arabic or Jawi flips the popup and header right-to-left and uses
+      the Arabic-script font.
 - [ ] Enabling notifications persists the choice and schedules reminders.
 - [ ] Notifications fire 15 minutes before and at each prayer; syuruk never
       notifies.
@@ -115,3 +123,7 @@ glue only; no domain rules.
   is manual and monthly).
 - 2026-10-19 — on-page header is a fixed in-flow bar showing all entries; update
   awareness via the latest GitHub release; repository is public.
+- 2026-10-19 — add Arabic (`ar`) and Jawi Malay (`ms-Arab`) locales with the
+  Arabic-script font and right-to-left layout.
+- 2026-10-19 — hide the header's "Next" caption when all entries are shown;
+  keep it in the narrow fallback.

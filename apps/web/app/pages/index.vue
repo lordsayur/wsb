@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { DISTRICTS, NOTIFICATION_LEAD_MINUTES, durationParts, formatWeekday } from '@wsb/core'
+import {
+  DISTRICTS,
+  NOTIFICATION_LEAD_MINUTES,
+  durationParts,
+  formatNumber,
+  formatWeekday,
+} from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
 import PrayerTimeList from '~/components/organisms/PrayerTimeList.vue'
 import AppFooter from '~/components/organisms/AppFooter.vue'
@@ -122,12 +128,16 @@ const nextText = computed(() => {
   if (state.value !== 'ready') return ''
   const total = progress.value.secondsToNext
   const { hours, minutes, seconds } = durationParts(total)
+  const n = (value: number) => formatNumber(value, locale.value)
   const duration =
     total < 60
-      ? t('duration.seconds', { seconds })
+      ? t('duration.seconds', { seconds: n(seconds) })
       : hours > 0
-        ? t('duration.hoursMinutes', { hours, minutes })
-        : t('duration.minutes', { minutes })
+        ? t('duration.hoursMinutes', {
+            hours: n(hours),
+            minutes: n(minutes),
+          })
+        : t('duration.minutes', { minutes: n(minutes) })
   return t('next.in', {
     duration,
     prayer: t(`prayer.${progress.value.next}`),

@@ -1,0 +1,138 @@
+{
+  "prayer": {
+    "subuh": "صبح",
+    "syuruk": "شروق",
+    "zuhur": "ظهر",
+    "asar": "عصر",
+    "maghrib": "مغرب",
+    "isyak": "عشاء"
+  },
+  "district": {
+    "label": "دايره",
+    "bruneiMuara": "بروني دان موارا",
+    "tutong": "توتوڠ",
+    "belait": "بلايت"
+  },
+  "state": {
+    "loading": "ممواتکن…",
+    "unavailable": "وقت سمبهيڠ تيدق ترسيديا.",
+    "offline": "اندا سدڠ لوار تاليان. ممڤارکن داتا تراخير."
+  },
+  "action": {
+    "retry": "چوبا لاݢي",
+    "menu": "مينو",
+    "reloadData": "موات سمولا داتا",
+    "reloadApp": "موات سمولا اڤليکاسي",
+    "share": "کوڠسي وقت سمبهيڠ",
+    "downloads": "ڤلاتفورم لاءين"
+  },
+  "source": {
+    "label": "سومبر داتا",
+    "name": "جابتن حال احوال اوݢام (KHEU)، بروني"
+  },
+  "update": {
+    "message": "ۏرسي بهارو ترسيديا. موات سمولا اونتوق مڠماس کيني.",
+    "reload": "موات سمولا",
+    "later": "کموديان"
+  },
+  "duration": {
+    "hoursMinutes": "{hours} جم {minutes} مينيت",
+    "minutes": "{minutes} مينيت",
+    "seconds": "{seconds} ساعت"
+  },
+  "next": {
+    "in": "{duration} لاݢي {prayer}"
+  },
+  "share": {
+    "title": "وقت سمبهيڠ بروني",
+    "district": "دايره: بروني دان موارا",
+    "line": "{prayer}: {time}",
+    "offsets": "تمبه 1 مينيت اونتوق توتوڠ دان 3 مينيت اونتوق بلايت.",
+    "copied": "دسالين ک ڤاڤن کليڤ",
+    "formatted": "تيکس برفورمات",
+    "raw": "تيکس منتاه"
+  },
+  "pull": {
+    "reload": "تاريق ک باوه اونتوق موات سمولا",
+    "refreshing": "مموات سمولا…"
+  },
+  "meta": {
+    "title": "وقت سمبهيڠ بروني",
+    "siteName": "وقت سمبهيڠ بروني",
+    "description": "وقت سمبهيڠ بروني اونتوق بروني دان موارا، تمبوروڠ، توتوڠ دان بلايت — د مانا-مان سها.",
+    "imageAlt": "وقت سمبهيڠ بروني — صبح، شروق، ظهر، عصر، مغرب، عشاء"
+  },
+  "theme": {
+    "mode": "مود ورنا",
+    "dark": "ݢلڤ",
+    "light": "چراه",
+    "palette": {
+      "label": "ورنا اوتاما",
+      "yellow": "کونيڠ",
+      "green": "هيجاو",
+      "blue": "بيرو",
+      "rose": "روس",
+      "violet": "اوڠو",
+      "custom": "ترسواي"
+    }
+  },
+  "notification": {
+    "enable": "هيدوڤکن نوتيفيکاسي",
+    "enabled": "نوتيفيکاسي دهيدوڤکن",
+    "unsupported": "نوتيفيکاسي تيدق دسوکوڠ",
+    "blocked": "نوتيفيکاسي دسکت دالم ڤلاير",
+    "lead": "{prayer} دالم 15 مينيت",
+    "due": "ماسوق وقت {prayer}",
+    "body": "{prayer} ڤد {time}"
+  },
+  "settings": {
+    "title": "تتاڤن",
+    "back": "کمبالي",
+    "language": "بهاس",
+    "timeFormat": {
+      "label": "فورمات ماس",
+      "h24": "24 جم",
+      "h12": "12 جم"
+    }
+  },
+  "extension": {
+    "title": "سمبوڠن ڤلاير",
+    "pageHeader": "تونجوق وقت ڤد هالامن",
+    "pageHeaderLabel": "ستروسڽ",
+    "openApp": "بوک اڤليکاسي",
+    "closeLabel": "سمبوڽيکن",
+    "updateAvailable": "ۏرسي {version} ترسيديا",
+    "updateDownload": "موات تورون"
+  },
+  "downloads": {
+    "title": "موات تورون",
+    "intro": "وقت سمبهيڠ بروني اونتوق ڤلاتفورم لاءين. ساتو ترس، باڽق چڠکرڠ.",
+    "back": "کمبالي ک اڤليکاسي",
+    "available": "ترسيديا",
+    "soon": "اکن داتڠ",
+    "download": "موات تورون",
+    "installNote": "موات تورون فايل zip، کموديان بوک chrome://extensions، هيدوڤکن مود ڤمباڠون دان ڤيليه \"Load unpacked\" ڤد فولدر يڠ تله دايکستراک.",
+    "platforms": {
+      "extension": {
+        "name": "سمبوڠن ڤلاير",
+        "description": "وقت سمبهيڠ د بار الات دان ڤد ستياڤ هالامن، دڠن نوتيفيکاسي."
+      },
+      "cli": {
+        "name": "CLI",
+        "description": "وقت سمبهيڠ د ترمينل اندا."
+      },
+      "tui": {
+        "name": "TUI",
+        "description": "ڤاڤرن ترمينل ڤنوه اونتوق وقت سمبهيڠ."
+      },
+      "vscode": {
+        "name": "سمبوڠن VS Code",
+        "description": "وقت سمبهيڠ د بار ستاتوس ايديتور."
+      },
+      "raycast": {
+        "name": "سمبوڠن Raycast",
+        "description": "وقت سمبهيڠ دري ڤلنچر اندا."
+      }
+    }
+  }
+}

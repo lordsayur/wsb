@@ -42,6 +42,7 @@ await cp(join(root, 'src/manifest.json'), join(out, 'manifest.json'))
 await cp(join(root, 'src/popup/popup.html'), join(out, 'popup.html'))
 await cp(join(root, 'src/popup/popup.css'), join(out, 'popup.css'))
 await cp(join(root, 'static/icons'), join(out, 'icons'), { recursive: true })
+await cp(join(root, 'static/fonts'), join(out, 'fonts'), { recursive: true })
 
 const manifestPath = join(out, 'manifest.json')
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))

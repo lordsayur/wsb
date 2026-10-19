@@ -74,6 +74,8 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
   using the Umm al-Qura calendar for the active locale.
 - Gregorian dates are formatted in core for an explicit locale, like times.
 - The day name is formatted in core for an explicit locale.
+- Arabic-script locales (`ar`, `ms-Arab`) format times, dates and the Hijri
+  date with Arabic-Indic digits; all other locales use Latin digits.
 
 ### Current and next entry
 

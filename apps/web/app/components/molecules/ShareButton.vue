@@ -146,7 +146,7 @@ if (typeof document !== 'undefined') {
 }
 .share-menu {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   bottom: calc(100% + 0.35rem);
   z-index: 20;
   min-width: 9rem;
@@ -163,7 +163,7 @@ if (typeof document !== 'undefined') {
 .share-menu button {
   font: inherit;
   font-size: 0.85rem;
-  text-align: left;
+  text-align: start;
   padding: 0.4rem 0.5rem;
   border-radius: 6px;
   background: transparent;
@@ -176,7 +176,7 @@ if (typeof document !== 'undefined') {
 }
 .status {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   bottom: calc(100% + 0.35rem);
   white-space: nowrap;
   padding: 0.25rem 0.5rem;

@@ -105,7 +105,9 @@ in place.
 
 ## Locale
 
-A UI language. Default is Malay (`ms`); English (`en`) is the fallback. All
+A UI language. Supported: Malay (`ms`, default), Jawi Malay (`ms-Arab`), Arabic
+(`ar`), and English (`en`, fallback). Arabic-script locales are right-to-left
+and render in the Noto Naskh Arabic webfont. All
 user-facing text is a translation key resolved by Nuxt I18n
 (`@nuxtjs/i18n`), never a hard-coded string. Prayer names are domain values
 (`PrayerName`); their displayed labels are translations owned by the shell.

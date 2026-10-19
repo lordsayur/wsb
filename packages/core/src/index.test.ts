@@ -8,6 +8,7 @@ import {
   durationParts,
   formatDate,
   formatHijriDate,
+  formatNumber,
   formatTime,
   formatWeekday,
   isTimeFormat,
@@ -287,5 +288,52 @@ describe('dates', () => {
 
   it('derives a Hijri date when the source has none', () => {
     expect(formatHijriDate('2026-10-18', 'ms')).toBe('7 Jamadilawal 1448 H')
+  })
+})
+
+// specs/core/spec.md — Arabic-script locales format in their own script.
+describe('arabic-script locales', () => {
+  it('formats the Masihi date and weekday in Arabic with Arabic-Indic digits', () => {
+    expect(formatDate('2026-10-18', 'ar')).toBe('١٨ أكتوبر ٢٠٢٦')
+    expect(formatWeekday('2026-10-18', 'ar')).toBe('الأحد')
+  })
+
+  it('formats Jawi Malay dates in Arabic script with Arabic-Indic digits', () => {
+    expect(formatDate('2026-10-18', 'ms-Arab')).toBe('١٨ اوکتوبر ٢٠٢٦')
+    expect(formatWeekday('2026-10-18', 'ms-Arab')).toBe('احد')
+  })
+
+  it('formats times with Arabic-Indic digits', () => {
+    expect(formatTime(4 * 60 + 47, 'ar')).toBe('٠٤:٤٧')
+    expect(formatTime(4 * 60 + 47, 'ms-Arab')).toBe('٠٤:٤٧')
+  })
+
+  it('formats plain numbers with Arabic-Indic digits', () => {
+    expect(formatNumber(15, 'ar')).toBe('١٥')
+    expect(formatNumber(15, 'ms-Arab')).toBe('١٥')
+    expect(formatNumber(15, 'ms')).toBe('15')
+    expect(formatNumber(15, 'en')).toBe('15')
+  })
+
+  it('rewrites a Malay Hijri date into Arabic script and digits', () => {
+    const hijri = '7 Jamadilawal 1448 H'
+    expect(formatHijriDate('2026-10-18', 'ar', hijri)).toBe(
+      '٧ جمادى الأولى ١٤٤٨ هـ',
+    )
+    expect(formatHijriDate('2026-10-18', 'ms-Arab', hijri)).toBe(
+      '٧ جمادى الأولى ١٤٤٨ هـ',
+    )
+  })
+
+  it('derives an Arabic-script Hijri date when the source has none', () => {
+    expect(formatHijriDate('2026-10-18', 'ar')).toContain('جمادى')
+  })
+
+  it('leaves Latin locales untouched', () => {
+    expect(
+      formatHijriDate('2026-10-18', 'en', '7 Jamadilawal 1448 H'),
+    ).toBe('7 Jamadilawal 1448 H')
+    expect(formatTime(4 * 60 + 47, 'en')).toBe('04:47')
+    expect(formatDate('2026-10-18', 'ms')).toBe('18 Oktober 2026')
   })
 })

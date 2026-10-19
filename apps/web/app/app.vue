@@ -5,10 +5,25 @@
 
 <script setup lang="ts">
 // specs/web/spec.md — link previews: absolute Open Graph/Twitter metadata.
-const { t, locale } = useI18n()
+const { t, locale, localeProperties } = useI18n()
 const origin = useRequestURL().origin
 const { theme, primary } = useTheme()
 const primaryFg = computed(() => readableOn(primary.value))
+
+const isRtl = computed(() => localeProperties.value?.dir === 'rtl')
+const ogLocaleMap: Record<string, string> = {
+  ms: 'ms_BN',
+  'ms-Arab': 'ms_BN',
+  ar: 'ar_BN',
+  en: 'en_US',
+}
+const ogLocale = computed(() => ogLocaleMap[locale.value] ?? 'en_US')
+const ogLocaleAlternate = computed(() =>
+  Object.entries(ogLocaleMap)
+    .filter(([code]) => code !== locale.value)
+    .map(([, tag]) => tag)
+    .filter((tag, index, all) => all.indexOf(tag) === index),
+)
 
 const title = computed(() => t('meta.title'))
 const description = computed(() => t('meta.description'))
@@ -25,10 +40,8 @@ useSeoMeta({
   ogImageAlt: computed(() => t('meta.imageAlt')),
   ogImageWidth: 1200,
   ogImageHeight: 630,
-  ogLocale: computed(() => (locale.value === 'ms' ? 'ms_BN' : 'en_US')),
-  ogLocaleAlternate: computed(() =>
-    locale.value === 'ms' ? ['en_US'] : ['ms_BN'],
-  ),
+  ogLocale,
+  ogLocaleAlternate,
   twitterCard: 'summary_large_image',
   twitterTitle: title,
   twitterDescription: description,
@@ -39,6 +52,7 @@ useSeoMeta({
 useHead({
   htmlAttrs: {
     lang: computed(() => locale.value),
+    dir: computed(() => (isRtl.value ? 'rtl' : 'ltr')),
     'data-theme': computed(() => theme.value.mode),
     style: computed(
       () =>

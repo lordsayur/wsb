@@ -61,8 +61,10 @@ export default defineNuxtConfig({
     strategy: "no_prefix",
     detectBrowserLanguage: false,
     locales: [
-      { code: "ms", name: "Bahasa Melayu", language: "ms-BN", file: "ms.json" },
-      { code: "en", name: "English", language: "en", file: "en.json" },
+      { code: "ms", name: "Bahasa Melayu", language: "ms-BN", file: "ms.json", dir: "ltr" },
+      { code: "ms-Arab", name: "بهاس ملايو (Jawi)", language: "ms-Arab", file: "ms-Arab.json", dir: "rtl" },
+      { code: "ar", name: "العربية", language: "ar", file: "ar.json", dir: "rtl" },
+      { code: "en", name: "English", language: "en", file: "en.json", dir: "ltr" },
     ],
     langDir: "locales",
   },

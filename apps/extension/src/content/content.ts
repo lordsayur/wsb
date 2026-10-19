@@ -16,10 +16,29 @@ interface HeaderState {
   label?: string
   closeLabel?: string
   soon?: boolean
+  rtl?: boolean
   rows: HeaderRow[]
 }
 
 const SPACER_ID = `${HEADER_HOST_ID}-spacer`
+
+// specs/extension/spec.md — Arabic-script locales use the bundled Noto Naskh.
+function fontFaces(): string {
+  const base = chrome.runtime.getURL('fonts/')
+  return `
+@font-face {
+  font-family: 'WSB Arabic';
+  src: url('${base}NotoNaskhArabic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'WSB Arabic';
+  src: url('${base}NotoNaskhArabic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}`
+}
 
 const HOST_STYLE = `
 :host {
@@ -33,6 +52,9 @@ const HOST_STYLE = `
   line-height: 1.35;
   color: #f4f4f1;
 }
+.bar[dir='rtl'] {
+  font-family: 'WSB Arabic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
 .bar {
   display: flex;
   align-items: center;
@@ -43,7 +65,9 @@ const HOST_STYLE = `
   box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
 }
 .bar.soon { background: #facc15; color: #1c1917; }
-.label { opacity: 0.7; white-space: nowrap; }
+/* The caption only makes sense in the narrow fallback; hide it beside the
+   full entry list so it is not mistaken for the first entry's label. */
+.label { display: none; opacity: 0.7; white-space: nowrap; }
 .entries {
   display: flex;
   align-items: center;
@@ -54,6 +78,7 @@ const HOST_STYLE = `
 }
 .entry { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
 .entry.current { color: #facc15; font-weight: 700; }
+.bar[dir='rtl'] .entry.current { box-shadow: inset -2px 0 0 #facc15; }
 .bar.soon .entry.current { color: #1c1917; }
 .entry .name { opacity: 0.7; }
 .text {
@@ -74,6 +99,7 @@ const HOST_STYLE = `
 /* Too narrow for all six entries: show the next entry and duration only. */
 @media (max-width: 760px) {
   .entries { display: none; }
+  .label { display: inline; }
 }
 @media (max-width: 320px) {
   .label { display: none; }
@@ -97,7 +123,7 @@ function ensureChrome(): void {
     host.id = HEADER_HOST_ID
     shadow = host.attachShadow({ mode: 'open' })
     const style = document.createElement('style')
-    style.textContent = HOST_STYLE
+    style.textContent = fontFaces() + HOST_STYLE
     shadow.append(style)
   }
 }
@@ -111,6 +137,7 @@ function buildBar(state: HeaderState, closeLabel: string): HTMLElement {
   const bar = document.createElement('div')
   bar.className = `bar${state.soon ? ' soon' : ''}`
   bar.setAttribute('role', 'status')
+  bar.dir = state.rtl ? 'rtl' : 'ltr'
 
   if (state.label) {
     const label = document.createElement('span')

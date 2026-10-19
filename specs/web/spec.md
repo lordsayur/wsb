@@ -20,10 +20,20 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 - All user-facing text goes through `@nuxtjs/i18n` (Nuxt I18n, powered by Vue
   I18n). No literal UI strings in templates or components.
-- The default locale is Malay (`ms`). English (`en`) is the fallback.
-- Message catalogues live in `apps/web/i18n/locales/<locale>.json`.
+- Supported locales: Malay (`ms`, default, Latin script), Jawi Malay
+  (`ms-Arab`), Arabic (`ar`), and English (`en`, fallback).
+- Message catalogues live in `apps/web/i18n/locales/<locale>.json`; every
+  catalogue carries the same keys.
 - Locale is switchable from the footer menu at runtime; the choice is stored in
   a cookie (`wsb.locale`) and restored on the next visit, including SSR.
+- Arabic-script locales (`ms-Arab`, `ar`) render right-to-left (`dir="rtl"`)
+  and use the self-hosted Noto Naskh Arabic webfont; Latin locales stay
+  left-to-right. The font is served from `/fonts` under the SIL OFL.
+- Dates and the Hijri date follow the active locale's script: Arabic-script
+  locales show Arabic-script month, weekday and Hijri names even though the
+  source's Hijri value is Malay in Latin script.
+- Arabic-script locales render numbers, dates and times with Arabic-Indic
+  digits (٠١٢٣٤٥٦٧٨٩), not Latin digits.
 - Prayer names are translated labels, not domain data: core provides
   `PrayerName`; the shell maps it to a message key.
 - Dates/times are formatted by core for the active locale; the shell renders
@@ -260,6 +270,13 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Reload activates the waiting worker; "later" leaves the app running.
 - [ ] Every shared component has stories covering default/loading/error/edge.
 - [ ] Default locale is `ms`; switching to `en` re-renders all visible text.
+- [ ] Switching to `ar` or `ms-Arab` re-renders all text in Arabic script and
+      flips the layout to right-to-left.
+- [ ] Arabic-script locales render in the Noto Naskh Arabic webfont.
+- [ ] Dates and Hijri dates render in Arabic script for `ar` and `ms-Arab`.
+- [ ] Times, dates and durations render with Arabic-Indic digits for `ar` and
+      `ms-Arab`, while Latin locales keep Latin digits.
+- [ ] The chosen Arabic-script locale survives a reload.
 - [ ] No visible literal strings exist outside the locale files.
 - [ ] A missing `ms` key fails the check before shipping.
 
@@ -303,3 +320,5 @@ None published. Consumes core and the Data port.
   prayer; next-prayer duration turns primary with 15 minutes left.
 - 2026-10-18 — add an Other platforms downloads page; the browser extension
   installs from the latest GitHub release.
+- 2026-10-19 — add Arabic (`ar`) and Jawi Malay (`ms-Arab`) locales with an
+  Arabic-script webfont, right-to-left layout, and Arabic-script dates.

@@ -5,7 +5,7 @@ import { FIRED_KEY, ALARM_NAME, dueReminders, reminderText } from './shared/remi
 import { getSettings } from './shared/settings.js'
 import { loadDay } from './shared/day.js'
 import { ALARM_PERIOD_MINUTES } from './shared/constants.js'
-import { t } from './shared/i18n.js'
+import { isRtl, t } from './shared/i18n.js'
 import { buildDayView } from './shared/view.js'
 import { UPDATE_ALARM_NAME, UPDATE_PERIOD_MINUTES, checkForUpdate } from './shared/update.js'
 
@@ -83,6 +83,7 @@ chrome.runtime.onMessage.addListener((message, _sender, respond) => {
         soon: view.soon,
         label: t(settings.locale, 'extension.pageHeaderLabel'),
         closeLabel: t(settings.locale, 'extension.closeLabel'),
+        rtl: isRtl(settings.locale),
         rows: view.rows,
       })
       return

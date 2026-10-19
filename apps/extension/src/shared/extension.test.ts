@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { buildDayView } from './view.js'
 import { dueReminders, reminderText } from './reminders.js'
 import { resolveSettings, DEFAULT_SETTINGS } from './settings.js'
-import { t } from './i18n.js'
+import { isRtl, t } from './i18n.js'
 import { isNewer } from './update.js'
 import type { PrayerEntry } from '@wsb/core'
 
@@ -33,6 +33,11 @@ describe('settings', () => {
     expect(
       resolveSettings({ locale: 'fr', timeFormat: 'nope', district: 'mars' }),
     ).toMatchObject({ locale: 'ms', timeFormat: '24h', district: 'bruneiMuara' })
+  })
+
+  it('accepts the Arabic-script locales', () => {
+    expect(resolveSettings({ locale: 'ar' }).locale).toBe('ar')
+    expect(resolveSettings({ locale: 'ms-Arab' }).locale).toBe('ms-Arab')
   })
 })
 
@@ -71,6 +76,17 @@ describe('buildDayView', () => {
     const view = buildDayView(day, DEFAULT_SETTINGS, 12 * 60 * 60 + 10 * 60)
     expect(view.next).toContain('Asar')
     expect(view.next).toContain('3 jam 10 minit')
+  })
+
+  it('uses Arabic-Indic digits for Arabic-script locales', () => {
+    const view = buildDayView(
+      day,
+      { ...DEFAULT_SETTINGS, locale: 'ar' },
+      12 * 60 * 60 + 10 * 60,
+    )
+    expect(view.rows[0]!.time).toBe('٠٤:٥٠')
+    expect(view.next).toContain('٣ ساعة ١٠ دقيقة')
+    expect(view.masihi).toContain('٢٠٢٦')
   })
 })
 
@@ -129,6 +145,18 @@ describe('i18n', () => {
       'It is time for Asar',
     )
     expect(t('ms', 'missing.key')).toBe('missing.key')
+  })
+
+  it('resolves Arabic and Jawi catalogues', () => {
+    expect(t('ar', 'prayer.zuhur')).toBe('الظهر')
+    expect(t('ms-Arab', 'prayer.zuhur')).toBe('ظهر')
+  })
+
+  it('marks Arabic-script locales as right-to-left', () => {
+    expect(isRtl('ar')).toBe(true)
+    expect(isRtl('ms-Arab')).toBe(true)
+    expect(isRtl('ms')).toBe(false)
+    expect(isRtl('en')).toBe(false)
   })
 })
 
