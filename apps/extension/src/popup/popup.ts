@@ -10,6 +10,8 @@ import {
   type ExtensionSettings,
 } from '../shared/settings.js'
 import { buildDayView } from '../shared/view.js'
+import { getUpdateState, type UpdateState } from '../shared/update.js'
+import { RELEASES_URL } from '../shared/constants.js'
 
 const root = document.querySelector<HTMLElement>('#app')!
 const LOCALES = [
@@ -20,6 +22,7 @@ const LOCALES = [
 let settings: ExtensionSettings
 let day: LoadedDay | null = null
 let loading = true
+let update: UpdateState = { latest: null, available: false }
 
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -102,11 +105,25 @@ function render(): void {
     root.append(rows)
   }
 
+  if (update.available && update.latest) {
+    const banner = element('div', 'update')
+    const message = element(
+      'span',
+      undefined,
+      strings('extension.updateAvailable', { version: update.latest }),
+    )
+    const link = element('a', 'update-link', strings('extension.updateDownload'))
+    link.href = RELEASES_URL
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+    banner.append(message, link)
+    root.append(banner)
+  }
+
   root.append(element('hr', 'hr'))
   root.append(
     element('p', 'muted', strings('settings.title')),
   )
-
   root.append(
     select(
       strings('district.label'),
@@ -209,6 +226,12 @@ async function init(): Promise<void> {
   render()
 }
 
+async function bootstrap(): Promise<void> {
+  await init()
+  update = await getUpdateState()
+  render()
+}
+
 chrome.storage.onChanged.addListener((changes) => {
   if ('wsb.extension.settings' in changes) {
     void getSettings().then((next) => {
@@ -217,8 +240,14 @@ chrome.storage.onChanged.addListener((changes) => {
       render()
     })
   }
+  if ('wsb.extension.update' in changes) {
+    void getUpdateState().then((next) => {
+      update = next
+      render()
+    })
+  }
 })
 
-void init().then(() => {
+void bootstrap().then(() => {
   setInterval(render, 30_000)
 })

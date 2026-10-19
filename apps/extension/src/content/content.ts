@@ -1,6 +1,14 @@
-// specs/extension/spec.md — the small on-page header. Isolated in a shadow
-// root; enabled by default; the popup's toggle removes it immediately.
+// specs/extension/spec.md — the fixed on-page header. Isolated in a shadow
+// root; enabled by default; the popup's toggle removes it immediately. The
+// header sits in the page flow via a spacer so it never covers content.
 import { HEADER_HOST_ID } from '../shared/constants.js'
+
+interface HeaderRow {
+  prayer: string
+  label: string
+  time: string
+  current: boolean
+}
 
 interface HeaderState {
   enabled: boolean
@@ -8,34 +16,52 @@ interface HeaderState {
   label?: string
   closeLabel?: string
   soon?: boolean
+  rows: HeaderRow[]
 }
+
+const SPACER_ID = `${HEADER_HOST_ID}-spacer`
 
 const HOST_STYLE = `
 :host {
   all: initial;
   position: fixed;
-  inset-block-start: 8px;
-  inset-inline-end: 8px;
+  inset-block-start: 0;
+  inset-inline: 0;
   z-index: 2147483647;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 12px;
   line-height: 1.35;
   color: #f4f4f1;
 }
-.pill {
+.bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 8px 5px 10px;
-  border-radius: 999px;
+  gap: 10px;
+  padding: 5px 10px;
   background: #191c1f;
-  border: 1px solid #facc15;
-  box-shadow: 0 6px 18px rgb(0 0 0 / 30%);
-  max-width: min(70vw, 320px);
+  border-block-end: 2px solid #facc15;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
 }
-.pill.soon { background: #facc15; color: #1c1917; }
-.label { opacity: 0.7; }
-.text { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar.soon { background: #facc15; color: #1c1917; }
+.label { opacity: 0.7; white-space: nowrap; }
+.entries {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+.entry { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.entry.current { color: #facc15; font-weight: 700; }
+.bar.soon .entry.current { color: #1c1917; }
+.entry .name { opacity: 0.7; }
+.text {
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .close {
   all: unset;
   cursor: pointer;
@@ -45,15 +71,26 @@ const HOST_STYLE = `
   opacity: 0.65;
 }
 .close:hover, .close:focus-visible { opacity: 1; }
+/* Too narrow for all six entries: show the next entry and duration only. */
+@media (max-width: 760px) {
+  .entries { display: none; }
+}
+@media (max-width: 320px) {
+  .label { display: none; }
+}
 `
 
 let host: HTMLElement | null = null
 let shadow: ShadowRoot | null = null
+let spacer: HTMLElement | null = null
+let observer: ResizeObserver | null = null
 
-function mount(state: HeaderState): void {
-  if (!state.enabled || !state.text) {
-    unmount()
-    return
+function ensureChrome(): void {
+  if (!spacer) {
+    spacer = document.createElement('div')
+    spacer.id = SPACER_ID
+    spacer.style.cssText = 'height:0;margin:0;padding:0;border:0;'
+    document.body?.prepend(spacer)
   }
   if (!host) {
     host = document.createElement('div')
@@ -63,27 +100,52 @@ function mount(state: HeaderState): void {
     style.textContent = HOST_STYLE
     shadow.append(style)
   }
-  const pill = document.createElement('div')
-  pill.className = `pill${state.soon ? ' soon' : ''}`
-  pill.setAttribute('role', 'status')
+}
+
+function syncSpacer(): void {
+  if (!host || !spacer) return
+  spacer.style.height = `${host.getBoundingClientRect().height}px`
+}
+
+function buildBar(state: HeaderState, closeLabel: string): HTMLElement {
+  const bar = document.createElement('div')
+  bar.className = `bar${state.soon ? ' soon' : ''}`
+  bar.setAttribute('role', 'status')
 
   if (state.label) {
     const label = document.createElement('span')
     label.className = 'label'
     label.textContent = state.label
-    pill.append(label)
+    bar.append(label)
   }
+
+  const entries = document.createElement('div')
+  entries.className = 'entries'
+  for (const row of state.rows) {
+    const entry = document.createElement('span')
+    entry.className = `entry${row.current ? ' current' : ''}`
+    entry.dataset.prayer = row.prayer
+    const name = document.createElement('span')
+    name.className = 'name'
+    name.textContent = row.label
+    const time = document.createElement('span')
+    time.className = 'time'
+    time.textContent = row.time
+    entry.append(name, time)
+    entries.append(entry)
+  }
+  bar.append(entries)
 
   const text = document.createElement('span')
   text.className = 'text'
   text.textContent = state.text
-  pill.append(text)
+  bar.append(text)
 
   const close = document.createElement('button')
   close.className = 'close'
   close.type = 'button'
-  close.setAttribute('aria-label', state.closeLabel ?? '✕')
-  close.title = state.closeLabel ?? ''
+  close.setAttribute('aria-label', closeLabel)
+  close.title = closeLabel
   close.textContent = '✕'
   close.addEventListener('click', () => {
     void chrome.storage.local.get('wsb.extension.settings').then((values) => {
@@ -91,14 +153,34 @@ function mount(state: HeaderState): void {
       return chrome.storage.local.set({ 'wsb.extension.settings': settings })
     })
   })
-  pill.append(close)
+  bar.append(close)
 
-  shadow!.replaceChildren(shadow!.firstChild!, pill)
-  if (!host.isConnected) document.documentElement.append(host)
+  return bar
+}
+
+function mount(state: HeaderState): void {
+  if (!state.enabled || !state.text || !document.body) {
+    unmount()
+    return
+  }
+  ensureChrome()
+  const closeLabel = state.closeLabel ?? '✕'
+  shadow!.replaceChildren(shadow!.firstChild!, buildBar(state, closeLabel))
+  if (!host!.isConnected) document.documentElement.append(host!)
+
+  if (!observer) {
+    observer = new ResizeObserver(syncSpacer)
+    observer.observe(host!)
+  }
+  syncSpacer()
 }
 
 function unmount(): void {
   host?.remove()
+  spacer?.remove()
+  spacer = null
+  observer?.disconnect()
+  observer = null
 }
 
 async function refresh(): Promise<void> {

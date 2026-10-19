@@ -3,6 +3,7 @@ import { buildDayView } from './view.js'
 import { dueReminders, reminderText } from './reminders.js'
 import { resolveSettings, DEFAULT_SETTINGS } from './settings.js'
 import { t } from './i18n.js'
+import { isNewer } from './update.js'
 import type { PrayerEntry } from '@wsb/core'
 
 // specs/extension/spec.md — shell formatting, reminders and settings.
@@ -128,5 +129,24 @@ describe('i18n', () => {
       'It is time for Asar',
     )
     expect(t('ms', 'missing.key')).toBe('missing.key')
+  })
+})
+
+describe('isNewer', () => {
+  it('compares semver tags against the installed version', () => {
+    expect(isNewer('v0.2.0', '0.1.0')).toBe(true)
+    expect(isNewer('v0.1.1', '0.1.0')).toBe(true)
+    expect(isNewer('v1.0.0', '0.9.9')).toBe(true)
+  })
+
+  it('is false for the same or older release', () => {
+    expect(isNewer('v0.1.0', '0.1.0')).toBe(false)
+    expect(isNewer('v0.0.9', '0.1.0')).toBe(false)
+    expect(isNewer('0.1.0', 'v0.1.0')).toBe(false)
+  })
+
+  it('treats missing segments as zero', () => {
+    expect(isNewer('v0.2', '0.1.9')).toBe(true)
+    expect(isNewer('v0.1', '0.1.0')).toBe(false)
   })
 })

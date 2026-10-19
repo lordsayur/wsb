@@ -100,7 +100,9 @@
     "pageHeader": "Show times on web pages",
     "pageHeaderLabel": "Next",
     "openApp": "Open app",
-    "closeLabel": "Hide"
+    "closeLabel": "Hide",
+    "updateAvailable": "Version {version} is available",
+    "updateDownload": "Download"
   },
   "downloads": {
     "title": "Download",

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Waktu Sembahyang Brunei",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Waktu sembahyang Brunei di bar alat dan pada setiap halaman.",
   "permissions": [
     "storage",
@@ -9,7 +9,8 @@
     "notifications"
   ],
   "host_permissions": [
-    "https://*.supabase.co/*"
+    "https://*.supabase.co/*",
+    "https://api.github.com/*"
   ],
   "background": {
     "service_worker": "background.js",

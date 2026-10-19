@@ -181,3 +181,20 @@ a {
   font-size: 0.7rem;
   color: var(--muted);
 }
+
+.update {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  font-size: 0.78rem;
+}
+
+.update-link {
+  font-weight: 700;
+  white-space: nowrap;
+}

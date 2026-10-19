@@ -63,5 +63,11 @@ declare namespace chrome {
     }
     function sendMessage(message: unknown): Promise<unknown>
     function getURL(path: string): string
+    function getManifest(): { version: string }
+  }
+
+  namespace action {
+    function setBadgeText(details: { text: string }): Promise<void>
+    function setBadgeBackgroundColor(details: { color: string }): Promise<void>
   }
 }

@@ -100,7 +100,9 @@
     "pageHeader": "Tunjuk waktu pada halaman",
     "pageHeaderLabel": "Seterusnya",
     "openApp": "Buka aplikasi",
-    "closeLabel": "Sembunyikan"
+    "closeLabel": "Sembunyikan",
+    "updateAvailable": "Versi {version} tersedia",
+    "updateDownload": "Muat turun"
   },
   "downloads": {
     "title": "Muat turun",

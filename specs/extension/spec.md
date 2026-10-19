@@ -38,14 +38,30 @@ glue only; no domain rules.
 
 ### On-page header
 
-- A small, unobtrusive header is injected into every page by default, showing
-  the next entry and the duration until it.
+- A compact fixed header bar is injected at the top of every page by default.
+  It sits in the page flow via a spacer, so it never covers existing content
+  (it is not a floating overlay).
+- The header shows all six entries with their times, highlighting the current
+  entry, plus the next entry and the duration until it.
+- When the viewport is too narrow for all entries, the header falls back to the
+  next entry and duration only.
 - The header can be disabled from the popup; the choice persists and applies to
   open pages immediately.
 - The header is isolated in a shadow root so page styles cannot break it and it
   cannot break the page.
 - The header has a close button that disables it; it never blocks page input
   (pointer events stay on the header itself).
+
+### Update awareness
+
+- Because the extension is installed unpacked and unlisted, Chrome never checks
+  for updates. The worker instead compares the installed `manifest.version`
+  with the latest GitHub release tag.
+- The check runs on install/startup and every 6 hours; it never throws and
+  keeps the last known result when GitHub is unreachable.
+- When the release is newer, the toolbar action shows a `↑` badge and the popup
+  shows a localized "version available" prompt linking to the release page.
+- Installing the update is still manual: download the zip, load unpacked.
 
 ### Settings
 
@@ -79,10 +95,12 @@ glue only; no domain rules.
 - [ ] Enabling notifications persists the choice and schedules reminders.
 - [ ] Notifications fire 15 minutes before and at each prayer; syuruk never
       notifies.
-- [ ] The on-page header shows the next entry and is enabled by default.
+- [ ] The on-page header shows all entries with times and is enabled by
+      default, falling back to the next entry on narrow viewports.
 - [ ] Disabling the header removes it from already-open pages.
 - [ ] Times fall back to the last known day when the source is unreachable.
 - [ ] The build produces an installable unpacked extension and a zip artifact.
+- [ ] A newer GitHub release shows an update badge and popup link.
 
 ## Out of scope
 
@@ -95,3 +113,5 @@ glue only; no domain rules.
 - 2026-10-18 — initial: popup, notifications, on-page header, release zip.
 - 2026-10-18 — offline first; Supabase is the only runtime source (MORA import
   is manual and monthly).
+- 2026-10-19 — on-page header is a fixed in-flow bar showing all entries; update
+  awareness via the latest GitHub release; repository is public.
