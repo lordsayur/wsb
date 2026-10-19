@@ -118,7 +118,8 @@ fallback.
 `packages/data/src/mora.ts` reads the SharePoint list and normalizes one record
 per prayer time (date, district, prayer, time). `supabase/migrations/` creates
 the `prayer_times` table; `supabase/seed/prayer_times.sql` is a generated
-monthly snapshot.
+snapshot (currently 2025-01-09 .. 2026-12-31; MORA has no rows for the first
+week of January 2025).
 
 ```bash
 # manual monthly import (needs SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY;
@@ -127,6 +128,26 @@ SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... pnpm import:mora
 pnpm import:mora --month 2026-11          # a specific month
 pnpm import:mora --dry-run                # fetch + normalize, write nothing
 pnpm import:mora --sql > supabase/seed/prayer_times.sql
+```
+
+### Admin page
+
+`/admin` imports a month and corrects individual times without a terminal. It
+signs in with Google (Supabase Auth) and the `admin` Edge Function re-checks the
+caller's email against the `admin_allowlist` table on every call; the
+service-role key lives in the function's secrets only.
+
+```bash
+# one-time: apply the allowlist migration, then add the Google provider in
+# the Supabase dashboard (Auth → Providers → Google)
+npx supabase db push
+
+# deploy the function and give it the service role (never in a shell build)
+npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=... \
+  SUPABASE_ANON_KEY=...
+npx supabase functions deploy admin
+
+# allow an account (Supabase dashboard → table editor → admin_allowlist)
 ```
 
 The browser extension embeds the public Supabase URL + anon key at build time:

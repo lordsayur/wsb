@@ -1,7 +1,16 @@
 // specs/data/spec.md — Supabase adapter for the prayer_times table.
 // Rows hold Brunei & Muara base times; core applies district offsets.
-import { PRAYER_ORDER, type District, type PrayerEntry } from '@wsb/core'
-import type { PrayerDay, RemotePrayerSource } from './index.js'
+import {
+  PRAYER_ORDER,
+  monthDates,
+  type District,
+  type PrayerEntry,
+} from '@wsb/core'
+import type {
+  PrayerDay,
+  PrayerMonthDay,
+  RemotePrayerSource,
+} from './index.js'
 
 export interface SupabaseConfig {
   url: string
@@ -12,6 +21,7 @@ interface PrayerTimeRow {
   prayer: string
   time: string
   hijri_date?: string
+  prayer_date?: string
 }
 
 /** "04:51:00" -> 291. Throws on malformed rows so the port can fall back. */
@@ -33,13 +43,59 @@ export class SupabasePrayerSource implements RemotePrayerSource {
     date: string,
     _district: District,
   ): Promise<PrayerDay> {
-    const query = new URLSearchParams({
+    const rows = await this.request({
       prayer_date: `eq.${date}`,
       district: 'eq.bruneiMuara',
       select: 'prayer,time,hijri_date',
     })
+    return {
+      entries: toEntries(rows),
+      hijriDate: rows.find((row) => row.hijri_date)?.hijri_date ?? '',
+    }
+  }
+
+  async fetchPrayerMonth(
+    month: string,
+    _district: District,
+  ): Promise<PrayerMonthDay[]> {
+    const dates = monthDates(month)
+    const from = dates[0]
+    const to = dates.at(-1)
+    if (!from || !to) throw new Error('Invalid month')
+    const rows = await this.request({
+      and: `(prayer_date.gte.${from},prayer_date.lte.${to})`,
+      district: 'eq.bruneiMuara',
+      select: 'prayer_date,prayer,time,hijri_date',
+      order: 'prayer_date.asc',
+    })
+    const byDate = new Map<string, PrayerTimeRow[]>()
+    for (const row of rows) {
+      if (!row.prayer_date) continue
+      const list = byDate.get(row.prayer_date) ?? []
+      list.push(row)
+      byDate.set(row.prayer_date, list)
+    }
+    const days: PrayerMonthDay[] = []
+    for (const [date, dayRows] of byDate) {
+      try {
+        days.push({
+          date,
+          entries: toEntries(dayRows),
+          hijriDate: dayRows.find((row) => row.hijri_date)?.hijri_date ?? '',
+        })
+      } catch {
+        // Skip incomplete days; the port treats them as missing.
+      }
+    }
+    if (days.length === 0) throw new Error('No prayer times for this month')
+    return days
+  }
+
+  private async request(
+    query: Record<string, string>,
+  ): Promise<PrayerTimeRow[]> {
     const response = await this.fetchImpl(
-      `${this.config.url}/rest/v1/prayer_times?${query}`,
+      `${this.config.url}/rest/v1/prayer_times?${new URLSearchParams(query)}`,
       {
         headers: {
           apikey: this.config.anonKey,
@@ -51,11 +107,7 @@ export class SupabasePrayerSource implements RemotePrayerSource {
     if (!response.ok) {
       throw new Error(`Supabase request failed: ${response.status}`)
     }
-    const rows = (await response.json()) as PrayerTimeRow[]
-    return {
-      entries: toEntries(rows),
-      hijriDate: rows.find((row) => row.hijri_date)?.hijri_date ?? '',
-    }
+    return (await response.json()) as PrayerTimeRow[]
   }
 }
 

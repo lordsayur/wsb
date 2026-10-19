@@ -18,18 +18,20 @@ maps to Brunei & Muara.
 
 ## Prayer
 
-One of the five daily prayers, in order:
+The five daily prayers plus the three displayed time boundaries, in order:
 
-1. `subuh` — Fajr / dawn
-2. `syuruk` — sunrise (not a prayer, marks the end of Subuh)
-3. `zuhur` — Dhuhr / noon
-4. `asar` — Asr / afternoon
-5. `maghrib` — sunset
-6. `isyak` — Isha / night
+1. `imsak` — start of the pre-dawn fast (not a prayer)
+2. `subuh` — Fajr / dawn
+3. `syuruk` — sunrise (not a prayer, marks the end of Subuh)
+4. `doha` — Dhuha / mid-morning (not an obligatory prayer)
+5. `zuhur` — Dhuhr / noon
+6. `asar` — Asr / afternoon
+7. `maghrib` — sunset
+8. `isyak` — Isha / night
 
 ## Prayer times
 
-The set of times for the six entries above, for a given date and district.
+The set of times for the eight entries above, for a given date and district.
 Adjusted by the district offset, then formatted for display.
 
 ## Offset
@@ -51,13 +53,13 @@ default district.
 ## Current entry
 
 The last entry in the day's order whose time has passed at the Brunei
-wall-clock time. Before Subuh it is the previous day's Isyak. `syuruk` counts as
-a boundary even though it is not a prayer.
+wall-clock time. Before Imsak it is the previous day's Isyak. `imsak`, `syuruk`
+and `doha` count as boundaries even though they are not prayers.
 
 ## Next entry
 
 The entry after the current one in the documented order, wrapping from `isyak`
-back to `subuh`.
+back to `imsak`.
 
 ## Masihi date
 
@@ -96,6 +98,14 @@ data source.
 
 One stored prayer time for a date and district: (prayer date, district, prayer)
 → time. This is the unit the data-analysis surface will read.
+
+## Admin
+
+A signed-in Google account whose email is listed in `admin_allowlist`. An admin
+may import one Brunei month and correct individual prayer time records through
+the `admin` Edge Function; the allowlist is the only authority, checked
+server-side on every call. Admins are not a domain role of core — nothing in
+core or the shells branches on "admin".
 
 ## Refresh
 

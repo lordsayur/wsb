@@ -52,8 +52,17 @@ withDefaults(
 .prayer-list {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  max-width: 24rem;
+  max-width: 26rem;
+  font-size: clamp(1.1rem, 3.6vh, 1.9rem);
+}
+.prayer-list :deep(.prayer-row) {
+  flex: 1;
+  align-items: center;
+  padding-block: 0.15rem;
 }
 .state {
   margin: 0.5rem 0;

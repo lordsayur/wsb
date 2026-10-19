@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./mora": "./src/mora.ts",
     "./supabase": "./src/supabase.ts",
+    "./admin": "./src/admin.ts",
     "./local": "./src/local.ts"
   },
   "scripts": {

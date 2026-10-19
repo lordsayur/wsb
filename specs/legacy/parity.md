@@ -120,9 +120,9 @@ Adopt all seven, mapped: 11.1→core time model, 11.2→core offsets,
 
 ## Open decisions
 
-- **OPEN-1** — Prayer set: legacy has eight entries (adds Imsak, Duha; uses
-  "Isya"). Current glossary has six and no Imsak/Duha. Decide the canonical set
-  before core is implemented. Recommendation: adopt legacy eight.
+- **OPEN-1** — **Resolved 2026-10-20:** core exposes all eight entries, Imsak
+  first, with `doha` between `syuruk` and `zuhur`. Imsak is displayed but, like
+  Syuruk and Dhuha, gets no reminder.
 - **OPEN-2** — "First half of night" boundary: is 23:59 inclusive, and what
   happens at exactly 00:00/isya+? Recommendation: use `[18:00, 00:00)`.
 - **OPEN-3** — **Resolved 2026-10-18:** adopt the legacy three-value model;

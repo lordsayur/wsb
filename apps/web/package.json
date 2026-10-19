@@ -16,6 +16,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "@wsb/core": "workspace:*",
     "@wsb/data": "workspace:*",
     "nuxt": "^4.6.2",

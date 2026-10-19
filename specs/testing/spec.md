@@ -41,7 +41,7 @@ component tests.
 - [x] `pnpm test` runs core, data, and the web unit + story suites.
 - [x] Selecting Belait in the app yields +3 minutes on every entry.
 - [x] A story asserts the district selector emits a selection.
-- [x] A story asserts the six rows render in order.
+- [x] A story asserts the eight rows render in order.
 - [x] A story asserts the offline state renders with cached rows.
 - [ ] CI runs typecheck, tests (including stories) and build on every PR.
 

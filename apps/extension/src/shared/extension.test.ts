@@ -8,8 +8,10 @@ import type { PrayerEntry } from '@wsb/core'
 
 // specs/extension/spec.md — shell formatting, reminders and settings.
 const entries: PrayerEntry[] = [
+  { prayer: 'imsak', minutes: 4 * 60 + 41 },
   { prayer: 'subuh', minutes: 4 * 60 + 50 },
   { prayer: 'syuruk', minutes: 6 * 60 + 5 },
+  { prayer: 'doha', minutes: 6 * 60 + 40 },
   { prayer: 'zuhur', minutes: 12 * 60 + 5 },
   { prayer: 'asar', minutes: 15 * 60 + 20 },
   { prayer: 'maghrib', minutes: 18 * 60 + 10 },
@@ -42,15 +44,17 @@ describe('settings', () => {
 })
 
 describe('buildDayView', () => {
-  it('renders six labeled rows and highlights the current entry', () => {
+  it('renders eight labeled rows and highlights the current entry', () => {
     const view = buildDayView(
       day,
       { ...DEFAULT_SETTINGS },
       12 * 60 * 60 + 10 * 60,
     )
     expect(view.rows.map((row) => row.prayer)).toEqual([
+      'imsak',
       'subuh',
       'syuruk',
+      'doha',
       'zuhur',
       'asar',
       'maghrib',
@@ -59,17 +63,17 @@ describe('buildDayView', () => {
     expect(view.rows.filter((row) => row.current).map((row) => row.prayer)).toEqual([
       'zuhur',
     ])
-    expect(view.rows[0]!.time).toBe('04:50')
+    expect(view.rows[1]!.time).toBe('04:50')
   })
 
   it('applies the district offset (+3 for Belait)', () => {
     const view = buildDayView(day, { ...DEFAULT_SETTINGS, district: 'belait' }, 0)
-    expect(view.rows[0]!.time).toBe('04:53')
+    expect(view.rows[1]!.time).toBe('04:53')
   })
 
   it('renders 12-hour times when chosen', () => {
     const view = buildDayView(day, { ...DEFAULT_SETTINGS, timeFormat: '12h' }, 0)
-    expect(view.rows[0]!.time).toMatch(/04:50\s?(PG|AM)/i)
+    expect(view.rows[1]!.time).toMatch(/04:50\s?(PG|AM)/i)
   })
 
   it('shows the next entry and duration in Malay by default', () => {
@@ -84,7 +88,7 @@ describe('buildDayView', () => {
       { ...DEFAULT_SETTINGS, locale: 'ar' },
       12 * 60 * 60 + 10 * 60,
     )
-    expect(view.rows[0]!.time).toBe('٠٤:٥٠')
+    expect(view.rows[1]!.time).toBe('٠٤:٥٠')
     expect(view.next).toContain('٣ ساعة ١٠ دقيقة')
     expect(view.masihi).toContain('٢٠٢٦')
   })
@@ -104,7 +108,7 @@ describe('dueReminders', () => {
     expect(due[0]!.event).toMatchObject({ prayer: 'zuhur', kind: 'due' })
   })
 
-  it('never reminds for syuruk', () => {
+  it('never reminds for imsak, syuruk or doha', () => {
     const due = dueReminders(entries, 6 * 60 * 60)
     expect(due).toHaveLength(0)
   })

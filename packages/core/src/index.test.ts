@@ -10,8 +10,13 @@ import {
   formatHijriDate,
   formatNumber,
   formatTime,
+  formatMonth,
+  formatDayNumber,
   formatWeekday,
   isTimeFormat,
+  monthDates,
+  monthOf,
+  shiftMonth,
   notificationSchedule,
   prayerProgress,
   resolveDistrict,
@@ -57,15 +62,21 @@ describe('selection', () => {
 })
 
 describe('prayer order', () => {
-  it('returns the six entries in the documented order', () => {
+  it('returns the eight entries in the documented order', () => {
     expect(PRAYER_ORDER).toEqual([
+      'imsak',
       'subuh',
       'syuruk',
+      'doha',
       'zuhur',
       'asar',
       'maghrib',
       'isyak',
     ])
+  })
+
+  it('puts imsak first', () => {
+    expect(PRAYER_ORDER[0]).toBe('imsak')
   })
 
   it('keeps syuruk between subuh and zuhur', () => {
@@ -74,6 +85,9 @@ describe('prayer order', () => {
     )
     expect(PRAYER_ORDER.indexOf('syuruk')).toBeLessThan(
       PRAYER_ORDER.indexOf('zuhur'),
+    )
+    expect(PRAYER_ORDER.indexOf('doha')).toBe(
+      PRAYER_ORDER.indexOf('syuruk') + 1,
     )
   })
 })
@@ -134,21 +148,28 @@ describe('formatTime', () => {
 // specs/core/spec.md — current/next entry and duration to next.
 describe('prayerProgress', () => {
   const entries: PrayerEntry[] = [
+    { prayer: 'imsak', minutes: 4 * 60 + 41 },
     { prayer: 'subuh', minutes: 4 * 60 + 50 },
     { prayer: 'syuruk', minutes: 6 * 60 + 5 },
+    { prayer: 'doha', minutes: 6 * 60 + 40 },
     { prayer: 'zuhur', minutes: 12 * 60 + 5 },
     { prayer: 'asar', minutes: 15 * 60 + 20 },
     { prayer: 'maghrib', minutes: 18 * 60 + 10 },
     { prayer: 'isyak', minutes: 19 * 60 + 20 },
   ]
 
-  it('has no current entry before subuh and points to subuh next', () => {
+  it('has no current entry before imsak and points to imsak next', () => {
     expect(prayerProgress(entries, 4 * 60 * 60)).toEqual({
       current: null,
-      next: 'subuh',
-      minutesToNext: 50,
-      secondsToNext: 50 * 60,
+      next: 'imsak',
+      minutesToNext: 41,
+      secondsToNext: 41 * 60,
     })
+  })
+
+  it('treats imsak as the first boundary of the day', () => {
+    expect(prayerProgress(entries, (4 * 60 + 45) * 60).current).toBe('imsak')
+    expect(prayerProgress(entries, (4 * 60 + 45) * 60).next).toBe('subuh')
   })
 
   it('selects the last entry whose time has passed', () => {
@@ -160,12 +181,12 @@ describe('prayerProgress', () => {
     expect(prayerProgress(entries, (6 * 60 + 30) * 60).current).toBe('syuruk')
   })
 
-  it('wraps from isyak to the next day subuh', () => {
+  it('wraps from isyak to the next day imsak', () => {
     const progress = prayerProgress(entries, 23 * 60 * 60)
     expect(progress.current).toBe('isyak')
-    expect(progress.next).toBe('subuh')
-    expect(progress.minutesToNext).toBe(5 * 60 + 50)
-    expect(progress.secondsToNext).toBe((5 * 60 + 50) * 60)
+    expect(progress.next).toBe('imsak')
+    expect(progress.minutesToNext).toBe(5 * 60 + 41)
+    expect(progress.secondsToNext).toBe((5 * 60 + 41) * 60)
   })
 
   it('measures duration from the entry itself at the boundary', () => {
@@ -178,8 +199,8 @@ describe('prayerProgress', () => {
   })
 
   it('reports seconds remaining under a minute', () => {
-    const progress = prayerProgress(entries, (4 * 60 + 49) * 60 + 18)
-    expect(progress.next).toBe('subuh')
+    const progress = prayerProgress(entries, (4 * 60 + 40) * 60 + 18)
+    expect(progress.next).toBe('imsak')
     expect(progress.minutesToNext).toBe(0)
     expect(progress.secondsToNext).toBe(42)
   })
@@ -188,8 +209,10 @@ describe('prayerProgress', () => {
 // specs/core/spec.md — reminders 15 minutes before and at each prayer.
 describe('notificationSchedule', () => {
   const entries: PrayerEntry[] = [
+    { prayer: 'imsak', minutes: 4 * 60 + 41 },
     { prayer: 'subuh', minutes: 4 * 60 + 50 },
     { prayer: 'syuruk', minutes: 6 * 60 + 5 },
+    { prayer: 'doha', minutes: 6 * 60 + 40 },
     { prayer: 'zuhur', minutes: 12 * 60 + 5 },
     { prayer: 'asar', minutes: 15 * 60 + 20 },
     { prayer: 'maghrib', minutes: 18 * 60 + 10 },
@@ -212,9 +235,11 @@ describe('notificationSchedule', () => {
     expect(times).toEqual([...times].sort((a, b) => a - b))
   })
 
-  it('excludes syuruk, which is not a prayer', () => {
+  it('excludes imsak, syuruk and doha, which are not prayers', () => {
     const events = notificationSchedule(entries, 0)
+    expect(events.some((event) => event.prayer === 'imsak')).toBe(false)
     expect(events.some((event) => event.prayer === 'syuruk')).toBe(false)
+    expect(events.some((event) => event.prayer === 'doha')).toBe(false)
   })
 
   it('rolls upcoming reminders into the next day', () => {
@@ -280,6 +305,17 @@ describe('dates', () => {
     expect(formatWeekday('2026-10-18', 'en')).toBe('Sunday')
   })
 
+  it('formats a short day name for compact tables', () => {
+    expect(formatWeekday('2026-10-18', 'ms', 'short')).toBe('Ahd')
+    expect(formatWeekday('2026-10-18', 'en', 'short')).toBe('Sun')
+  })
+
+  it('formats the day of the month without the month name', () => {
+    expect(formatDayNumber('2026-10-18', 'ms')).toBe('18')
+    expect(formatDayNumber('2026-10-01', 'ms')).toBe('1')
+    expect(formatDayNumber('2026-10-18', 'ar')).toBe('١٨')
+  })
+
   it('uses the source Hijri date verbatim when present', () => {
     expect(
       formatHijriDate('2026-10-18', 'ms', '7 Jamadilawal 1448 H'),
@@ -335,5 +371,32 @@ describe('arabic-script locales', () => {
     ).toBe('7 Jamadilawal 1448 H')
     expect(formatTime(4 * 60 + 47, 'en')).toBe('04:47')
     expect(formatDate('2026-10-18', 'ms')).toBe('18 Oktober 2026')
+  })
+})
+
+// specs/core/spec.md — month helpers for the monthly view.
+describe('month helpers', () => {
+  it('reads the month of an ISO date', () => {
+    expect(monthOf('2026-10-18')).toBe('2026-10')
+  })
+
+  it('shifts months across year boundaries', () => {
+    expect(shiftMonth('2026-01', -1)).toBe('2025-12')
+    expect(shiftMonth('2026-12', 1)).toBe('2027-01')
+    expect(shiftMonth('2026-10', 1)).toBe('2026-11')
+  })
+
+  it('lists every date in a month, leap years included', () => {
+    expect(monthDates('2026-10')).toHaveLength(31)
+    expect(monthDates('2026-10')[0]).toBe('2026-10-01')
+    expect(monthDates('2026-10').at(-1)).toBe('2026-10-31')
+    expect(monthDates('2024-02')).toHaveLength(29)
+    expect(monthDates('2026-02')).toHaveLength(28)
+  })
+
+  it('formats a month name for a locale', () => {
+    expect(formatMonth('2026-10', 'en')).toBe('October 2026')
+    expect(formatMonth('2026-10', 'ms')).toBe('Oktober 2026')
+    expect(formatMonth('2026-10', 'ar')).toContain('٢٠٢٦')
   })
 })

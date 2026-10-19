@@ -1,7 +1,9 @@
 {
   "prayer": {
+    "imsak": "Imsak",
     "subuh": "Subuh",
     "syuruk": "Syuruk",
+    "doha": "Dhuha",
     "zuhur": "Zuhur",
     "asar": "Asar",
     "maghrib": "Maghrib",
@@ -134,5 +136,51 @@
         "description": "Waktu sembahyang dari pelancar anda."
       }
     }
+  },
+  "admin": {
+    "title": "Pentadbir data",
+    "signIn": "Masuk dengan Google",
+    "signInHint": "Masuk dengan akaun Google yang dibenarkan untuk mengurus waktu sembahyang.",
+    "forbidden": "Akaun ini tidak dibenarkan mengurus data.",
+    "signOut": "Keluar",
+    "email": "Akaun",
+    "month": "Bulan",
+    "import": "Import bulan",
+    "importing": "Mengimport…",
+    "records": "Rekod bulan ini",
+    "empty": "Tiada rekod untuk bulan ini.",
+    "date": "Tarikh",
+    "district": "Daerah",
+    "prayer": "Waktu",
+    "time": "Masa",
+    "save": "Simpan",
+    "back": "Kembali ke aplikasi",
+    "prayers": {
+      "imsak": "Imsak",
+      "subuh": "Subuh",
+      "syuruk": "Syuruk",
+      "doha": "Dhuha",
+      "zuhur": "Zuhur",
+      "asar": "Asar",
+      "maghrib": "Maghrib",
+      "isyak": "Isyak"
+    },
+    "imported": "{count} rekod diimport.",
+    "saved": "Disimpan.",
+    "failed": "Tidak berjaya. Cuba lagi.",
+    "unauthorized": "Sesi tamat. Sila masuk semula."
+  },
+  "month": {
+    "prev": "Bulan sebelumnya",
+    "next": "Bulan seterusnya",
+    "today": "Bulan ini",
+    "date": "Tarikh",
+    "label": "Bulan",
+    "hijri": "Hijrah",
+    "view": "Paparan bulanan",
+    "dayView": "Paparan harian"
+  },
+  "page": {
+    "label": "Halaman"
   }
 }

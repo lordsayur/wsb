@@ -40,7 +40,7 @@ function getSource(): RemotePrayerSource {
   return new SupabasePrayerSource({ url, anonKey })
 }
 
-function getRepository(): PrayerRepository {
+export function getPrayerRepository(): PrayerRepository {
   if (!repository) {
     const storage =
       typeof window === 'undefined' ? undefined : window.localStorage
@@ -66,7 +66,7 @@ export function usePrayerTimes(
   locale: () => string,
   timeFormat: () => TimeFormat = () => DEFAULT_TIME_FORMAT,
 ) {
-  const repo = getRepository()
+  const repo = getPrayerRepository()
   const state = ref<LoadState>('loading')
   const district = ref<District>(resolveDistrict(null))
   const entries = ref<{ prayer: PrayerName; minutes: number }[]>([])

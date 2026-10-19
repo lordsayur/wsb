@@ -25,7 +25,9 @@ export function usePullToRefresh(onRefresh: () => void) {
   function interactive(target: EventTarget | null): boolean {
     return (
       target instanceof Element &&
-      !!target.closest('select, button, a, input, textarea, [role="menu"]')
+      !!target.closest(
+        'select, button, a, input, textarea, [role="menu"], .table-wrap',
+      )
     )
   }
 

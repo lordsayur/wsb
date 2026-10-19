@@ -4,8 +4,10 @@ import PrayerTimeList from './PrayerTimeList.vue'
 
 // specs/web/spec.md — organism: loading, ready, offline, unavailable states.
 const rows = [
+  { prayer: 'imsak', label: 'Imsak', time: '04:41', current: false },
   { prayer: 'subuh', label: 'Subuh', time: '04:50', current: false },
   { prayer: 'syuruk', label: 'Syuruk', time: '06:05' },
+  { prayer: 'doha', label: 'Dhuha', time: '06:32' },
   { prayer: 'zuhur', label: 'Zuhur', time: '12:05' },
   { prayer: 'asar', label: 'Asar', time: '15:20' },
   { prayer: 'maghrib', label: 'Maghrib', time: '18:10' },
@@ -31,7 +33,8 @@ export const Ready: Story = {
   args: { state: 'ready', rows },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getAllByRole('article')).toHaveLength(6)
+    await expect(canvas.getAllByRole('article')).toHaveLength(8)
+    await expect(canvas.getByText('Imsak')).toBeVisible()
     await expect(canvas.getByText('Syuruk')).toBeVisible()
   },
 }
@@ -62,7 +65,7 @@ export const OfflineWithCache: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText(/luar talian/)).toBeVisible()
-    await expect(canvas.getAllByRole('article')).toHaveLength(6)
+    await expect(canvas.getAllByRole('article')).toHaveLength(8)
   },
 }
 

@@ -3,6 +3,7 @@ import type { District, PrayerEntry } from '@wsb/core'
 import {
   CachedPrayerRepository,
   SELECTION_KEY,
+  dayCacheKey,
   type PrayerCacheStore,
   type RemotePrayerSource,
   type SelectionStore,
@@ -167,7 +168,7 @@ describe('durable cache', () => {
 
   it('ignores a corrupted cache entry', async () => {
     const cache = cacheStore()
-    await cache.set('wsb.day.2026-10-18:bruneiMuara', 'not json')
+    await cache.set(dayCacheKey('2026-10-18', 'bruneiMuara'), 'not json')
     const repo = new CachedPrayerRepository({
       source: source(async () => day(entries)),
       cache,
@@ -263,5 +264,73 @@ describe('LocalSelectionStore', () => {
       setItem: () => {},
     })
     expect(store.get('wsb.selection')).toBeNull()
+  })
+})
+
+
+// specs/data/spec.md — monthly read: cached days first, missing days fetched.
+describe('readMonth', () => {
+  const monthEntries: PrayerEntry[] = [
+    { prayer: 'subuh', minutes: 300 },
+    { prayer: 'isyak', minutes: 1_160 },
+  ]
+
+  it('returns a full month when the source can serve it in bulk', async () => {
+    let bulkMonth = ''
+    const repo = new CachedPrayerRepository({
+      source: {
+        async fetchPrayerEntries() {
+          throw new Error('should not be used')
+        },
+        async fetchPrayerMonth(month: string) {
+          bulkMonth = month
+          return ['2026-10-01', '2026-10-02'].map((date) => ({
+            date,
+            entries: monthEntries,
+            hijriDate: '7 Jamadilawal 1448 H',
+          }))
+        },
+      },
+    })
+    const result = await repo.readMonth('2026-10', 'bruneiMuara')
+    expect(bulkMonth).toBe('2026-10')
+    expect(result.status).toBe('ok')
+    if (result.status !== 'ok') return
+    expect(result.days).toHaveLength(2)
+    expect(result.days[0]!.entries).toEqual(monthEntries)
+    expect(result.stale).toBe(true)
+  })
+
+  it('never throws to core when the source fails and nothing is cached', async () => {
+    const repo = new CachedPrayerRepository({
+      source: source(async () => {
+        throw new Error('offline')
+      }),
+    })
+    await expect(repo.readMonth('2026-10', 'bruneiMuara')).resolves.toEqual({
+      status: 'unavailable',
+    })
+  })
+
+  it('serves cached days offline', async () => {
+    let online = true
+    const repo = new CachedPrayerRepository({
+      source: source(async () => {
+        if (!online) throw new Error('offline')
+        return day(monthEntries, 'hijri')
+      }),
+    })
+    await repo.read('2026-10-01', 'bruneiMuara')
+    online = false
+    const result = await repo.readMonth('2026-10', 'bruneiMuara')
+    expect(result.status).toBe('ok')
+    if (result.status !== 'ok') return
+    const [first] = result.days
+    expect(first).toEqual({
+      date: '2026-10-01',
+      entries: monthEntries,
+      hijriDate: 'hijri',
+    })
+    expect(result.stale).toBe(true)
   })
 })

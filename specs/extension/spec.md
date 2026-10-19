@@ -15,7 +15,7 @@ glue only; no domain rules.
 
 ### Popup
 
-- The toolbar popup shows the same six entries, day, dates, current highlight
+- The toolbar popup shows the same eight entries, day, dates, current highlight
   and duration to the next as the web shell, for the selected district.
 - A district selector, language selector (default Malay; Malay, Jawi Malay,
   Arabic, English) and 12/24-hour choice live in the popup; each choice is
@@ -45,7 +45,7 @@ glue only; no domain rules.
 - A compact fixed header bar is injected at the top of every page by default.
   It sits in the page flow via a spacer, so it never covers existing content
   (it is not a floating overlay).
-- The header shows all six entries with their times, highlighting the current
+- The header shows all eight entries with their times, highlighting the current
   entry, plus the next entry and the duration until it.
 - When the viewport is too narrow for all entries, the header falls back to the
   next entry and duration only, prefixed with a "Next" caption. The caption is
@@ -94,7 +94,7 @@ glue only; no domain rules.
 
 ## Acceptance criteria
 
-- [ ] The popup renders the six entries in order for the selected district.
+- [ ] The popup renders the eight entries in order for the selected district.
 - [ ] Selecting Tutong/Belait shifts the entries by +1/+3 minutes.
 - [ ] The current entry is highlighted and the duration to next is shown.
 - [ ] The district, language and time format survive reopening the popup.
@@ -127,3 +127,4 @@ glue only; no domain rules.
   Arabic-script font and right-to-left layout.
 - 2026-10-19 — hide the header's "Next" caption when all entries are shown;
   keep it in the narrow fallback.
+- 2026-10-20 — show Imsak in the popup and on-page header.

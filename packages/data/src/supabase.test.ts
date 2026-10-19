@@ -26,8 +26,10 @@ describe('toEntries', () => {
       { prayer: 'maghrib', time: '18:12:00' },
     ])
     expect(entries.map((entry) => entry.prayer)).toEqual([
+      'imsak',
       'subuh',
       'syuruk',
+      'doha',
       'zuhur',
       'asar',
       'maghrib',

@@ -83,6 +83,9 @@ body {
   margin: 0;
   height: 100%;
   overflow: hidden;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
 }
 *,
 *::before,

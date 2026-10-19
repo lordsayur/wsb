@@ -4,17 +4,23 @@ import { useI18n } from 'vue-i18n'
 import {
   DISTRICTS,
   NOTIFICATION_LEAD_MINUTES,
+  bruneiNow,
   durationParts,
   formatNumber,
   formatWeekday,
+  monthOf,
 } from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
 import PrayerTimeList from '~/components/organisms/PrayerTimeList.vue'
+import MonthPrayerTable from '~/components/organisms/MonthPrayerTable.vue'
 import AppFooter from '~/components/organisms/AppFooter.vue'
 import DateDisplay from '~/components/molecules/DateDisplay.vue'
+import PageIndicator from '~/components/molecules/PageIndicator.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
 import UpdatePrompt from '~/components/molecules/UpdatePrompt.vue'
 import { usePrayerTimes } from '~/composables/usePrayerTimes'
+import { usePrayerMonth } from '~/composables/usePrayerMonth'
+import { useSwipe } from '~/composables/useSwipe'
 import { usePrayerNotifications } from '~/composables/usePrayerNotifications'
 import { usePwaUpdate } from '~/composables/usePwaUpdate'
 import { usePullToRefresh } from '~/composables/usePullToRefresh'
@@ -72,6 +78,52 @@ const {
   () => locale.value,
   () => timeFormat.value,
 )
+
+const PAGES = ['day', 'month'] as const
+type Page = (typeof PAGES)[number]
+
+const view = ref<Page>('day')
+
+const pageOptions = computed(() =>
+  PAGES.map((page) => ({
+    id: page,
+    label: t(page === 'day' ? 'month.dayView' : 'month.view'),
+  })),
+)
+
+function goToPage(delta: number) {
+  const index = PAGES.indexOf(view.value)
+  view.value = PAGES[(index + delta + PAGES.length) % PAGES.length]!
+}
+
+function selectPage(page: string) {
+  if (PAGES.includes(page as Page)) view.value = page as Page
+}
+
+const {
+  month,
+  title: monthTitle,
+  columns: monthColumns,
+  rows: monthRows,
+  state: monthState,
+  stale: monthStale,
+  shift: shiftMonth,
+  setMonth,
+  reload: reloadMonth,
+} = usePrayerMonth(
+  () => district.value,
+  () => locale.value,
+  () => timeFormat.value,
+  () => view.value === 'month',
+)
+
+const currentMonth = computed(() => monthOf(bruneiNow().date))
+
+
+const { offset: swipeOffset } = useSwipe({
+  right: () => goToPage(-1),
+  left: () => goToPage(1),
+})
 
 const { copied: shareCopied, share } = useSharePrayerTimes(
   () => baseEntries.value,
@@ -152,6 +204,11 @@ function reloadApp() {
   window.location.reload()
 }
 
+function reloadCurrent() {
+  if (view.value === 'month') void reloadMonth()
+  else reloadData()
+}
+
 function openDownloads() {
   navigateTo('/download')
 }
@@ -173,31 +230,66 @@ onMounted(load)
 
   <div
     class="layout"
-    :style="{ transform: pull ? `translateY(${pull}px)` : undefined }"
+    :style="{
+      transform: pull
+        ? `translateY(${pull}px)`
+        : swipeOffset
+          ? `translateX(${swipeOffset}px)`
+          : undefined,
+    }"
   >
+    <PageIndicator
+      :pages="pageOptions"
+      :model-value="view"
+      :label="t('page.label')"
+      @update:model-value="selectPage"
+    />
+
     <SourceNote
       :label="t('source.label')"
       :name="t('source.name')"
       :url="MORA_PAGE_URL"
     />
 
-    <main class="main">
-      <template v-if="state === 'ready'">
-        <p class="weekday">{{ weekday }}</p>
-        <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
-        <p v-if="nextText" class="next" :class="{ soon: nextSoon }">{{ nextText }}</p>
+    <main class="main" :class="view">
+      <template v-if="view === 'day'">
+        <template v-if="state === 'ready'">
+          <p class="weekday">{{ weekday }}</p>
+          <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
+          <p v-if="nextText" class="next" :class="{ soon: nextSoon }">
+            {{ nextText }}
+          </p>
+        </template>
+
+        <PrayerTimeList
+          :state="state"
+          :rows="displayRows"
+          :loading-text="t('state.loading')"
+          :unavailable-text="t('state.unavailable')"
+          :offline-text="stale ? t('state.offline') : ''"
+        />
       </template>
 
-      <PrayerTimeList
-        :state="state"
-        :rows="displayRows"
+      <MonthPrayerTable
+        v-else
+        :state="monthState"
+        :columns="monthColumns"
+        :rows="monthRows"
+        :date-label="t('month.date')"
         :loading-text="t('state.loading')"
         :unavailable-text="t('state.unavailable')"
-        :offline-text="stale ? t('state.offline') : ''"
+        :offline-text="monthStale ? t('state.offline') : ''"
       />
     </main>
 
     <AppFooter
+      :view="view"
+      :month-label="t('month.label')"
+      :month-title="monthTitle"
+      :month-current="month === currentMonth"
+      :month-prev-label="t('month.prev')"
+      :month-next-label="t('month.next')"
+      :month-today-label="t('month.today')"
       :district-label="t('district.label')"
       :district="district"
       :district-options="districtOptions"
@@ -229,6 +321,8 @@ onMounted(load)
       :notification-label="notificationLabel"
       :notifications-enabled="notificationsEnabled"
       :notifications-supported="notificationsSupported"
+      @shift-month="shiftMonth"
+      @today-month="setMonth(currentMonth)"
       @update:district="selectDistrict"
       @share="share"
       @update:locale="chooseLocale"
@@ -237,7 +331,7 @@ onMounted(load)
       @update:custom-color="setCustom"
       @update:time-format="setTimeFormat"
       @downloads="openDownloads"
-      @reload-data="reloadData"
+      @reload-data="reloadCurrent"
       @reload-app="reloadApp"
       @toggle-notifications="toggleNotifications"
     />
@@ -300,6 +394,10 @@ onMounted(load)
   justify-content: center;
   text-align: center;
   gap: 0.5rem;
+}
+.main.month {
+  justify-content: flex-start;
+  text-align: start;
 }
 .weekday {
   margin: 0;

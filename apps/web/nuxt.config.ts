@@ -6,6 +6,14 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      // specs/web/spec.md — the app fits the viewport, so browser zoom is off.
+      meta: [
+        {
+          name: "viewport",
+          content:
+            "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+        },
+      ],
     },
   },
   // specs/web/spec.md — offline-first PWA; prompt reload when a new build waits.

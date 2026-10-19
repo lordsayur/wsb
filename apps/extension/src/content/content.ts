@@ -96,8 +96,8 @@ const HOST_STYLE = `
   opacity: 0.65;
 }
 .close:hover, .close:focus-visible { opacity: 1; }
-/* Too narrow for all six entries: show the next entry and duration only. */
-@media (max-width: 760px) {
+/* Too narrow for all eight entries: show the next entry and duration only. */
+@media (max-width: 900px) {
   .entries { display: none; }
   .label { display: inline; }
 }

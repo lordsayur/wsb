@@ -1,7 +1,9 @@
 {
   "prayer": {
+    "imsak": "Imsak",
     "subuh": "Subuh",
     "syuruk": "Syuruk",
+    "doha": "Dhuha",
     "zuhur": "Zuhur",
     "asar": "Asar",
     "maghrib": "Maghrib",
@@ -134,5 +136,51 @@
         "description": "Prayer times from your launcher."
       }
     }
+  },
+  "admin": {
+    "title": "Data admin",
+    "signIn": "Sign in with Google",
+    "signInHint": "Sign in with an authorized Google account to manage prayer times.",
+    "forbidden": "This account is not allowed to manage data.",
+    "signOut": "Sign out",
+    "email": "Account",
+    "month": "Month",
+    "import": "Import month",
+    "importing": "Importing…",
+    "records": "Records this month",
+    "empty": "No records for this month.",
+    "date": "Date",
+    "district": "District",
+    "prayer": "Entry",
+    "time": "Time",
+    "save": "Save",
+    "back": "Back to the app",
+    "prayers": {
+      "imsak": "Imsak",
+      "subuh": "Subuh",
+      "syuruk": "Syuruk",
+      "doha": "Dhuha",
+      "zuhur": "Zuhur",
+      "asar": "Asar",
+      "maghrib": "Maghrib",
+      "isyak": "Isyak"
+    },
+    "imported": "Imported {count} records.",
+    "saved": "Saved.",
+    "failed": "Failed. Try again.",
+    "unauthorized": "Session expired. Sign in again."
+  },
+  "month": {
+    "prev": "Previous month",
+    "next": "Next month",
+    "today": "This month",
+    "date": "Date",
+    "label": "Month",
+    "hijri": "Hijri",
+    "view": "Monthly view",
+    "dayView": "Daily view"
+  },
+  "page": {
+    "label": "Pages"
   }
 }

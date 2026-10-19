@@ -4,8 +4,10 @@
 export type District = 'bruneiMuara' | 'tutong' | 'belait'
 
 export type PrayerName =
+  | 'imsak'
   | 'subuh'
   | 'syuruk'
+  | 'doha'
   | 'zuhur'
   | 'asar'
   | 'maghrib'
@@ -38,8 +40,10 @@ export const LEGACY_DISTRICT_ALIASES: Readonly<Record<string, District>> = {
 export const DEFAULT_DISTRICT: District = 'bruneiMuara'
 
 export const PRAYER_ORDER: readonly PrayerName[] = [
+  'imsak',
   'subuh',
   'syuruk',
+  'doha',
   'zuhur',
   'asar',
   'maghrib',
@@ -85,7 +89,8 @@ export interface PrayerNotification {
 /**
  * Upcoming prayer reminders for the next 24 hours, nearest first: one lead
  * reminder `NOTIFICATION_LEAD_MINUTES` before each prayer and one at its time.
- * Syuruk is a time boundary, not a prayer, so it is excluded.
+ * Imsak, Syuruk and Dhuha are time boundaries, not obligatory prayers, so they
+ * are excluded.
  */
 export function notificationSchedule(
   entries: readonly PrayerEntry[],
@@ -95,7 +100,10 @@ export function notificationSchedule(
     entries.find((entry) => entry.prayer === prayer),
   ).filter(
     (entry): entry is PrayerEntry =>
-      entry !== undefined && entry.prayer !== 'syuruk',
+      entry !== undefined &&
+      entry.prayer !== 'imsak' &&
+      entry.prayer !== 'syuruk' &&
+      entry.prayer !== 'doha',
   )
 
   const events: PrayerNotification[] = []
@@ -225,7 +233,7 @@ export function adjustForDistrict(
 const ARABIC_SCRIPT_LOCALES = new Set(['ar', 'ms-Arab'])
 
 const JAWI_WORDS: Record<string, string> = {
-  // Weekdays
+  // Weekdays: long and short (CLDR abbreviation) forms
   ahad: 'احد',
   isnin: 'اثنين',
   selasa: 'ثلاث',
@@ -233,6 +241,13 @@ const JAWI_WORDS: Record<string, string> = {
   khamis: 'خميس',
   jumaat: 'جمعة',
   sabtu: 'سبت',
+  ahd: 'احد',
+  isn: 'اثنين',
+  sel: 'ثلاث',
+  rab: 'رابو',
+  kha: 'خميس',
+  jum: 'جمعة',
+  sab: 'سبت',
   // Gregorian months
   januari: 'جنواري',
   februari: 'فيبرواري',
@@ -293,9 +308,54 @@ export function formatDate(date: string, locale: string): string {
 }
 
 /** Formats the weekday of an ISO date for an explicit locale. */
-export function formatWeekday(date: string, locale: string): string {
+export function formatWeekday(
+  date: string,
+  locale: string,
+  style: 'long' | 'short' = 'long',
+): string {
   const text = new Intl.DateTimeFormat(intlLocale(locale), {
-    weekday: 'long',
+    weekday: style,
+    timeZone: 'UTC',
+  }).format(new Date(`${date}T00:00:00Z`))
+  return locale === 'ms-Arab' ? toJawi(text) : text
+}
+
+/** The Brunei month (`YYYY-MM`) an ISO date falls in. */
+export function monthOf(date: string): string {
+  return date.slice(0, 7)
+}
+
+/** Moves a `YYYY-MM` month by `delta` months, in either direction. */
+export function shiftMonth(month: string, delta: number): string {
+  const [year, mon] = month.split('-').map(Number) as [number, number]
+  const shifted = new Date(Date.UTC(year, mon - 1 + delta, 1))
+  return shifted.toISOString().slice(0, 7)
+}
+
+/** Every ISO date in a `YYYY-MM` month, in calendar order. */
+export function monthDates(month: string): string[] {
+  const [year, mon] = month.split('-').map(Number) as [number, number]
+  const days = new Date(Date.UTC(year, mon, 0)).getUTCDate()
+  return Array.from(
+    { length: days },
+    (_, index) => `${month}-${String(index + 1).padStart(2, '0')}`,
+  )
+}
+
+/** Formats a `YYYY-MM` month name for an explicit locale. */
+export function formatMonth(month: string, locale: string): string {
+  const text = new Intl.DateTimeFormat(intlLocale(locale), {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${month}-01T00:00:00Z`))
+  return locale === 'ms-Arab' ? toJawi(text) : text
+}
+
+/** Formats the day of the month alone, for compact table rows. */
+export function formatDayNumber(date: string, locale: string): string {
+  const text = new Intl.DateTimeFormat(intlLocale(locale), {
+    day: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${date}T00:00:00Z`))
   return locale === 'ms-Arab' ? toJawi(text) : text

@@ -2,6 +2,7 @@
   <footer class="app-footer">
     <section class="controls">
       <DistrictSelector
+        v-if="view === 'day'"
         :label="districtLabel"
         :model-value="district"
         :options="districtOptions"
@@ -9,12 +10,25 @@
       />
 
       <ShareButton
+        v-if="view === 'day'"
         :label="shareLabel"
         :formatted-label="shareFormattedLabel"
         :raw-label="shareRawLabel"
         :copied-label="shareCopiedLabel"
         :copied="shareCopied"
         @share="emit('share', $event)"
+      />
+
+      <MonthSelector
+        v-if="view === 'month'"
+        :label="monthLabel"
+        :title="monthTitle"
+        :current="monthCurrent"
+        :prev-label="monthPrevLabel"
+        :next-label="monthNextLabel"
+        :today-label="monthTodayLabel"
+        @shift="emit('shiftMonth', $event)"
+        @today="emit('todayMonth')"
       />
 
       <div class="menu">
@@ -30,12 +44,12 @@
         </button>
 
         <div v-if="open" class="menu-panel" role="menu">
-          <template v-if="view === 'menu'">
+          <template v-if="panel === 'menu'">
             <button
               type="button"
               role="menuitem"
               aria-haspopup="true"
-              @click="view = 'settings'"
+              @click="panel = 'settings'"
             >
               {{ settingsLabel }}
             </button>
@@ -56,7 +70,7 @@
               type="button"
               role="menuitem"
               class="back"
-              @click="view = 'menu'"
+              @click="panel = 'menu'"
             >
               <span aria-hidden="true">←</span> {{ backLabel }}
             </button>
@@ -120,6 +134,7 @@ import DistrictSelector, {
   type DistrictOption,
 } from '../molecules/DistrictSelector.vue'
 import ShareButton from '../molecules/ShareButton.vue'
+import MonthSelector from '../molecules/MonthSelector.vue'
 import ThemeControls, {
   type ModeOption,
   type PaletteOption,
@@ -136,6 +151,13 @@ export interface LanguageOption {
 }
 
 const props = defineProps<{
+  view?: 'day' | 'month'
+  monthLabel: string
+  monthTitle: string
+  monthCurrent: boolean
+  monthPrevLabel: string
+  monthNextLabel: string
+  monthTodayLabel: string
   districtLabel: string
   district: string
   districtOptions: DistrictOption[]
@@ -170,6 +192,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  shiftMonth: [delta: number]
+  todayMonth: []
   'update:district': [value: string]
   'update:locale': [value: string]
   'update:themeMode': [value: ThemeMode]
@@ -184,7 +208,7 @@ const emit = defineEmits<{
 }>()
 
 const open = ref(false)
-const view = ref<'menu' | 'settings'>('menu')
+const panel = ref<'menu' | 'settings'>('menu')
 
 function chooseLocale(code: string) {
   emit('update:locale', code)
@@ -208,7 +232,7 @@ function reloadApp() {
 
 function close() {
   open.value = false
-  view.value = 'menu'
+  panel.value = 'menu'
 }
 
 function toggleNotifications() {
@@ -217,7 +241,7 @@ function toggleNotifications() {
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key !== 'Escape') return
-  if (view.value === 'settings') view.value = 'menu'
+  if (panel.value === 'settings') panel.value = 'menu'
   else close()
 }
 

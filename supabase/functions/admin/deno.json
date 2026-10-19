@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@wsb/core": "../../../packages/core/src/index.ts",
+    "@wsb/data/": "../../../packages/data/src/"
+  }
+}

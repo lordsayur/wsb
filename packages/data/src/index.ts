@@ -1,5 +1,5 @@
 // specs/data/spec.md — backend-agnostic data port. No vendor types may cross it.
-import type { District, PrayerEntry } from '@wsb/core'
+import { monthDates, type District, type PrayerEntry } from '@wsb/core'
 
 export interface PrayerDay {
   entries: PrayerEntry[]
@@ -11,9 +11,21 @@ export type ReadResult =
   | { status: 'ok'; entries: PrayerEntry[]; hijriDate: string; stale: boolean }
   | { status: 'unavailable' }
 
+export interface PrayerMonthDay {
+  date: string
+  entries: PrayerEntry[]
+  hijriDate: string
+}
+
+export type MonthResult =
+  | { status: 'ok'; days: PrayerMonthDay[]; stale: boolean }
+  | { status: 'unavailable' }
+
 export interface PrayerRepository {
   /** Cached data first; falls back to the adapter. Never throws to core. */
   read(date: string, district: District): Promise<ReadResult>
+  /** Cached days first; fetches the missing ones. Never throws to core. */
+  readMonth(month: string, district: District): Promise<MonthResult>
   /** Updates the cache; never blocks rendering; keeps the last good data on failure. */
   refresh(date: string, district: District): Promise<void>
   /** The persisted district selection, or null when missing/corrupt. */
@@ -35,8 +47,10 @@ export interface PrayerCacheStore {
   set(key: string, value: string): Promise<void>
 }
 
-export const DAY_CACHE_PREFIX = 'wsb.day.'
-export const LAST_DAY_CACHE_PREFIX = 'wsb.day.last.'
+// specs/data/spec.md — v3: entries written before Imsak existed lack `imsak`,
+// so old keys are abandoned rather than rendered with a missing row.
+export const DAY_CACHE_PREFIX = 'wsb.day.v3.'
+export const LAST_DAY_CACHE_PREFIX = 'wsb.day.last.v3.'
 
 export function dayCacheKey(date: string, district: District): string {
   return `${DAY_CACHE_PREFIX}${date}:${district}`
@@ -56,6 +70,11 @@ export interface CachedPrayerData {
 /** Remote source behind the port; adapters translate vendor rows to this. */
 export interface RemotePrayerSource {
   fetchPrayerEntries(date: string, district: District): Promise<PrayerDay>
+  /** Optional bulk read for a month; adapters fall back to per-day reads. */
+  fetchPrayerMonth?(
+    month: string,
+    district: District,
+  ): Promise<PrayerMonthDay[]>
 }
 
 export interface PrayerRepositoryDeps {
@@ -123,6 +142,58 @@ export class CachedPrayerRepository implements PrayerRepository {
       await this.store({ date, district, ...day })
     } catch {
       // specs/data/spec.md — a failed refresh leaves the previous cache intact.
+    }
+  }
+
+  async readMonth(month: string, district: District): Promise<MonthResult> {
+    const dates = monthDates(month)
+    const days = new Map<string, PrayerMonthDay>()
+    const missing: string[] = []
+
+    for (const date of dates) {
+      const cached =
+        this.memory.get(cacheKey(date, district)) ??
+        (await this.readCache(date, district))
+      if (cached) days.set(date, toMonthDay(cached))
+      else missing.push(date)
+    }
+
+    let fetched = false
+    if (missing.length > 0) {
+      try {
+        if (this.source.fetchPrayerMonth) {
+          const all = await this.source.fetchPrayerMonth(month, district)
+          for (const day of all) {
+            if (days.has(day.date) || !dates.includes(day.date)) continue
+            days.set(day.date, day)
+            await this.store({ ...day, district })
+          }
+          fetched = true
+        } else {
+          for (const date of missing) {
+            try {
+              const day = await this.source.fetchPrayerEntries(date, district)
+              days.set(date, { date, ...day })
+              await this.store({ date, district, ...day })
+              fetched = true
+            } catch {
+              // Keep going: a partial month still renders.
+            }
+          }
+        }
+      } catch {
+        // specs/data/spec.md — offline or failed: cached days still render.
+      }
+    }
+
+    if (days.size === 0) return { status: 'unavailable' }
+    const stale = !fetched || days.size < dates.length
+    return {
+      status: 'ok',
+      days: dates
+        .filter((date) => days.has(date))
+        .map((date) => days.get(date)!),
+      stale,
     }
   }
 
@@ -206,6 +277,10 @@ function parseCachedDay(raw: string): CachedPrayerData | undefined {
 
 function cacheKey(date: string, district: District): string {
   return `${date}:${district}`
+}
+
+function toMonthDay(data: CachedPrayerData): PrayerMonthDay {
+  return { date: data.date, entries: data.entries, hijriDate: data.hijriDate }
 }
 
 const KNOWN: readonly string[] = ['bruneiMuara', 'tutong', 'belait']

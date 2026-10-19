@@ -45,7 +45,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The main section shows, in order: the day name, the Masihi and Hijri dates
   side by side, the duration to the next entry, then the prayer times.
 - There is no title or tagline in the UI.
-- Show all six entries in order, labelled.
+- Show all eight entries in order, labelled (Imsak, Subuh, Syuruk, Dhuha,
+  Zuhur, Asar, Maghrib, Isyak).
 - Highlight the current entry (from core's current/next progress) with a visible
   style and an accessible current marker.
 - Show the duration to the next entry, labelled with the next entry's name.
@@ -53,7 +54,47 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   hours when non-zero).
 - The highlight and duration update while the app is open, without a reload.
 - The whole page fits the viewport without scrolling, at any screen size.
+  The monthly view scrolls inside its table, never the page.
+- The daily view maximises the prayer text: the eight entries share the space
+  left between the header and the controls, with their labels and times scaled
+  to the available height.
+- Browser zoom is disabled: the viewport forbids user scaling and touch
+  gestures do not pinch-zoom the page.
 - When data is unavailable, show an empty/offline state; never a blank crash.
+
+### Pages
+
+- The shell has two pages: the daily view and the monthly view.
+- Swiping horizontally, or tapping a page indicator, cycles between them in
+  either direction; the cycle wraps around.
+- A row of circular page indicators sits at the top of the page; the current
+  page's circle is highlighted and carries an accessible current marker.
+
+### Monthly view
+
+- A horizontal swipe switches between the daily view and a monthly view:
+  swiping right shows the month, swiping left returns to the day. Vertical
+  drags and drags starting on form controls are ignored.
+- Consecutive calendar weeks (Monday-first) alternate a visible row background
+  so each week reads as a band; today's highlight still wins.
+- The monthly view shows one row per day of the selected Brunei month with the
+  eight entry columns, so the whole month is visible at a glance.
+- In the monthly view the footer replaces the district selector and share
+  button with a month selector: previous/next arrows around the month name.
+  Tapping the month name returns to the current month and is only offered when
+  another month is shown.
+- The month selector lives only in the footer; the table has no header of its
+  own.
+- Today's row is highlighted and its current entry is marked, matching the
+  daily view.
+- The table scrolls vertically inside the viewport; its date column stays
+  visible while scrolling. The date column shows the day number and the short
+  weekday name only; the month name is omitted because the month selector
+  already shows it.
+- The month is read through the Data port (`readMonth`); the shell formats the
+  display-ready values with core.
+- With no data the view shows the unavailable state; cached days render
+  offline and mark the view stale.
 
 ### Notifications
 
@@ -89,7 +130,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 - The footer shows the district selector on the left, filling the available
   width, a share button, and a menu button on the right. All three are aligned
-  on one row and share the same height.
+  on one row and share the same height. In the monthly view the selector and
+  share button are replaced by the month selector.
 - The district selector has no visible label; its accessible name carries the
   "District" label instead.
 - The menu button opens a panel with a **Settings** entry plus "reload data"
@@ -137,6 +179,22 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - A small, muted link to the MORA/KHEU Brunei `WaktuSembahyang` page sits at the
   top of the page, centred, labelled via translation keys.
 
+### Admin page
+
+- `/admin` is a separate, non-indexed page for maintaining the stored prayer
+  data. It is not linked from the app UI.
+- Signed out, it offers **Sign in with Google** (Supabase Auth) and nothing
+  else. The OAuth redirect returns to `/admin`.
+- Authorization belongs to the `admin` Edge Function (Data context): a
+  signed-in account whose email is not in `admin_allowlist` sees a
+  "not authorized" state and no data.
+- An authorized admin picks a month, imports that Brunei month from MORA, and
+  sees the month's stored records; each row's time can be edited and saved.
+- Every import, list and update goes through the `admin` function; the shell
+  never writes to Supabase directly and never holds a service-role key.
+- All strings are translation keys, including result messages and all entry
+  names.
+
 ### Share
 
 - The share button sits between the district selector and the menu button.
@@ -145,7 +203,7 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - A press-and-hold (or right-click / ArrowDown) opens a small menu offering
   **formatted** (default) or **raw** text.
 - The summary includes the day name, both the Masihi and Hijri dates (each on
-  its own line), the six Brunei & Muara base times, and the district adjustment
+  its own line), the eight Brunei & Muara base times, and the district adjustment
   note ("add 1 minute for Tutong, 3 minutes for Belait").
 - The title names the app only; the district appears once, on its own line.
 - Formatted text separates the sections with blank lines; raw text is a dense
@@ -223,7 +281,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ## Acceptance criteria
 
-- [ ] Loading renders the six entries for the default district.
+- [ ] Loading renders the eight entries for the default district, Imsak and
+      Dhuha included.
 - [ ] The day name is shown above the Masihi and Hijri dates.
 - [ ] The Masihi and Hijri dates render side by side.
 - [ ] The main section is centered and has no title or tagline.
@@ -233,6 +292,18 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Share confirms the copy to the user.
 - [ ] Press-and-hold on share offers formatted (default) and raw text.
 - [ ] Pulling down past the threshold reloads the app.
+- [ ] Swiping right from the day shows the month; swiping left returns.
+- [ ] Swiping past either edge cycles back to the other page.
+- [ ] Tapping a page indicator switches pages and highlights that circle.
+- [ ] The eight daily entries scale to fill the space between header and
+      controls without scrolling.
+- [ ] The footer month selector steps to the previous/next month and back to
+      this month; the district selector and share button are absent there.
+- [ ] The month table lists every day of the selected month with all eight
+      entries.
+- [ ] Today's row and its current entry are highlighted in the month table.
+- [ ] Consecutive Monday-first calendar weeks alternate a visible row
+      background band.
 - [ ] A pasted link exposes absolute Open Graph and Twitter image metadata.
 - [ ] The menu opens Settings, Other platforms, reload data, and reload app.
 - [ ] Other platforms opens `/download`; the extension card links to the latest
@@ -259,6 +330,7 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
       notifies.
 - [ ] A duration under 60 seconds renders in seconds.
 - [ ] The page fits the viewport without scrolling.
+- [ ] The viewport disables pinch-zoom and double-tap zoom.
 - [ ] The highlight and duration refresh as time passes.
 - [ ] Selecting Tutong shifts every entry +1 minute versus default.
 - [ ] Selecting Belait shifts every entry +3 minutes versus default.
@@ -279,6 +351,13 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The chosen Arabic-script locale survives a reload.
 - [ ] No visible literal strings exist outside the locale files.
 - [ ] A missing `ms` key fails the check before shipping.
+- [ ] `/admin` signed out shows only the Google sign-in action.
+- [ ] A signed-in non-allowlisted account sees the not-authorized state with no
+      records.
+- [ ] An allowlisted admin imports a month and sees its records.
+- [ ] Editing one row's time saves it and the changed value comes back on the
+      next list.
+- [ ] `/admin` carries a `noindex` robots meta tag.
 
 ## Interfaces
 
@@ -318,7 +397,17 @@ None published. Consumes core and the Data port.
   notifications; add 12/24-hour time rendering.
 - 2026-10-18 — opt-in device notifications 15 minutes before and at each
   prayer; next-prayer duration turns primary with 15 minutes left.
+- 2026-10-19 — add the non-indexed `/admin` page: Google sign-in gated by the
+  Data context's allowlist, monthly MORA import, and per-record time edits via
+  the `admin` Edge Function.
 - 2026-10-18 — add an Other platforms downloads page; the browser extension
   installs from the latest GitHub release.
 - 2026-10-19 — add Arabic (`ar`) and Jawi Malay (`ms-Arab`) locales with an
   Arabic-script webfont, right-to-left layout, and Arabic-script dates.
+- 2026-10-19 — add horizontal swipe navigation and a monthly prayer table; show
+  Dhuha in both views.
+- 2026-10-20 — move month navigation into the footer, replacing the district
+  selector and share button while the monthly view is open.
+- 2026-10-20 — show Imsak as the first entry in the day, month and share views.
+- 2026-10-20 — maximise the daily prayer text, disable zoom, add wrapping pages
+  with top page indicators, and band the month table by calendar week.

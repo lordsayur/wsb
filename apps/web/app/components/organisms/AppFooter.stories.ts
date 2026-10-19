@@ -7,6 +7,13 @@ const meta: Meta<typeof AppFooter> = {
   title: 'Organisms/AppFooter',
   component: AppFooter,
   args: {
+    view: 'day',
+    monthLabel: 'Bulan',
+    monthTitle: 'Oktober 2026',
+    monthCurrent: true,
+    monthPrevLabel: 'Bulan sebelumnya',
+    monthNextLabel: 'Bulan seterusnya',
+    monthTodayLabel: 'Bulan ini',
     districtLabel: 'Daerah',
     district: 'bruneiMuara',
     districtOptions: [
@@ -64,6 +71,8 @@ const meta: Meta<typeof AppFooter> = {
     onReloadData: fn(),
     onReloadApp: fn(),
     onToggleNotifications: fn(),
+    onShiftMonth: fn(),
+    onTodayMonth: fn(),
   },
 }
 export default meta
