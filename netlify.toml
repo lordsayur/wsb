@@ -1,0 +1,9 @@
+# Netlify: deploy on demand only. Site: wsb-next.
+[build]
+  base = "apps/web"
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NITRO_PRESET = "netlify"

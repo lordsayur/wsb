@@ -1,9 +1,3 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "composite": true
-  },
-  "include": ["src"],
-  "references": [{ "path": "../../packages/shared" }]
+  "extends": "./.nuxt/tsconfig.json"
 }

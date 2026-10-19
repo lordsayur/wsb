@@ -1,0 +1,23 @@
+{
+  "name": "@wsb/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "wsb browser extension (Manifest V3) \u2014 popup, page header, notifications.",
+  "scripts": {
+    "build": "node --env-file-if-exists=../../.env scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "zip": "node --env-file-if-exists=../../.env scripts/build.mjs --zip"
+  },
+  "dependencies": {
+    "@wsb/core": "workspace:*",
+    "@wsb/data": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
+  }
+}

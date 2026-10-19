@@ -7,10 +7,11 @@
     "ghcr.io/devcontainers/features/node:1": { "version": "lts" },
     "ghcr.io/devcontainers/features/python:1": { "version": "3.12" }
   },
-  "postCreateCommand": "corepack enable && pnpm install && curl -fsSL https://get.routeup.dev | sh",
-  "forwardPorts": [5173],
+  "postCreateCommand": "corepack enable && pnpm install && pnpm --filter web exec playwright install --with-deps chromium && uv tool install --force 'graphifyy[mcp]' && uv tool install --force 'cocoindex-code[full]' && uv tool install --force --python 3.13 'headroom-ai[all]' && ccc init && graphify install --project --platform agents && curl -fsSL https://get.routeup.dev | sh && ($HOME/.local/bin/routeup setup --no-bind --no-trust --port 8443 --server https://edge.routeup.dev || true) && npm install -g netlify-cli",
+  "forwardPorts": [5173, 6006],
   "portsAttributes": {
-    "5173": { "label": "Web app", "onAutoForward": "openBrowser" }
+    "5173": { "label": "Web app", "onAutoForward": "openBrowser" },
+    "6006": { "label": "Storybook", "onAutoForward": "silent" }
   },
   "customizations": {
     "vscode": {

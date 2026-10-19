@@ -20,3 +20,28 @@ GRAPH_REPORT.md
 
 .DS_Store
 *.log
+
+# Token-optimization toolchain state (regenerable)
+graphify-out/
+.graphify/
+graph.html
+graph.json
+GRAPH_REPORT.md
+.ccc/
+cocoindex.db
+.ponytail/
+
+# Nuxt
+.nuxt/
+.output/
+.data/
+
+# Storybook build output
+storybook-static/
+
+# Extension build output (regenerable; zip ships via GitHub releases)
+apps/extension/dist/
+apps/extension/*.zip
+
+# Netlify build output
+.netlify/

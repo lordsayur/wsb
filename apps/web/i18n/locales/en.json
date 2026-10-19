@@ -1,0 +1,136 @@
+{
+  "prayer": {
+    "subuh": "Subuh",
+    "syuruk": "Syuruk",
+    "zuhur": "Zuhur",
+    "asar": "Asar",
+    "maghrib": "Maghrib",
+    "isyak": "Isyak"
+  },
+  "district": {
+    "label": "District",
+    "bruneiMuara": "Brunei & Muara",
+    "tutong": "Tutong",
+    "belait": "Belait"
+  },
+  "state": {
+    "loading": "Loading…",
+    "unavailable": "Prayer times are unavailable.",
+    "offline": "You are offline. Showing the last known data."
+  },
+  "action": {
+    "retry": "Try again",
+    "menu": "Menu",
+    "reloadData": "Reload data",
+    "reloadApp": "Reload app",
+    "share": "Share prayer times",
+    "downloads": "Other platforms"
+  },
+  "source": {
+    "label": "Data source",
+    "name": "Department of Islamic Affairs (KHEU), Brunei"
+  },
+  "update": {
+    "message": "A new version is available. Reload to update.",
+    "reload": "Reload",
+    "later": "Later"
+  },
+  "duration": {
+    "hoursMinutes": "{hours}h {minutes}m",
+    "minutes": "{minutes}m",
+    "seconds": "{seconds}s"
+  },
+  "next": {
+    "in": "{duration} until {prayer}"
+  },
+  "share": {
+    "title": "Brunei Prayer Times",
+    "district": "District: Brunei & Muara",
+    "line": "{prayer}: {time}",
+    "offsets": "Add 1 minute for Tutong and 3 minutes for Belait.",
+    "copied": "Copied to clipboard",
+    "formatted": "Formatted text",
+    "raw": "Raw text"
+  },
+  "pull": {
+    "reload": "Pull down to reload",
+    "refreshing": "Reloading…"
+  },
+  "meta": {
+    "title": "Brunei Prayer Times",
+    "siteName": "Brunei Prayer Times",
+    "description": "Brunei prayer times for Brunei & Muara, Temburong, Tutong and Belait — anywhere.",
+    "imageAlt": "Brunei Prayer Times — Subuh, Syuruk, Zuhur, Asar, Maghrib, Isyak"
+  },
+  "theme": {
+    "mode": "Colour mode",
+    "dark": "Dark",
+    "light": "Light",
+    "palette": {
+      "label": "Primary colour",
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "rose": "Rose",
+      "violet": "Violet",
+      "custom": "Custom"
+    }
+  },
+  "notification": {
+    "enable": "Enable notifications",
+    "enabled": "Notifications enabled",
+    "unsupported": "Notifications not supported",
+    "blocked": "Notifications blocked in browser",
+    "lead": "{prayer} in 15 minutes",
+    "due": "It is time for {prayer}",
+    "body": "{prayer} at {time}"
+  },
+  "settings": {
+    "title": "Settings",
+    "back": "Back",
+    "language": "Language",
+    "timeFormat": {
+      "label": "Time format",
+      "h24": "24-hour",
+      "h12": "12-hour"
+    }
+  },
+  "extension": {
+    "title": "Browser extension",
+    "pageHeader": "Show times on web pages",
+    "pageHeaderLabel": "Next",
+    "openApp": "Open app",
+    "closeLabel": "Hide"
+  },
+  "downloads": {
+    "title": "Download",
+    "intro": "Brunei Prayer Times for other platforms. One core, many shells.",
+    "back": "Back to the app",
+    "available": "Available",
+    "soon": "Coming soon",
+    "download": "Download",
+    "installNote": "Download the zip, then open chrome://extensions, enable Developer mode and choose \"Load unpacked\" on the extracted folder.",
+    "platforms": {
+      "extension": {
+        "name": "Browser extension",
+        "description": "Prayer times in the toolbar and on every page, with notifications."
+      },
+      "cli": {
+        "name": "CLI",
+        "description": "Prayer times in your terminal."
+      },
+      "tui": {
+        "name": "TUI",
+        "description": "A full terminal interface for prayer times."
+      },
+      "vscode": {
+        "name": "VS Code extension",
+        "description": "Prayer times in the editor status bar."
+      },
+      "raycast": {
+        "name": "Raycast extension",
+        "description": "Prayer times from your launcher."
+      }
+    }
+  }
+}

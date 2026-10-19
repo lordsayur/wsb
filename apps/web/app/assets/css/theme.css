@@ -1,0 +1,73 @@
+/* specs/web/spec.md — theme tokens. Components read these, never raw colours. */
+:root {
+  /* Shared control height keeps the footer row aligned. */
+  --control-h: 2.5rem;
+}
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #191c1f;
+  --bg-glow: color-mix(in srgb, var(--primary) 9%, transparent);
+  --surface: #23282c;
+  --surface-2: #2c3237;
+  --fg: #f4f4f1;
+  --muted: color-mix(in srgb, var(--fg) 60%, transparent);
+  --border: color-mix(in srgb, var(--fg) 16%, transparent);
+  --shadow: 0 16px 40px rgb(0 0 0 / 32%);
+  /* --accent is injected at render time from the chosen palette. */
+  --primary: var(--accent, #facc15);
+  --primary-fg: #1c1917;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #faf8f2;
+  --bg-glow: color-mix(in srgb, var(--primary) 22%, transparent);
+  --surface: #ffffff;
+  --surface-2: #f3f0e8;
+  --fg: #1c1917;
+  --muted: color-mix(in srgb, var(--fg) 58%, transparent);
+  --border: color-mix(in srgb, var(--fg) 14%, transparent);
+  --shadow: 0 16px 40px rgb(28 25 23 / 12%);
+  --primary: var(--accent, #eab308);
+  --primary-fg: #1c1917;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--bg-glow), transparent 70%),
+    var(--bg);
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+button {
+  color: inherit;
+}
+
+a {
+  color: var(--primary);
+  text-underline-offset: 2px;
+}

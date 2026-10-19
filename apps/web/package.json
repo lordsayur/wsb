@@ -4,15 +4,38 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "typecheck": "tsc -b --noEmit",
-    "lint": "tsc -b --noEmit"
+    "dev": "nuxt dev --host 0.0.0.0 --port 5173 --dotenv=../../.env",
+    "build": "nuxt build --dotenv=../../.env",
+    "preview": "nuxt preview --host 0.0.0.0 --port 5173 --dotenv=../../.env",
+    "typecheck": "nuxt typecheck",
+    "lint": "nuxt typecheck",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:storybook": "vitest run --project storybook",
+    "storybook": "storybook dev -p 6006 --host 0.0.0.0 --no-open",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
-    "shared": "workspace:*",
+    "@wsb/core": "workspace:*",
+    "@wsb/data": "workspace:*",
+    "nuxt": "^4.6.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@nuxtjs/i18n": "^10.6.0",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/experimental-addon-test": "^8.6.14",
+    "@storybook/test": "^8.6.14",
+    "@storybook/vue3": "^8.6.14",
+    "@storybook/vue3-vite": "^8.6.14",
+    "@vite-pwa/nuxt": "^1.1.1",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vitest/browser": "^2.1.9",
+    "playwright": "^1.56.0",
+    "storybook": "^8.6.14",
     "typescript": "^5.6.3",
-    "vite": "^5.4.10"
+    "vitest": "^2.1.9",
+    "vue-i18n": "^11.4.15",
+    "vue-tsc": "^2.2.0"
   }
 }

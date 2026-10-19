@@ -1,0 +1,136 @@
+{
+  "prayer": {
+    "subuh": "Subuh",
+    "syuruk": "Syuruk",
+    "zuhur": "Zuhur",
+    "asar": "Asar",
+    "maghrib": "Maghrib",
+    "isyak": "Isyak"
+  },
+  "district": {
+    "label": "Daerah",
+    "bruneiMuara": "Brunei dan Muara",
+    "tutong": "Tutong",
+    "belait": "Belait"
+  },
+  "state": {
+    "loading": "Memuatkan…",
+    "unavailable": "Waktu sembahyang tidak tersedia.",
+    "offline": "Anda sedang luar talian. Memaparkan data terakhir."
+  },
+  "action": {
+    "retry": "Cuba lagi",
+    "menu": "Menu",
+    "reloadData": "Muat semula data",
+    "reloadApp": "Muat semula aplikasi",
+    "share": "Kongsi waktu sembahyang",
+    "downloads": "Platform lain"
+  },
+  "source": {
+    "label": "Sumber data",
+    "name": "Jabatan Hal Ehwal Ugama (KHEU), Brunei"
+  },
+  "update": {
+    "message": "Versi baharu tersedia. Muat semula untuk mengemas kini.",
+    "reload": "Muat semula",
+    "later": "Kemudian"
+  },
+  "duration": {
+    "hoursMinutes": "{hours} jam {minutes} minit",
+    "minutes": "{minutes} minit",
+    "seconds": "{seconds} saat"
+  },
+  "next": {
+    "in": "{duration} lagi {prayer}"
+  },
+  "share": {
+    "title": "Waktu Sembahyang Brunei",
+    "district": "Daerah: Brunei dan Muara",
+    "line": "{prayer}: {time}",
+    "offsets": "Tambah 1 minit untuk Tutong dan 3 minit untuk Belait.",
+    "copied": "Disalin ke papan klip",
+    "formatted": "Teks berformat",
+    "raw": "Teks mentah"
+  },
+  "pull": {
+    "reload": "Tarik ke bawah untuk muat semula",
+    "refreshing": "Memuat semula…"
+  },
+  "meta": {
+    "title": "Waktu Sembahyang Brunei",
+    "siteName": "Waktu Sembahyang Brunei",
+    "description": "Waktu sembahyang Brunei untuk Brunei dan Muara, Temburong, Tutong dan Belait — di mana-mana sahaja.",
+    "imageAlt": "Waktu Sembahyang Brunei — Subuh, Syuruk, Zuhur, Asar, Maghrib, Isyak"
+  },
+  "theme": {
+    "mode": "Mod warna",
+    "dark": "Gelap",
+    "light": "Cerah",
+    "palette": {
+      "label": "Warna utama",
+      "yellow": "Kuning",
+      "green": "Hijau",
+      "blue": "Biru",
+      "rose": "Ros",
+      "violet": "Ungu",
+      "custom": "Tersuai"
+    }
+  },
+  "notification": {
+    "enable": "Hidupkan notifikasi",
+    "enabled": "Notifikasi dihidupkan",
+    "unsupported": "Notifikasi tidak disokong",
+    "blocked": "Notifikasi disekat dalam pelayar",
+    "lead": "{prayer} dalam 15 minit",
+    "due": "Masuk waktu {prayer}",
+    "body": "{prayer} pada {time}"
+  },
+  "settings": {
+    "title": "Tetapan",
+    "back": "Kembali",
+    "language": "Bahasa",
+    "timeFormat": {
+      "label": "Format masa",
+      "h24": "24 jam",
+      "h12": "12 jam"
+    }
+  },
+  "extension": {
+    "title": "Sambungan pelayar",
+    "pageHeader": "Tunjuk waktu pada halaman",
+    "pageHeaderLabel": "Seterusnya",
+    "openApp": "Buka aplikasi",
+    "closeLabel": "Sembunyikan"
+  },
+  "downloads": {
+    "title": "Muat turun",
+    "intro": "Waktu Sembahyang Brunei untuk platform lain. Satu teras, banyak cangkerang.",
+    "back": "Kembali ke aplikasi",
+    "available": "Tersedia",
+    "soon": "Akan datang",
+    "download": "Muat turun",
+    "installNote": "Muat turun fail zip, kemudian buka chrome://extensions, hidupkan Mod Pembangun dan pilih \"Load unpacked\" pada folder yang telah diekstrak.",
+    "platforms": {
+      "extension": {
+        "name": "Sambungan pelayar",
+        "description": "Waktu sembahyang di bar alat dan pada setiap halaman, dengan notifikasi."
+      },
+      "cli": {
+        "name": "CLI",
+        "description": "Waktu sembahyang di terminal anda."
+      },
+      "tui": {
+        "name": "TUI",
+        "description": "Paparan terminal penuh untuk waktu sembahyang."
+      },
+      "vscode": {
+        "name": "Sambungan VS Code",
+        "description": "Waktu sembahyang di bar status editor."
+      },
+      "raycast": {
+        "name": "Sambungan Raycast",
+        "description": "Waktu sembahyang dari pelancar anda."
+      }
+    }
+  }
+}

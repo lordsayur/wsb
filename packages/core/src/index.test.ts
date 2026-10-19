@@ -1,0 +1,291 @@
+import { describe, expect, it } from 'vitest'
+import {
+  DEFAULT_DISTRICT,
+  PRAYER_ORDER,
+  adjustForDistrict,
+  bruneiNow,
+  districtOffsetMinutes,
+  durationParts,
+  formatDate,
+  formatHijriDate,
+  formatTime,
+  formatWeekday,
+  isTimeFormat,
+  notificationSchedule,
+  prayerProgress,
+  resolveDistrict,
+  type PrayerEntry,
+} from './index.js'
+
+// specs/core/spec.md — acceptance criteria
+describe('district offsets', () => {
+  it('uses Brunei & Muara as the default district', () => {
+    expect(DEFAULT_DISTRICT).toBe('bruneiMuara')
+  })
+
+  it('applies 0 minutes to Brunei & Muara', () => {
+    expect(districtOffsetMinutes('bruneiMuara')).toBe(0)
+  })
+
+  it('applies +1 minute to Tutong', () => {
+    expect(districtOffsetMinutes('tutong')).toBe(1)
+  })
+
+  it('applies +3 minutes to Belait', () => {
+    expect(districtOffsetMinutes('belait')).toBe(3)
+  })
+})
+
+describe('selection', () => {
+  it('resolves a known district', () => {
+    expect(resolveDistrict('belait')).toBe('belait')
+  })
+
+  it('maps the legacy Temburong value to Brunei & Muara', () => {
+    expect(resolveDistrict('temburong')).toBe('bruneiMuara')
+  })
+
+  it('falls back to the default when no selection exists', () => {
+    expect(resolveDistrict(null)).toBe(DEFAULT_DISTRICT)
+    expect(resolveDistrict(undefined)).toBe(DEFAULT_DISTRICT)
+  })
+
+  it('falls back to the default for an unknown district without throwing', () => {
+    expect(resolveDistrict('mars')).toBe(DEFAULT_DISTRICT)
+  })
+})
+
+describe('prayer order', () => {
+  it('returns the six entries in the documented order', () => {
+    expect(PRAYER_ORDER).toEqual([
+      'subuh',
+      'syuruk',
+      'zuhur',
+      'asar',
+      'maghrib',
+      'isyak',
+    ])
+  })
+
+  it('keeps syuruk between subuh and zuhur', () => {
+    expect(PRAYER_ORDER.indexOf('syuruk')).toBe(
+      PRAYER_ORDER.indexOf('subuh') + 1,
+    )
+    expect(PRAYER_ORDER.indexOf('syuruk')).toBeLessThan(
+      PRAYER_ORDER.indexOf('zuhur'),
+    )
+  })
+})
+
+describe('adjustForDistrict', () => {
+  const base = PRAYER_ORDER.map((prayer, index) => ({
+    prayer,
+    minutes: 5 * 60 + index,
+  }))
+
+  it('is idempotent for the same district', () => {
+    expect(adjustForDistrict(base, 'tutong')).toEqual(
+      adjustForDistrict(base, 'tutong'),
+    )
+  })
+
+  it('shifts every entry by the district offset', () => {
+    const tutong = adjustForDistrict(base, 'tutong')
+    expect(tutong.map((entry) => entry.minutes)).toEqual(
+      base.map((entry) => entry.minutes + 1),
+    )
+
+    const belait = adjustForDistrict(base, 'belait')
+    expect(belait.map((entry) => entry.minutes)).toEqual(
+      base.map((entry) => entry.minutes + 3),
+    )
+  })
+
+  it('wraps past midnight', () => {
+    const late = [{ prayer: 'isyak' as const, minutes: 23 * 60 + 59 }]
+    expect(adjustForDistrict(late, 'belait')[0]!.minutes).toBe(2)
+  })
+})
+
+describe('formatTime', () => {
+  it('formats minutes since midnight for a locale', () => {
+    expect(formatTime(5 * 60 + 7, 'en-GB')).toContain('05:07')
+  })
+
+  it('defaults to 24-hour time', () => {
+    expect(formatTime(15 * 60 + 20, 'en-GB')).toBe('15:20')
+  })
+
+  it('renders 12-hour time when asked', () => {
+    const morning = formatTime(5 * 60 + 7, 'en-US', '12h')
+    const afternoon = formatTime(15 * 60 + 20, 'en-US', '12h')
+    expect(morning).toMatch(/^05:07\s?AM$/i)
+    expect(afternoon).toMatch(/^03:20\s?PM$/i)
+  })
+
+  it('validates time formats', () => {
+    expect(isTimeFormat('12h')).toBe(true)
+    expect(isTimeFormat('24h')).toBe(true)
+    expect(isTimeFormat('13h')).toBe(false)
+  })
+})
+
+// specs/core/spec.md — current/next entry and duration to next.
+describe('prayerProgress', () => {
+  const entries: PrayerEntry[] = [
+    { prayer: 'subuh', minutes: 4 * 60 + 50 },
+    { prayer: 'syuruk', minutes: 6 * 60 + 5 },
+    { prayer: 'zuhur', minutes: 12 * 60 + 5 },
+    { prayer: 'asar', minutes: 15 * 60 + 20 },
+    { prayer: 'maghrib', minutes: 18 * 60 + 10 },
+    { prayer: 'isyak', minutes: 19 * 60 + 20 },
+  ]
+
+  it('has no current entry before subuh and points to subuh next', () => {
+    expect(prayerProgress(entries, 4 * 60 * 60)).toEqual({
+      current: null,
+      next: 'subuh',
+      minutesToNext: 50,
+      secondsToNext: 50 * 60,
+    })
+  })
+
+  it('selects the last entry whose time has passed', () => {
+    expect(prayerProgress(entries, 13 * 60 * 60).current).toBe('zuhur')
+    expect(prayerProgress(entries, 13 * 60 * 60).next).toBe('asar')
+  })
+
+  it('treats syuruk as a boundary though it is not a prayer', () => {
+    expect(prayerProgress(entries, (6 * 60 + 30) * 60).current).toBe('syuruk')
+  })
+
+  it('wraps from isyak to the next day subuh', () => {
+    const progress = prayerProgress(entries, 23 * 60 * 60)
+    expect(progress.current).toBe('isyak')
+    expect(progress.next).toBe('subuh')
+    expect(progress.minutesToNext).toBe(5 * 60 + 50)
+    expect(progress.secondsToNext).toBe((5 * 60 + 50) * 60)
+  })
+
+  it('measures duration from the entry itself at the boundary', () => {
+    expect(prayerProgress(entries, (12 * 60 + 5) * 60)).toEqual({
+      current: 'zuhur',
+      next: 'asar',
+      minutesToNext: 3 * 60 + 15,
+      secondsToNext: (3 * 60 + 15) * 60,
+    })
+  })
+
+  it('reports seconds remaining under a minute', () => {
+    const progress = prayerProgress(entries, (4 * 60 + 49) * 60 + 18)
+    expect(progress.next).toBe('subuh')
+    expect(progress.minutesToNext).toBe(0)
+    expect(progress.secondsToNext).toBe(42)
+  })
+})
+
+// specs/core/spec.md — reminders 15 minutes before and at each prayer.
+describe('notificationSchedule', () => {
+  const entries: PrayerEntry[] = [
+    { prayer: 'subuh', minutes: 4 * 60 + 50 },
+    { prayer: 'syuruk', minutes: 6 * 60 + 5 },
+    { prayer: 'zuhur', minutes: 12 * 60 + 5 },
+    { prayer: 'asar', minutes: 15 * 60 + 20 },
+    { prayer: 'maghrib', minutes: 18 * 60 + 10 },
+    { prayer: 'isyak', minutes: 19 * 60 + 20 },
+  ]
+
+  it('returns lead and due reminders nearest first', () => {
+    const events = notificationSchedule(entries, 4 * 60 * 60)
+    expect(events[0]).toMatchObject({
+      prayer: 'subuh',
+      kind: 'lead',
+      secondsUntil: (50 - 15) * 60,
+    })
+    expect(events[1]).toMatchObject({
+      prayer: 'subuh',
+      kind: 'due',
+      secondsUntil: 50 * 60,
+    })
+    const times = events.map((event) => event.secondsUntil)
+    expect(times).toEqual([...times].sort((a, b) => a - b))
+  })
+
+  it('excludes syuruk, which is not a prayer', () => {
+    const events = notificationSchedule(entries, 0)
+    expect(events.some((event) => event.prayer === 'syuruk')).toBe(false)
+  })
+
+  it('rolls upcoming reminders into the next day', () => {
+    const events = notificationSchedule(entries, 20 * 60 * 60)
+    expect(events[0]).toMatchObject({ prayer: 'subuh', kind: 'lead' })
+    expect(events[0]!.secondsUntil).toBe(
+      (24 * 60 + 4 * 60 + 50 - 15 - 20 * 60) * 60,
+    )
+  })
+
+  it('rolls a lead reminder whose time has passed into the next day', () => {
+    const now = (4 * 60 + 49) * 60
+    const events = notificationSchedule(entries, now)
+    expect(events[0]).toMatchObject({ prayer: 'subuh', kind: 'due' })
+    expect(events[0]!.secondsUntil).toBe(60)
+    const lead = events.find(
+      (event) => event.kind === 'lead' && event.prayer === 'subuh',
+    )!
+    expect(lead.prayer).toBe('subuh')
+    expect(lead.secondsUntil).toBe(102_900 - 17_340)
+  })
+})
+
+describe('bruneiNow', () => {  it('uses Brunei wall-clock time regardless of the input timezone', () => {
+    expect(bruneiNow(new Date('2026-10-18T00:30:00Z'))).toEqual({
+      date: '2026-10-18',
+      minutes: 8 * 60 + 30,
+      seconds: (8 * 60 + 30) * 60,
+    })
+    expect(bruneiNow(new Date('2026-10-18T16:30:45Z'))).toEqual({
+      date: '2026-10-19',
+      minutes: 30,
+      seconds: 30 * 60 + 45,
+    })
+  })
+})
+
+describe('durationParts', () => {
+  it('splits seconds into whole hours, minutes and seconds', () => {
+    expect(durationParts(3 * 3600 + 15 * 60)).toEqual({
+      hours: 3,
+      minutes: 15,
+      seconds: 0,
+    })
+    expect(durationParts(45 * 60)).toEqual({
+      hours: 0,
+      minutes: 45,
+      seconds: 0,
+    })
+    expect(durationParts(42)).toEqual({ hours: 0, minutes: 0, seconds: 42 })
+    expect(durationParts(-5)).toEqual({ hours: 0, minutes: 0, seconds: 0 })
+  })
+})
+
+// specs/core/spec.md — both calendars are display-ready.
+describe('dates', () => {
+  it('formats the Masihi date for an explicit locale', () => {
+    expect(formatDate('2026-10-18', 'ms')).toBe('18 Oktober 2026')
+  })
+
+  it('formats the day name for an explicit locale', () => {
+    expect(formatWeekday('2026-10-18', 'ms')).toBe('Ahad')
+    expect(formatWeekday('2026-10-18', 'en')).toBe('Sunday')
+  })
+
+  it('uses the source Hijri date verbatim when present', () => {
+    expect(
+      formatHijriDate('2026-10-18', 'ms', '7 Jamadilawal 1448 H'),
+    ).toBe('7 Jamadilawal 1448 H')
+  })
+
+  it('derives a Hijri date when the source has none', () => {
+    expect(formatHijriDate('2026-10-18', 'ms')).toBe('7 Jamadilawal 1448 H')
+  })
+})

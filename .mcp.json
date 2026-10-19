@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "graphify": {
-      "command": "uv",
-      "args": ["run", "--no-sync", "private-context", "serve", "--transport", "stdio"]
+      "command": "uvx",
+      "args": ["--from", "graphifyy[mcp]", "graphify-mcp", "graphify-out/graph.json"]
     }
   }
 }

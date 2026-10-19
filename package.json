@@ -5,8 +5,16 @@
   "packageManager": "pnpm@9.12.0",
   "scripts": {
     "dev": "pnpm --filter web dev",
+    "dev:all": "./dev.sh develop",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:storybook": "pnpm --filter web test:storybook",
+    "storybook": "pnpm --filter web storybook",
+    "watch": "pnpm --filter web dev",
+    "import:mora": "node --env-file-if-exists=.env scripts/import-mora.ts",
+    "extension:build": "pnpm --filter @wsb/extension build",
+    "extension:zip": "pnpm --filter @wsb/extension zip"
   }
 }
