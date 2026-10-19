@@ -19,6 +19,20 @@
         @share="emit('share', $event)"
       />
 
+      <RangeSelector
+        v-if="view === 'trend'"
+        :label="rangeLabel"
+        :value="range"
+        :options="rangeOptions"
+        :current="rangeCurrent"
+        :prev-label="rangePrevLabel"
+        :next-label="rangeNextLabel"
+        :today-label="rangeTodayLabel"
+        @update:range="emit('update:range', $event)"
+        @shift="emit('shiftChart', $event)"
+        @today="emit('todayChart')"
+      />
+
       <MonthSelector
         v-if="view === 'month'"
         :label="monthLabel"
@@ -135,6 +149,9 @@ import DistrictSelector, {
 } from '../molecules/DistrictSelector.vue'
 import ShareButton from '../molecules/ShareButton.vue'
 import MonthSelector from '../molecules/MonthSelector.vue'
+import RangeSelector, {
+  type RangeOption,
+} from '../molecules/RangeSelector.vue'
 import ThemeControls, {
   type ModeOption,
   type PaletteOption,
@@ -151,7 +168,14 @@ export interface LanguageOption {
 }
 
 const props = defineProps<{
-  view?: 'day' | 'month'
+  view?: 'day' | 'month' | 'trend'
+  rangeLabel: string
+  range: string
+  rangeOptions: RangeOption[]
+  rangeCurrent: boolean
+  rangePrevLabel: string
+  rangeNextLabel: string
+  rangeTodayLabel: string
   monthLabel: string
   monthTitle: string
   monthCurrent: boolean
@@ -193,6 +217,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   shiftMonth: [delta: number]
+  'update:range': [value: string]
+  shiftChart: [delta: number]
+  todayChart: []
   todayMonth: []
   'update:district': [value: string]
   'update:locale': [value: string]

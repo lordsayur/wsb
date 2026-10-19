@@ -181,6 +181,22 @@
     "dayView": "Daily view"
   },
   "page": {
-    "label": "Pages"
+    "label": "Pages",
+    "day": "Daily view",
+    "month": "Monthly view",
+    "trend": "Trend chart"
+  },
+  "chart": {
+    "label": "Prayer times chart",
+    "filter": "Filter entries",
+    "prev": "Previous period",
+    "next": "Next period",
+    "today": "This period",
+    "range": {
+      "label": "Range",
+      "week": "Week",
+      "month": "Month",
+      "year": "Year"
+    }
   }
 }

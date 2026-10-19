@@ -332,6 +332,86 @@ export function shiftMonth(month: string, delta: number): string {
   return shifted.toISOString().slice(0, 7)
 }
 
+/** Moves an ISO date by `delta` days, in either direction. */
+export function shiftDate(date: string, delta: number): string {
+  const [year, month, day] = date.split('-').map(Number) as [
+    number,
+    number,
+    number,
+  ]
+  return new Date(Date.UTC(year, month - 1, day + delta))
+    .toISOString()
+    .slice(0, 10)
+}
+
+/** Every ISO date from `start` to `end` inclusive, in calendar order. */
+export function rangeDates(start: string, end: string): string[] {
+  const dates: string[] = []
+  for (let date = start; date <= end; date = shiftDate(date, 1)) {
+    dates.push(date)
+  }
+  return dates
+}
+
+/** Time span shown by the trend chart. */
+export type ChartRange = 'week' | 'month' | 'year'
+
+export const CHART_RANGES: readonly ChartRange[] = ['week', 'month', 'year']
+
+export function isChartRange(value: unknown): value is ChartRange {
+  return typeof value === 'string' && CHART_RANGES.includes(value as ChartRange)
+}
+
+/** The first day of the Monday-first week containing an ISO date. */
+function weekStart(date: string): string {
+  const [year, month, day] = date.split('-').map(Number) as [
+    number,
+    number,
+    number,
+  ]
+  const weekday = (new Date(Date.UTC(year, month - 1, day)).getUTCDay() + 6) % 7
+  return shiftDate(date, -weekday)
+}
+
+/** The inclusive ISO date bounds a chart range covers around an ISO date. */
+export function chartBounds(
+  date: string,
+  range: ChartRange,
+): { start: string; end: string } {
+  if (range === 'week') {
+    const start = weekStart(date)
+    return { start, end: shiftDate(start, 6) }
+  }
+  if (range === 'month') {
+    const month = monthOf(date)
+    const dates = monthDates(month)
+    return { start: dates[0]!, end: dates.at(-1)! }
+  }
+  const year = date.slice(0, 4)
+  return { start: `${year}-01-01`, end: `${year}-12-31` }
+}
+
+/** Moves a chart range anchor by `delta` weeks, months or years. */
+export function shiftChartDate(
+  date: string,
+  range: ChartRange,
+  delta: number,
+): string {
+  if (range === 'week') return shiftDate(date, delta * 7)
+  if (range === 'month') return `${shiftMonth(monthOf(date), delta)}-01`
+  const year = Number(date.slice(0, 4)) + delta
+  return `${year}${date.slice(4)}`
+}
+
+/** True when a chart range around `date` lies in the future of `today`. */
+export function chartIsCurrent(
+  date: string,
+  range: ChartRange,
+  today: string,
+): boolean {
+  return chartBounds(date, range).start === chartBounds(today, range).start
+}
+
 /** Every ISO date in a `YYYY-MM` month, in calendar order. */
 export function monthDates(month: string): string[] {
   const [year, mon] = month.split('-').map(Number) as [number, number]
@@ -349,6 +429,16 @@ export function formatMonth(month: string, locale: string): string {
     year: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${month}-01T00:00:00Z`))
+  return locale === 'ms-Arab' ? toJawi(text) : text
+}
+
+/** Formats an ISO date as day + short month, for compact chart axes. */
+export function formatShortDate(date: string, locale: string): string {
+  const text = new Intl.DateTimeFormat(intlLocale(locale), {
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  }).format(new Date(`${date}T00:00:00Z`))
   return locale === 'ms-Arab' ? toJawi(text) : text
 }
 

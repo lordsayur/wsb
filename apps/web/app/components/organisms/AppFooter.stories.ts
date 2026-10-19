@@ -8,6 +8,17 @@ const meta: Meta<typeof AppFooter> = {
   component: AppFooter,
   args: {
     view: 'day',
+    rangeLabel: 'Tempoh',
+    range: 'month',
+    rangeOptions: [
+      { value: 'week', label: 'Minggu' },
+      { value: 'month', label: 'Bulan' },
+      { value: 'year', label: 'Tahun' },
+    ],
+    rangeCurrent: true,
+    rangePrevLabel: 'Tempoh sebelumnya',
+    rangeNextLabel: 'Tempoh seterusnya',
+    rangeTodayLabel: 'Tempoh ini',
     monthLabel: 'Bulan',
     monthTitle: 'Oktober 2026',
     monthCurrent: true,

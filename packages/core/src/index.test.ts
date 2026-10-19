@@ -14,6 +14,12 @@ import {
   formatDayNumber,
   formatWeekday,
   isTimeFormat,
+  chartBounds,
+  chartIsCurrent,
+  formatShortDate,
+  rangeDates,
+  shiftChartDate,
+  shiftDate,
   monthDates,
   monthOf,
   shiftMonth,
@@ -398,5 +404,57 @@ describe('month helpers', () => {
     expect(formatMonth('2026-10', 'en')).toBe('October 2026')
     expect(formatMonth('2026-10', 'ms')).toBe('Oktober 2026')
     expect(formatMonth('2026-10', 'ar')).toContain('٢٠٢٦')
+  })
+})
+
+// specs/core/spec.md — trend chart range helpers.
+describe('chart ranges', () => {
+  it('shifts an ISO date across month boundaries', () => {
+    expect(shiftDate('2026-10-31', 1)).toBe('2026-11-01')
+    expect(shiftDate('2026-11-01', -1)).toBe('2026-10-31')
+    expect(shiftDate('2024-02-28', 1)).toBe('2024-02-29')
+  })
+
+  it('lists an inclusive date range', () => {
+    expect(rangeDates('2026-10-30', '2026-11-02')).toEqual([
+      '2026-10-30',
+      '2026-10-31',
+      '2026-11-01',
+      '2026-11-02',
+    ])
+  })
+
+  it('bounds a week Monday-first', () => {
+    expect(chartBounds('2026-10-21', 'week')).toEqual({
+      start: '2026-10-19',
+      end: '2026-10-25',
+    })
+  })
+
+  it('bounds a month and a year', () => {
+    expect(chartBounds('2026-10-21', 'month')).toEqual({
+      start: '2026-10-01',
+      end: '2026-10-31',
+    })
+    expect(chartBounds('2026-10-21', 'year')).toEqual({
+      start: '2026-01-01',
+      end: '2026-12-31',
+    })
+  })
+
+  it('steps a range anchor by week, month or year', () => {
+    expect(shiftChartDate('2026-10-21', 'week', 1)).toBe('2026-10-28')
+    expect(shiftChartDate('2026-10-21', 'month', -1)).toBe('2026-09-01')
+    expect(shiftChartDate('2026-10-21', 'year', 1)).toBe('2027-10-21')
+  })
+
+  it('flags the range containing today as current', () => {
+    expect(chartIsCurrent('2026-10-21', 'month', '2026-10-02')).toBe(true)
+    expect(chartIsCurrent('2026-09-21', 'month', '2026-10-02')).toBe(false)
+  })
+
+  it('formats a compact day + month label', () => {
+    expect(formatShortDate('2026-10-21', 'en')).toBe('Oct 21')
+    expect(formatShortDate('2026-10-21', 'ms')).toBe('21 Okt')
   })
 })

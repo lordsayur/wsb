@@ -181,6 +181,22 @@
     "dayView": "Paparan harian"
   },
   "page": {
-    "label": "Halaman"
+    "label": "Halaman",
+    "day": "Paparan harian",
+    "month": "Paparan bulanan",
+    "trend": "Grafik trend"
+  },
+  "chart": {
+    "label": "Grafik waktu sembahyang",
+    "filter": "Tapis waktu",
+    "prev": "Tempoh sebelumnya",
+    "next": "Tempoh seterusnya",
+    "today": "Tempoh ini",
+    "range": {
+      "label": "Tempoh",
+      "week": "Minggu",
+      "month": "Bulan",
+      "year": "Tahun"
+    }
   }
 }

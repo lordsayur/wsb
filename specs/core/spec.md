@@ -78,6 +78,17 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
   form.
 - A day of the month formats in core for an explicit locale, without the month
   name.
+- A compact day + short month label formats in core for chart axes.
+
+### Trend ranges
+
+- The trend chart is anchored on a Brunei date and shows one of three ranges:
+  **week** (the Monday-first week containing the anchor), **month** (the whole
+  Brunei calendar month), or **year** (the whole calendar year).
+- A range resolves to inclusive ISO start and end dates.
+- The anchor can step forward and back by one range (a week, a month, a year).
+- A range is *current* when it has the same start as the range containing
+  today.
 - Arabic-script locales (`ar`, `ms-Arab`) format times, dates and the Hijri
   date with Arabic-Indic digits; all other locales use Latin digits.
 
@@ -160,6 +171,8 @@ Names only; shapes finalized in code.
   formatting.
 - `monthOf` / `shiftMonth` / `monthDates` / `formatMonth` / `formatDayNumber` —
   month navigation and formatting for the monthly view.
+- `shiftDate` / `rangeDates` / `formatShortDate` / `chartBounds` /
+  `shiftChartDate` / `chartIsCurrent` — trend chart ranges and labels.
 - Resolve selection → district; apply offset; format times.
 - Resolve now → current/next entry and duration; format duration.
 
@@ -188,3 +201,5 @@ Names only; shapes finalized in code.
   month navigation and formatting helpers.
 - 2026-10-20 — expose Imsak (`imsak`) as the first displayed entry; it is a
   non-reminding time boundary like Dhuha.
+- 2026-10-20 — add trend range helpers (week/month/year bounds, stepping, and
+  compact axis labels).

@@ -13,6 +13,7 @@ import {
 import { MORA_PAGE_URL } from '@wsb/data/mora'
 import PrayerTimeList from '~/components/organisms/PrayerTimeList.vue'
 import MonthPrayerTable from '~/components/organisms/MonthPrayerTable.vue'
+import PrayerTrendChart from '~/components/organisms/PrayerTrendChart.vue'
 import AppFooter from '~/components/organisms/AppFooter.vue'
 import DateDisplay from '~/components/molecules/DateDisplay.vue'
 import PageIndicator from '~/components/molecules/PageIndicator.vue'
@@ -20,6 +21,7 @@ import SourceNote from '~/components/molecules/SourceNote.vue'
 import UpdatePrompt from '~/components/molecules/UpdatePrompt.vue'
 import { usePrayerTimes } from '~/composables/usePrayerTimes'
 import { usePrayerMonth } from '~/composables/usePrayerMonth'
+import { usePrayerChart } from '~/composables/usePrayerChart'
 import { useSwipe } from '~/composables/useSwipe'
 import { usePrayerNotifications } from '~/composables/usePrayerNotifications'
 import { usePwaUpdate } from '~/composables/usePwaUpdate'
@@ -79,7 +81,7 @@ const {
   () => timeFormat.value,
 )
 
-const PAGES = ['day', 'month'] as const
+const PAGES = ['day', 'month', 'trend'] as const
 type Page = (typeof PAGES)[number]
 
 const view = ref<Page>('day')
@@ -87,7 +89,7 @@ const view = ref<Page>('day')
 const pageOptions = computed(() =>
   PAGES.map((page) => ({
     id: page,
-    label: t(page === 'day' ? 'month.dayView' : 'month.view'),
+    label: t(`page.${page}`),
   })),
 )
 
@@ -115,6 +117,32 @@ const {
   () => locale.value,
   () => timeFormat.value,
   () => view.value === 'month',
+)
+
+const {
+  range: chartRange,
+  rangeOptions: chartRangeOptions,
+  isCurrent: chartCurrent,
+  prayerOptions: chartPrayerOptions,
+  visiblePrayers,
+  series: chartSeries,
+  days: chartDays,
+  axis: chartAxis,
+  yTicks,
+  xTicks,
+  state: chartState,
+  stale: chartStale,
+  setRange: setChartRange,
+  shift: shiftChart,
+  reset: resetChart,
+  togglePrayer,
+  reload: reloadChart,
+} = usePrayerChart(
+  () => district.value,
+  () => locale.value,
+  () => timeFormat.value,
+  () => view.value === 'trend',
+  t,
 )
 
 const currentMonth = computed(() => monthOf(bruneiNow().date))
@@ -206,6 +234,7 @@ function reloadApp() {
 
 function reloadCurrent() {
   if (view.value === 'month') void reloadMonth()
+  else if (view.value === 'trend') void reloadChart()
   else reloadData()
 }
 
@@ -270,6 +299,25 @@ onMounted(load)
         />
       </template>
 
+      <PrayerTrendChart
+        v-else-if="view === 'trend'"
+        :state="chartState"
+        :series="chartSeries"
+        :days="chartDays"
+        :axis="chartAxis"
+        :y-ticks="yTicks"
+        :x-ticks="xTicks"
+        :prayer-options="chartPrayerOptions"
+        :visible="visiblePrayers"
+        :filter-label="t('chart.filter')"
+        :chart-label="t('chart.label')"
+        :date-label="t('month.date')"
+        :loading-text="t('state.loading')"
+        :unavailable-text="t('state.unavailable')"
+        :offline-text="chartStale ? t('state.offline') : ''"
+        @toggle-prayer="togglePrayer"
+      />
+
       <MonthPrayerTable
         v-else
         :state="monthState"
@@ -284,6 +332,13 @@ onMounted(load)
 
     <AppFooter
       :view="view"
+      :range-label="t('chart.range.label')"
+      :range="chartRange"
+      :range-options="chartRangeOptions"
+      :range-current="chartCurrent"
+      :range-prev-label="t('chart.prev')"
+      :range-next-label="t('chart.next')"
+      :range-today-label="t('chart.today')"
       :month-label="t('month.label')"
       :month-title="monthTitle"
       :month-current="month === currentMonth"
@@ -322,6 +377,9 @@ onMounted(load)
       :notifications-enabled="notificationsEnabled"
       :notifications-supported="notificationsSupported"
       @shift-month="shiftMonth"
+      @update:range="setChartRange"
+      @shift-chart="shiftChart"
+      @today-chart="resetChart"
       @today-month="setMonth(currentMonth)"
       @update:district="selectDistrict"
       @share="share"
@@ -395,7 +453,8 @@ onMounted(load)
   text-align: center;
   gap: 0.5rem;
 }
-.main.month {
+.main.month,
+.main.trend {
   justify-content: flex-start;
   text-align: start;
 }

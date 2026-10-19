@@ -64,7 +64,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Pages
 
-- The shell has two pages: the daily view and the monthly view.
+- The shell has three pages: the daily view, the monthly view, and the trend
+  chart.
 - Swiping horizontally, or tapping a page indicator, cycles between them in
   either direction; the cycle wraps around.
 - A row of circular page indicators sits at the top of the page; the current
@@ -95,6 +96,23 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   display-ready values with core.
 - With no data the view shows the unavailable state; cached days render
   offline and mark the view stale.
+
+### Trend chart
+
+- The trend page plots the prayer entries as a line graph: the x axis is the
+  date and the y axis is the time of day, with a line per entry.
+- The range defaults to **month**; the footer offers **week**, **month** and
+  **year** and steps backwards/forwards through the range. In the trend view
+  the footer replaces the district selector and share button with the range
+  selector.
+- By default every entry is plotted. While all are shown, tapping a chip shows
+  that entry alone; otherwise a chip toggles that entry in or out. Removing the
+  last shown entry restores the default (all entries).
+- Days with no data leave a gap in the line rather than a false point.
+- The chart is read through the Data port (`readMonth`) and is stale when any
+  day in the range is missing; the offline state renders cached days.
+- The chart is decorative to assistive tech; a visually hidden table carries
+  the same values.
 
 ### Notifications
 
@@ -295,6 +313,10 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Swiping right from the day shows the month; swiping left returns.
 - [ ] Swiping past either edge cycles back to the other page.
 - [ ] Tapping a page indicator switches pages and highlights that circle.
+- [ ] The trend page plots one line per entry with date on x and time on y.
+- [ ] The trend range defaults to month and offers week and year.
+- [ ] Every entry is plotted by default; tapping a legend chip filters to it.
+- [ ] Days without data leave a gap in the trend line.
 - [ ] The eight daily entries scale to fill the space between header and
       controls without scrolling.
 - [ ] The footer month selector steps to the previous/next month and back to
@@ -411,3 +433,5 @@ None published. Consumes core and the Data port.
 - 2026-10-20 — show Imsak as the first entry in the day, month and share views.
 - 2026-10-20 — maximise the daily prayer text, disable zoom, add wrapping pages
   with top page indicators, and band the month table by calendar week.
+- 2026-10-20 — add a trend chart page: prayer times over date, week/month/year
+  range, per-entry filtering.
