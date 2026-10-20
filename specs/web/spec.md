@@ -138,6 +138,23 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The duration to the next entry renders in the primary colour when 15 minutes
   or less remain.
 
+### Tasbih
+
+- `/tasbih` is a page with a digital tasbih for zikir: a device drawn as SVG
+  with a seven-segment LCD readout.
+- The readout shows the count zero-padded to four digits (0–9999); the count
+  never goes below zero and stops at 9999.
+- The main round key increments by one. A reset key returns the count to zero;
+  a decrement key subtracts one. Both side keys do nothing at their limits.
+- Tapping anywhere on the page also increments, except on the reset and
+  decrement keys and on links. Space/Enter do the same from the keyboard.
+- Every increment, decrement, and reset requests a short device vibration where
+  `navigator.vibrate` exists; unsupported devices are unaffected.
+- The count is kept for the open tab, so leaving the page and coming back keeps
+  it.
+- The menu panel has a **Tasbih** entry that opens `/tasbih`; it closes the
+  menu. The page links back to the app and is fully localized (Malay first).
+
 ### Downloads
 
 - `/download` is a page listing the app for other platforms. Each platform is a
@@ -160,13 +177,18 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   share button are replaced by the month selector.
 - The district selector has no visible label; its accessible name carries the
   "District" label instead.
-- The menu button opens a panel with a **Settings** entry plus "reload data"
-  and "reload app"; it closes on Escape or after choosing an action.
+- The menu button opens a panel with **Settings**, **Tasbih**, and **Other
+  platforms**; it closes on Escape or after choosing an action.
 - Settings is a second panel reached from the menu, with a back entry. It
   contains the theme controls, the time-format choice, the language selector,
-  and the notification toggle. Escape returns to the menu, then closes.
-- "Reload data" refetches the day's prayer times from the source.
+  the notification toggle, and the "reload data" and "reload app" actions.
+  Escape returns to the menu, then closes.
+- "Reload data" refetches the current view (day, month, or trend) from the
+  source.
 - "Reload app" reloads the page.
+- Icons come from Nuxt Icon (`@nuxt/icon`, Lucide set): the menu, share,
+  steppers, theme modes, notifications, downloads, and reload actions all use
+  them, marked decorative when a text label is present.
 
 ### Time format
 
@@ -366,11 +388,16 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Consecutive Monday-first calendar weeks alternate a visible row
       background band.
 - [ ] A pasted link exposes absolute Open Graph and Twitter image metadata.
-- [ ] The menu opens Settings, Other platforms, reload data, and reload app.
+- [ ] The menu opens Settings, Tasbih, and Other platforms.
+- [ ] The tasbih count increments from any page tap, except the reset and
+      decrement keys and links.
+- [ ] The decrement key stops at zero; reset returns to zero; the count caps at
+      9999.
+- [ ] Increment, decrement, and reset request a vibration where supported.
 - [ ] Other platforms opens `/download`; the extension card links to the latest
       GitHub release artifact; other platforms are marked coming soon.
-- [ ] Settings opens the theme controls, time format, language, and
-      notifications.
+- [ ] Settings opens the theme controls, time format, language, notifications,
+      reload data, and reload app.
 - [ ] 24-hour time is the default; 12-hour adds an AM/PM marker everywhere.
 - [ ] The chosen time format survives a reload.
 - [ ] Dark mode is the default; the toggle switches between dark and light.
@@ -481,3 +508,6 @@ None published. Consumes core and the Data port.
 - 2026-10-20 — full-width month and trend views on non-mobile screens.
 - 2026-10-20 — add a Hide off-scale toggle to the trend chart and make the app
   keyboard-first.
+- 2026-10-20 — add a `/tasbih` page: SVG digital tasbih with increment (whole
+  page), decrement, reset, and vibration.
+- 2026-10-20 — adopt Nuxt Icon (Lucide) for menu, controls, and actions.

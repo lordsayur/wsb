@@ -9,6 +9,10 @@
         :aria-pressed="option.value === mode"
         @click="emit('update:mode', option.value)"
       >
+        <Icon
+          :name="option.value === 'dark' ? 'lucide:moon' : 'lucide:sun'"
+          aria-hidden="true"
+        />
         {{ option.label }}
       </button>
     </div>
@@ -100,6 +104,9 @@ const emit = defineEmits<{
 .modes button {
   font: inherit;
   font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   border: 1px solid var(--border);

@@ -56,7 +56,7 @@
           @click="toggleMenu"
           @keydown.down.prevent="openMenu"
         >
-          <span aria-hidden="true">☰</span>
+          <Icon name="lucide:menu" size="1.25rem" aria-hidden="true" />
         </button>
 
         <div
@@ -74,17 +74,17 @@
               aria-haspopup="true"
               @click="showSettings"
             >
+              <Icon name="lucide:settings" aria-hidden="true" />
               {{ settingsLabel }}
             </button>
             <hr class="divider" />
+            <button type="button" role="menuitem" @click="openTasbih">
+              <Icon name="lucide:circle-dot-dashed" aria-hidden="true" />
+              {{ tasbihLabel }}
+            </button>
             <button type="button" role="menuitem" @click="openDownloads">
+              <Icon name="lucide:download" aria-hidden="true" />
               {{ downloadsLabel }}
-            </button>
-            <button type="button" role="menuitem" @click="reloadData">
-              {{ reloadDataLabel }}
-            </button>
-            <button type="button" role="menuitem" @click="reloadApp">
-              {{ reloadAppLabel }}
             </button>
           </template>
 
@@ -95,7 +95,7 @@
               class="back"
               @click="showMenu"
             >
-              <span aria-hidden="true">←</span> {{ backLabel }}
+              <Icon name="lucide:arrow-left" aria-hidden="true" /> {{ backLabel }}
             </button>
             <hr class="divider" />
             <ThemeControls
@@ -141,7 +141,17 @@
               :disabled="notificationsSupported === false"
               @click="toggleNotifications"
             >
+              <Icon name="lucide:bell" aria-hidden="true" />
               {{ notificationLabel }}
+            </button>
+            <hr class="divider" />
+            <button type="button" role="menuitem" @click="reloadData">
+              <Icon name="lucide:refresh-cw" aria-hidden="true" />
+              {{ reloadDataLabel }}
+            </button>
+            <button type="button" role="menuitem" @click="reloadApp">
+              <Icon name="lucide:rotate-ccw" aria-hidden="true" />
+              {{ reloadAppLabel }}
             </button>
           </template>
         </div>
@@ -213,6 +223,7 @@ const props = defineProps<{
   timeFormat: TimeFormat
   timeFormatOptions: TimeFormatOption[]
   downloadsLabel: string
+  tasbihLabel: string
   reloadDataLabel: string
   reloadAppLabel: string
   shareLabel: string
@@ -239,6 +250,7 @@ const emit = defineEmits<{
   'update:timeFormat': [value: TimeFormat]
   share: [format: 'formatted' | 'raw']
   downloads: []
+  tasbih: []
   reloadData: []
   reloadApp: []
   toggleNotifications: []
@@ -278,6 +290,11 @@ function chooseLocale(code: string) {
 
 function openDownloads() {
   emit('downloads')
+  close()
+}
+
+function openTasbih() {
+  emit('tasbih')
   close()
 }
 
@@ -358,7 +375,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   inset-inline-end: 0;
   bottom: calc(100% + 0.5rem);
   z-index: 10;
-  min-width: 12rem;
+  min-width: 13.5rem;
   max-height: calc(100dvh - 6rem);
   overflow-y: auto;
   display: flex;
@@ -388,6 +405,9 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 .menu-panel button {
   font: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   text-align: start;
   padding: 0.4rem 0.5rem;
   border-radius: 8px;

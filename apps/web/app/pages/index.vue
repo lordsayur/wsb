@@ -249,6 +249,10 @@ function openDownloads() {
   navigateTo('/download')
 }
 
+function openTasbih() {
+  navigateTo('/tasbih')
+}
+
 onMounted(load)
 </script>
 
@@ -390,6 +394,7 @@ onMounted(load)
       :time-format="timeFormat"
       :time-format-options="timeFormatOptions"
       :downloads-label="t('action.downloads')"
+      :tasbih-label="t('action.tasbih')"
       :reload-data-label="t('action.reloadData')"
       :reload-app-label="t('action.reloadApp')"
       :share-label="t('action.share')"
@@ -413,6 +418,7 @@ onMounted(load)
       @update:custom-color="setCustom"
       @update:time-format="setTimeFormat"
       @downloads="openDownloads"
+      @tasbih="openTasbih"
       @reload-data="reloadCurrent"
       @reload-app="reloadApp"
       @toggle-notifications="toggleNotifications"

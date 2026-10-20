@@ -27,7 +27,8 @@
     "reloadData": "Muat semula data",
     "reloadApp": "Muat semula aplikasi",
     "share": "Kongsi waktu sembahyang",
-    "downloads": "Platform lain"
+    "downloads": "Platform lain",
+    "tasbih": "Tasbih"
   },
   "source": {
     "label": "Sumber data",
@@ -201,6 +202,17 @@
       "month": "Bulan",
       "year": "Tahun"
     }
+  },
+  "tasbih": {
+    "title": "Tasbih",
+    "intro": "Tasbih digital untuk zikir. Ketik di mana-mana untuk mengira.",
+    "back": "Kembali ke aplikasi",
+    "label": "Kiraan tasbih, {count}",
+    "count": "Kiraan: {count}",
+    "hint": "Ketik di mana-mana untuk tambah satu. Guna kekunci sisi untuk tolak satu atau set semula.",
+    "increment": "Tambah satu",
+    "decrement": "Tolak satu",
+    "reset": "Set semula kepada sifar"
   },
   "a11y": {
     "skipToContent": "Langkau ke kandungan"

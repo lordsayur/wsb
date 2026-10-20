@@ -6,6 +6,7 @@
     </header>
     <p class="description">{{ description }}</p>
     <a v-if="href" class="action" :href="href" rel="noopener">
+      <Icon name="lucide:download" aria-hidden="true" />
       {{ actionLabel }}
     </a>
     <p v-else class="action disabled" aria-disabled="true">{{ actionLabel }}</p>
@@ -65,6 +66,9 @@ withDefaults(
   align-self: flex-start;
   font: inherit;
   font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-weight: 700;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;

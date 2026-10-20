@@ -1,6 +1,14 @@
+import { ICONS } from "./app/utils/icons";
+
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/i18n", "@vite-pwa/nuxt"],
+  modules: ["@nuxtjs/i18n", "@vite-pwa/nuxt", "@nuxt/icon"],
   compatibilityDate: "2024-11-01",
+  // specs/web/spec.md — icons ship with the app so they render offline.
+  icon: {
+    mode: "svg",
+    serverBundle: { collections: ["lucide"] },
+    clientBundle: { icons: [...ICONS], scan: true },
+  },
   devtools: { enabled: true },
   css: ["~/assets/css/theme.css"],
   app: {

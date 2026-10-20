@@ -20,7 +20,7 @@
         :aria-label="prevLabel"
         @click="emit('shift', -1)"
       >
-        <span aria-hidden="true">‹</span>
+        <Icon name="lucide:chevron-left" aria-hidden="true" />
       </button>
       <button v-if="!current" type="button" class="today" @click="emit('today')">
         {{ todayLabel }}
@@ -31,7 +31,7 @@
         :aria-label="nextLabel"
         @click="emit('shift', 1)"
       >
-        <span aria-hidden="true">›</span>
+        <Icon name="lucide:chevron-right" aria-hidden="true" />
       </button>
     </div>
   </div>

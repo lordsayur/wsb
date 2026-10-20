@@ -52,7 +52,10 @@ useSeoMeta({
         </div>
       </div>
 
-      <NuxtLink class="back" to="/">{{ t('downloads.back') }}</NuxtLink>
+      <NuxtLink class="back" to="/">
+        <Icon name="lucide:arrow-left" aria-hidden="true" />
+        {{ t('downloads.back') }}
+      </NuxtLink>
       <SourceNote
         :label="t('source.label')"
         :name="t('source.name')"
@@ -103,6 +106,9 @@ useSeoMeta({
 }
 .back {
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.9rem;
 }
 </style>

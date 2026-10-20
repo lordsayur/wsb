@@ -27,7 +27,8 @@
     "reloadData": "Reload data",
     "reloadApp": "Reload app",
     "share": "Share prayer times",
-    "downloads": "Other platforms"
+    "downloads": "Other platforms",
+    "tasbih": "Tasbih"
   },
   "source": {
     "label": "Data source",
@@ -201,6 +202,17 @@
       "month": "Month",
       "year": "Year"
     }
+  },
+  "tasbih": {
+    "title": "Tasbih",
+    "intro": "Digital tasbih for zikir. Tap anywhere to count.",
+    "back": "Back to the app",
+    "label": "Tasbih counter, {count}",
+    "count": "Count: {count}",
+    "hint": "Tap anywhere to add one. Use the side keys to subtract one or reset.",
+    "increment": "Add one",
+    "decrement": "Subtract one",
+    "reset": "Reset to zero"
   },
   "a11y": {
     "skipToContent": "Skip to content"

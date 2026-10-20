@@ -1,7 +1,10 @@
 <template>
   <p class="source-note">
     <span>{{ label }}:</span>
-    <a :href="url" target="_blank" rel="noopener noreferrer">{{ name }}</a>
+    <a :href="url" target="_blank" rel="noopener noreferrer">
+      {{ name }}
+      <Icon name="lucide:external-link" aria-hidden="true" />
+    </a>
   </p>
 </template>
 
@@ -19,5 +22,10 @@ defineProps<{ label: string; name: string; url: string }>()
   gap: 0.25rem;
   font-size: 0.7rem;
   opacity: 0.55;
+}
+a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
 }
 </style>
