@@ -81,6 +81,9 @@ only; no domain rules.
 - The extension is buildable as an unpacked directory and as a `.vsix` artifact
   (`pnpm --filter wsb-vscode package`).
 - The `.vsix` is attached to the same GitHub release as the browser extension.
+- The same `.vsix` is published to the VS Code Marketplace and Open VSX on a
+  tag push when `VSCE_PAT` / `OVSX_PAT` are configured; each is skipped when its
+  token is absent, and a duplicate version is not an error.
 
 ## Invariants
 
@@ -118,7 +121,6 @@ only; no domain rules.
 - Backend/network adapters — Data.
 - OS-level delivery while the editor is closed — the timer only runs with the
   extension host.
-- Marketplace publishing — the `.vsix` ships from GitHub releases.
 
 ## Changelog
 
@@ -128,3 +130,5 @@ only; no domain rules.
 - 2026-10-21 — ask once after install before enabling notifications; move the
   times panel into a sidebar activity-bar view; link to the web app; use the
   browser extension's icon.
+- 2026-10-21 — publish the `.vsix` to the VS Code Marketplace and Open VSX from
+  the release workflow when tokens are present (was out of scope).

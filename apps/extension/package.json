@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "wsb browser extension (Manifest V3) \u2014 popup, page header, notifications.",
+  "license": "MIT",
   "scripts": {
     "build": "node --env-file-if-exists=../../.env scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",

@@ -11,6 +11,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -29,6 +32,16 @@ jobs:
         env:
           WSB_SUPABASE_URL: ${{ secrets.WSB_SUPABASE_URL }}
           WSB_SUPABASE_ANON_KEY: ${{ secrets.WSB_SUPABASE_ANON_KEY }}
+      - name: Publish to VS Code Marketplace
+        if: env.VSCE_PAT != ''
+        run: pnpm --filter wsb-vscode exec vsce publish --no-dependencies --skip-duplicate --packagePath wsb-vscode.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish to Open VSX
+        if: env.OVSX_PAT != ''
+        run: pnpm --filter wsb-vscode exec ovsx publish --no-dependencies --skip-duplicate --packagePath wsb-vscode.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
       - uses: softprops/action-gh-release@v2
         with:
           files: |
