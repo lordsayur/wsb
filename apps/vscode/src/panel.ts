@@ -1,11 +1,12 @@
 /**
- * The webview-rendered times panel. Extension host and webview exchange
- * messages; the webview owns only the DOM.
+ * The sidebar view that renders the times panel. Extension host and webview
+ * exchange messages; the webview owns only the DOM.
  * specs/vscode/spec.md — no domain rules here.
  */
 import * as vscode from 'vscode'
 import type { District } from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
+import { WEB_APP_URL } from './shared/constants.js'
 import { t, type Locale } from './shared/i18n.js'
 import type { ExtensionSettings } from './shared/settings.js'
 import type { DayView } from './shared/view.js'
@@ -23,6 +24,7 @@ export interface PanelState {
 export type PanelMessage =
   | { type: 'ready' }
   | { type: 'reload' }
+  | { type: 'open'; url: string }
   | { type: 'setting'; key: 'locale' | 'timeFormat' | 'district'; value: string }
 
 const LOCALES: { value: Locale; label: string }[] = [
@@ -48,8 +50,10 @@ function panelStrings(settings: ExtensionSettings): Record<string, string> {
     h24: s('settings.timeFormat.h24'),
     h12: s('settings.timeFormat.h12'),
     reload: s('action.reloadData'),
+    openApp: s('extension.openApp'),
     sourceName: s('source.name'),
     sourceUrl: MORA_PAGE_URL,
+    webUrl: WEB_APP_URL,
   }
 }
 
@@ -73,70 +77,46 @@ export function panelState(
   }
 }
 
-export class TimesPanel {
-  private static current: TimesPanel | null = null
-  private readonly panel: vscode.WebviewPanel
-  private readonly getState: () => PanelState
-  private readonly onMessage: (message: PanelMessage) => void
+export class TimesView implements vscode.WebviewViewProvider {
+  static readonly viewId = 'wsb.times'
 
-  private constructor(
-    panel: vscode.WebviewPanel,
-    getState: () => PanelState,
-    onMessage: (message: PanelMessage) => void,
-  ) {
-    this.panel = panel
-    this.getState = getState
-    this.onMessage = onMessage
+  private view: vscode.WebviewView | null = null
 
-    panel.webview.html = html(panel.webview)
-    panel.webview.onDidReceiveMessage((message: PanelMessage) =>
+  constructor(
+    private readonly getState: () => PanelState,
+    private readonly onMessage: (message: PanelMessage) => void,
+  ) {}
+
+  resolveWebviewView(view: vscode.WebviewView): void {
+    this.view = view
+    view.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [vscode.Uri.joinPath(extensionRootOf(), 'dist')],
+    }
+    view.webview.html = html(view.webview)
+    view.webview.onDidReceiveMessage((message: PanelMessage) =>
       this.onMessage(message),
     )
-    panel.onDidDispose(() => {
-      if (TimesPanel.current === this) TimesPanel.current = null
+    view.onDidDispose(() => {
+      if (this.view === view) this.view = null
     })
-  }
-
-  static show(
-    extensionUri: vscode.Uri,
-    getState: () => PanelState,
-    onMessage: (message: PanelMessage) => void,
-  ): TimesPanel {
-    if (TimesPanel.current) {
-      TimesPanel.current.panel.reveal()
-      TimesPanel.current.push()
-      return TimesPanel.current
-    }
-    const panel = vscode.window.createWebviewPanel(
-      'wsb.times',
-      t(getState().settings.locale, 'extension.title'),
-      vscode.ViewColumn.One,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'dist')],
-      },
-    )
-    TimesPanel.current = new TimesPanel(panel, getState, onMessage)
-    return TimesPanel.current
+    this.push()
   }
 
   push(): void {
-    const state = this.getState()
-    this.panel.title = t(state.settings.locale, 'extension.title')
-    void this.panel.webview.postMessage({ type: 'state', state })
+    void this.view?.webview.postMessage({
+      type: 'state',
+      state: this.getState(),
+    })
   }
 
-  reveal(): void {
-    this.panel.reveal()
+  async reveal(): Promise<void> {
+    await vscode.commands.executeCommand(`${TimesView.viewId}.focus`)
   }
 }
 
 function html(webview: vscode.Webview): string {
-  const root = vscode.Uri.joinPath(
-    extensionRootOf(webview),
-    'dist',
-  )
+  const root = vscode.Uri.joinPath(extensionRootOf(), 'dist')
   const asset = (name: string) =>
     webview.asWebviewUri(vscode.Uri.joinPath(root, name))
   const nonce = Array.from({ length: 32 }, () =>
@@ -185,7 +165,7 @@ export function setExtensionRoot(uri: vscode.Uri): void {
   extensionRoot = uri
 }
 
-function extensionRootOf(_webview: vscode.Webview): vscode.Uri {
+function extensionRootOf(): vscode.Uri {
   if (!extensionRoot) throw new Error('Extension root not set')
   return extensionRoot
 }

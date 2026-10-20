@@ -117,9 +117,19 @@ function render(state: PanelState): void {
   reload.addEventListener('click', () => vscode.postMessage({ type: 'reload' }))
   root.append(reload)
 
+  const links = element('div', 'links')
+  const app = element('button', 'link', strings.openApp)
+  app.addEventListener('click', () =>
+    vscode.postMessage({ type: 'open', url: strings.webUrl }),
+  )
+  links.append(app)
+  root.append(links)
+
   const footer = element('div', 'footer')
-  const source = element('a', undefined, strings.sourceName)
-  source.href = strings.sourceUrl
+  const source = element('button', 'link', strings.sourceName)
+  source.addEventListener('click', () =>
+    vscode.postMessage({ type: 'open', url: strings.sourceUrl }),
+  )
   footer.append(source)
   root.append(footer)
 }

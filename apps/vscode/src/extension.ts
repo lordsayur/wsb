@@ -19,13 +19,15 @@ import {
   reminderId,
   reminderText,
 } from './shared/notifications.js'
-import { TimesPanel, panelState, setExtensionRoot, type PanelMessage } from './panel.js'
+import { TimesView, panelState, setExtensionRoot, type PanelMessage } from './panel.js'
 
 const STATUS_REFRESH_MS = 30_000
+/** Ask once, after install, whether to enable reminders. */
+export const PROMPTED_KEY = 'wsb.promptedNotifications'
 
 let repo: PrayerRepository | null = null
 let statusItem: vscode.StatusBarItem | null = null
-let panel: TimesPanel | null = null
+let timesView: TimesView | null = null
 let day: LoadedDay | null = null
 let loading = true
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -72,7 +74,7 @@ function renderStatus(): void {
 
 function render(): void {
   renderStatus()
-  panel?.push()
+  timesView?.push()
 }
 
 async function refresh(force = false): Promise<void> {
@@ -120,7 +122,14 @@ async function fire(): Promise<void> {
 
 function onPanelMessage(message: PanelMessage): void {
   if (message.type === 'ready') {
-    panel?.push()
+    timesView?.push()
+    return
+  }
+  if (message.type === 'open') {
+    // The webview cannot open arbitrary links; the host owns the URI.
+    if (/^https:\/\//.test(message.url)) {
+      void vscode.env.openExternal(vscode.Uri.parse(message.url))
+    }
     return
   }
   if (message.type === 'reload') {
@@ -137,6 +146,24 @@ function onPanelMessage(message: PanelMessage): void {
   )
 }
 
+/** Asks once after install; the answer is the runtime opt-in. */
+async function promptNotifications(context: vscode.ExtensionContext): Promise<void> {
+  if (context.globalState.get<boolean>(PROMPTED_KEY)) return
+  await context.globalState.update(PROMPTED_KEY, true)
+  const current = settings()
+  if (current.notifications) return
+  const answer = await vscode.window.showInformationMessage(
+    t(current.locale, 'extension.enablePrompt'),
+    t(current.locale, 'extension.enableYes'),
+    t(current.locale, 'extension.enableNo'),
+  )
+  if (answer !== t(current.locale, 'extension.enableYes')) return
+  await vscode.workspace
+    .getConfiguration('wsb')
+    .update('notifications', true, vscode.ConfigurationTarget.Global)
+  schedule()
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   setExtensionRoot(context.extensionUri)
   repo = repository(mementoCache(context.globalState))
@@ -149,16 +176,17 @@ export function activate(context: vscode.ExtensionContext): void {
   statusItem.name = t(settings().locale, 'extension.title')
   statusItem.command = 'wsb.openPanel'
 
+  timesView = new TimesView(
+    () => panelState(settings(), view(), loading, day?.stale ?? false),
+    onPanelMessage,
+  )
+
   context.subscriptions.push(
     statusItem,
-    vscode.commands.registerCommand('wsb.openPanel', () => {
-      panel = TimesPanel.show(
-        context.extensionUri,
-        () => panelState(settings(), view(), loading, day?.stale ?? false),
-        onPanelMessage,
-      )
-      panel.push()
+    vscode.window.registerWebviewViewProvider(TimesView.viewId, timesView, {
+      webviewOptions: { retainContextWhenHidden: true },
     }),
+    vscode.commands.registerCommand('wsb.openPanel', () => timesView?.reveal()),
     vscode.commands.registerCommand('wsb.reloadData', () => {
       loading = true
       render()
@@ -174,6 +202,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   render()
   void refresh()
+  void promptNotifications(context)
 
   const clock = setInterval(render, STATUS_REFRESH_MS)
   context.subscriptions.push({ dispose: () => clearInterval(clock) })
@@ -182,5 +211,5 @@ export function activate(context: vscode.ExtensionContext): void {
 export function deactivate(): void {
   clearTimeout(timer)
   pending = undefined
-  panel = null
+  timesView = null
 }

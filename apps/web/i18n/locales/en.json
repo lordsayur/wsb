@@ -106,7 +106,10 @@
     "openApp": "Open app",
     "closeLabel": "Hide",
     "updateAvailable": "Version {version} is available",
-    "updateDownload": "Download"
+    "updateDownload": "Download",
+    "enablePrompt": "Enable prayer-time notifications?",
+    "enableYes": "Enable",
+    "enableNo": "Not now"
   },
   "downloads": {
     "title": "Download",

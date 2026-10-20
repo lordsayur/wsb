@@ -8,9 +8,9 @@
 ## Purpose
 
 A VS Code extension shell over core: the day's prayer times in the editor
-status bar, plus a small webview panel with all eight entries and the same
-district, language and clock choices as the other shells. Rendering and
-platform glue only; no domain rules.
+status bar, plus a sidebar view with all eight entries and the same district,
+language and clock choices as the other shells. Rendering and platform glue
+only; no domain rules.
 
 ## Behavior
 
@@ -23,7 +23,7 @@ platform glue only; no domain rules.
   entry, the district and the data-source credit. The next entry lives only in
   the tooltip so the bar stays quiet.
 - The item updates while the editor is open, without a reload.
-- Clicking the item opens the times panel.
+- Clicking the item reveals the times view in the activity bar.
 - The item can be hidden with the `wsb.statusBar` setting; the choice persists
   in the editor configuration.
 
@@ -31,6 +31,8 @@ platform glue only; no domain rules.
 
 - Notifications are opt-in (`wsb.notifications`, off by default); the choice
   persists in the editor configuration.
+- On first install the extension asks once whether to enable notifications; the
+  answer sets `wsb.notifications` and is never asked again.
 - When enabled, the extension raises one notification 15 minutes before each
   prayer and one at the prayer's time. `imsak`, `syuruk` and `doha` are time
   boundaries and never notify.
@@ -39,10 +41,12 @@ platform glue only; no domain rules.
   to two minutes late.
 - Reminder text is localized and uses the chosen time format.
 
-### Times panel
+### Times view
 
-- The panel shows the same eight entries, dates, current highlight and duration
-  to the next as the web shell, for the selected district.
+- The times view is a webview in its own activity-bar container, not an editor
+  tab, so it stays out of the main editor area.
+- It shows the same eight entries, dates, current highlight and duration to the
+  next as the web shell, for the selected district.
 - A district selector, language selector (default Malay; Malay, Jawi Malay,
   Arabic, English) and 12/24-hour choice live in the panel; each choice is
   stored in the editor configuration and re-rendered immediately.
@@ -51,7 +55,9 @@ platform glue only; no domain rules.
 - Dates and the Hijri date render in the active locale's script; Arabic-script
   locales use Arabic-Indic digits (٠١٢…) for times and dates.
 - "Reload data" refetches the current day.
-- The panel credits the MORA/KHEU source.
+- The view links to the web app and credits the MORA/KHEU source; both open in
+  the browser through the extension host.
+- The extension icon matches the browser extension's.
 
 ### Data
 
@@ -92,7 +98,7 @@ platform glue only; no domain rules.
 - [ ] The status bar shows the current entry and time for the selected district;
       before the first entry it shows the next one.
 - [ ] The status bar tooltip carries the next entry and the duration to it.
-- [ ] The panel renders the eight entries in order.
+- [ ] The times view renders the eight entries in order in the sidebar.
 - [ ] Selecting Tutong/Belait shifts the entries by +1/+3 minutes.
 - [ ] The current entry is highlighted and the duration to next is shown.
 - [ ] District, language and time format survive a restart.
@@ -100,8 +106,10 @@ platform glue only; no domain rules.
       Arabic-script font.
 - [ ] Hiding the status bar removes it immediately and persists.
 - [ ] Enabling notifications persists the choice and schedules reminders.
+- [ ] The first install asks once whether to enable notifications.
 - [ ] Imsak, Syuruk and Dhuha never notify; the five prayers do.
 - [ ] Times fall back to the last known day when the source is unreachable.
+- [ ] The view links to the web app and the source, opening each in the browser.
 - [ ] The build produces a `.vsix` artifact.
 
 ## Out of scope
@@ -117,3 +125,6 @@ platform glue only; no domain rules.
 - 2026-10-20 — initial: status bar, times panel, settings, vsix packaging.
 - 2026-10-20 — the status bar shows the current entry; the next entry moves to
   the tooltip. Add opt-in in-editor prayer notifications.
+- 2026-10-21 — ask once after install before enabling notifications; move the
+  times panel into a sidebar activity-bar view; link to the web app; use the
+  browser extension's icon.

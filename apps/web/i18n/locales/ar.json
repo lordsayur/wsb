@@ -106,7 +106,10 @@
     "openApp": "فتح التطبيق",
     "closeLabel": "إخفاء",
     "updateAvailable": "الإصدار {version} متوفر",
-    "updateDownload": "تحميل"
+    "updateDownload": "تحميل",
+    "enablePrompt": "هل تريد تفعيل إشعارات أوقات الصلاة؟",
+    "enableYes": "تفعيل",
+    "enableNo": "ليس الآن"
   },
   "downloads": {
     "title": "تحميل",

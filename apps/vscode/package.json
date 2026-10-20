@@ -2,7 +2,7 @@
   "name": "wsb-vscode",
   "displayName": "Waktu Sembahyang Brunei",
   "description": "Waktu sembahyang Brunei di bar status editor.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "lordsayur",
   "private": true,
   "type": "module",
@@ -24,7 +24,7 @@
     "commands": [
       {
         "command": "wsb.openPanel",
-        "title": "Waktu Sembahyang: Open times panel"
+        "title": "Waktu Sembahyang: Open times view"
       },
       {
         "command": "wsb.reloadData",
@@ -90,6 +90,24 @@
           "description": "District whose prayer times are shown."
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "wsb",
+          "title": "Waktu Sembahyang",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "wsb": [
+        {
+          "id": "wsb.times",
+          "name": "Waktu Sembahyang",
+          "type": "webview"
+        }
+      ]
     }
   },
   "scripts": {
@@ -111,5 +129,6 @@
     "esbuild": "^0.28.2",
     "typescript": "^5.6.3",
     "vitest": "^2.1.9"
-  }
+  },
+  "icon": "media/icon.png"
 }

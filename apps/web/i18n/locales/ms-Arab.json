@@ -106,7 +106,10 @@
     "openApp": "بوک اڤليکاسي",
     "closeLabel": "سمبوڽيکن",
     "updateAvailable": "ۏرسي {version} ترسيديا",
-    "updateDownload": "موات تورون"
+    "updateDownload": "موات تورون",
+    "enablePrompt": "هيدوڤکن نوتيفيکاسي وقت سمبهيڠ؟",
+    "enableYes": "هيدوڤکن",
+    "enableNo": "بوکن سکارڠ"
   },
   "downloads": {
     "title": "موات تورون",

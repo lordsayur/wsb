@@ -106,7 +106,10 @@
     "openApp": "Buka aplikasi",
     "closeLabel": "Sembunyikan",
     "updateAvailable": "Versi {version} tersedia",
-    "updateDownload": "Muat turun"
+    "updateDownload": "Muat turun",
+    "enablePrompt": "Hidupkan notifikasi waktu sembahyang?",
+    "enableYes": "Hidupkan",
+    "enableNo": "Bukan sekarang"
   },
   "downloads": {
     "title": "Muat turun",

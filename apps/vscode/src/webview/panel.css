@@ -141,8 +141,22 @@ button.primary {
   margin: 0.5rem 0;
 }
 
-a {
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+button.link {
+  width: auto;
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--vscode-textLink-foreground);
+  text-align: start;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .footer {
