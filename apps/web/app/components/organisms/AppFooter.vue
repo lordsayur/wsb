@@ -47,23 +47,32 @@
 
       <div class="menu">
         <button
+          ref="menuButton"
           type="button"
           class="menu-button"
-          :aria-expanded="open"
           aria-haspopup="true"
+          :aria-expanded="open"
           :aria-label="menuLabel"
-          @click="open ? close() : (open = true)"
+          @click="toggleMenu"
+          @keydown.down.prevent="openMenu"
         >
           <span aria-hidden="true">☰</span>
         </button>
 
-        <div v-if="open" class="menu-panel" role="menu">
+        <div
+          v-if="open"
+          ref="panelEl"
+          class="menu-panel"
+          role="menu"
+          :aria-label="menuLabel"
+          @keydown="onPanelKeydown"
+        >
           <template v-if="panel === 'menu'">
             <button
               type="button"
               role="menuitem"
               aria-haspopup="true"
-              @click="panel = 'settings'"
+              @click="showSettings"
             >
               {{ settingsLabel }}
             </button>
@@ -84,7 +93,7 @@
               type="button"
               role="menuitem"
               class="back"
-              @click="panel = 'menu'"
+              @click="showMenu"
             >
               <span aria-hidden="true">←</span> {{ backLabel }}
             </button>
@@ -143,7 +152,7 @@
 
 <script setup lang="ts">
 // specs/web/spec.md — organism: footer with district + menu and data source.
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import DistrictSelector, {
   type DistrictOption,
 } from '../molecules/DistrictSelector.vue'
@@ -161,6 +170,7 @@ import TimeFormatControls, {
 } from '../molecules/TimeFormatControls.vue'
 import type { TimeFormat } from '@wsb/core'
 import type { PaletteId, ThemeMode } from '~/utils/theme'
+import { focusables, onGroupKeydown } from '~/utils/rovingFocus'
 
 export interface LanguageOption {
   code: string
@@ -236,6 +246,30 @@ const emit = defineEmits<{
 
 const open = ref(false)
 const panel = ref<'menu' | 'settings'>('menu')
+const menuButton = ref<HTMLButtonElement | null>(null)
+const panelEl = ref<HTMLElement | null>(null)
+
+function openMenu() {
+  open.value = true
+  nextTick(() => focusables(panelEl.value)[0]?.focus())
+}
+
+function toggleMenu() {
+  if (open.value) close()
+  else openMenu()
+}
+
+/** Swap to the settings panel and keep focus inside it. */
+function showSettings() {
+  panel.value = 'settings'
+  nextTick(() => focusables(panelEl.value)[0]?.focus())
+}
+
+/** Swap back to the menu panel and keep focus inside it. */
+function showMenu() {
+  panel.value = 'menu'
+  nextTick(() => focusables(panelEl.value)[0]?.focus())
+}
 
 function chooseLocale(code: string) {
   emit('update:locale', code)
@@ -258,16 +292,31 @@ function reloadApp() {
 }
 
 function close() {
+  const hadFocus = panelEl.value?.contains(document.activeElement)
   open.value = false
   panel.value = 'menu'
+  if (hadFocus) nextTick(() => menuButton.value?.focus())
 }
 
 function toggleNotifications() {
   emit('toggleNotifications')
 }
 
+/** Arrow keys walk the panel's items; Home/End jump; Escape goes back. */
+function onPanelKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    if (panel.value === 'settings') {
+      panel.value = 'menu'
+      nextTick(() => focusables(panelEl.value)[0]?.focus())
+    } else close()
+    return
+  }
+  onGroupKeydown(event, panelEl.value)
+}
+
 function onKeydown(event: KeyboardEvent) {
-  if (event.key !== 'Escape') return
+  if (event.key !== 'Escape' || event.defaultPrevented) return
   if (panel.value === 'settings') panel.value = 'menu'
   else close()
 }

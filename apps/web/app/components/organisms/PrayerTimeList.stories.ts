@@ -69,6 +69,20 @@ export const OfflineWithCache: Story = {
   },
 }
 
+export const RefreshingWithCache: Story = {
+  args: {
+    state: 'ready',
+    rows,
+    refreshing: true,
+    refreshingText: 'Mengemas kini…',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Mengemas kini…')).toBeVisible()
+    await expect(canvas.getAllByRole('article')).toHaveLength(8)
+  },
+}
+
 export const Unavailable: Story = {
   args: { state: 'unavailable', unavailableText: 'Tidak tersedia.' },
   play: async ({ canvasElement }) => {

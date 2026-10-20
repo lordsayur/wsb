@@ -89,6 +89,9 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
 - The anchor can step forward and back by one range (a week, a month, a year).
 - A range is *current* when it has the same start as the range containing
   today.
+- A chart value is *off-scale* when it differs from its entry's median over the
+  range by more than 90 minutes; that is a data-entry error, not a seasonal
+  change. The shell may hide off-scale values and must not invent replacements.
 - Arabic-script locales (`ar`, `ms-Arab`) format times, dates and the Hijri
   date with Arabic-Indic digits; all other locales use Latin digits.
 
@@ -155,6 +158,7 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
 - [ ] The day name formats for an explicit locale, long and short.
 - [ ] A day of the month formats alone, without the month name.
 - [ ] A missing Hijri value falls back to the Umm al-Qura calendar.
+- [ ] A value more than 90 minutes from its entry's median is off-scale.
 
 ## Interfaces
 
@@ -172,7 +176,8 @@ Names only; shapes finalized in code.
 - `monthOf` / `shiftMonth` / `monthDates` / `formatMonth` / `formatDayNumber` —
   month navigation and formatting for the monthly view.
 - `shiftDate` / `rangeDates` / `formatShortDate` / `chartBounds` /
-  `shiftChartDate` / `chartIsCurrent` — trend chart ranges and labels.
+  `shiftChartDate` / `chartIsCurrent` / `chartMedian` / `isChartOutlier` —
+  trend chart ranges, labels, and off-scale detection.
 - Resolve selection → district; apply offset; format times.
 - Resolve now → current/next entry and duration; format duration.
 
@@ -203,3 +208,4 @@ Names only; shapes finalized in code.
   non-reminding time boundary like Dhuha.
 - 2026-10-20 — add trend range helpers (week/month/year bounds, stepping, and
   compact axis labels).
+- 2026-10-20 — detect off-scale chart values against the entry's median.

@@ -1,7 +1,7 @@
 <template>
   <section class="theme-controls">
     <p class="heading">{{ modeLabel }}</p>
-    <div class="modes" role="group" :aria-label="modeLabel">
+    <div class="modes" role="group" :aria-label="modeLabel" @keydown="onGroupKeydown">
       <button
         v-for="option in modes"
         :key="option.value"
@@ -14,7 +14,7 @@
     </div>
 
     <p class="heading">{{ paletteLabel }}</p>
-    <div class="palettes" role="group" :aria-label="paletteLabel">
+    <div class="palettes" role="group" :aria-label="paletteLabel" @keydown="onGroupKeydown">
       <button
         v-for="option in paletteOptions"
         :key="option.id"
@@ -51,6 +51,7 @@
 <script setup lang="ts">
 // specs/web/spec.md — molecule: theme mode + palette choices, prop-driven.
 import type { PaletteId, ThemeMode } from '~/utils/theme'
+import { onGroupKeydown } from '~/utils/rovingFocus'
 
 export interface ModeOption {
   value: ThemeMode

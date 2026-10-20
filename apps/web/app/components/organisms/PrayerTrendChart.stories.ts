@@ -81,7 +81,12 @@ const meta: Meta<typeof PrayerTrendChart> = {
     loadingText: 'Memuatkan…',
     unavailableText: 'Waktu sembahyang tidak tersedia.',
     offlineText: '',
+    hasOutliers: false,
+    hideOutliers: false,
+    outlierCount: 0,
+    outlierLabel: 'Sembunyi luar skala',
     onTogglePrayer: fn(),
+    onToggleOutliers: fn(),
   },
 }
 export default meta
@@ -155,11 +160,61 @@ export const Unavailable: Story = {
   },
 }
 
+export const RefreshingWithCache: Story = {
+  args: { refreshing: true, refreshingText: 'Mengemas kini…' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Mengemas kini…')).toBeVisible()
+    await expect(canvas.getByRole('img')).toBeVisible()
+  },
+}
+
 export const OfflineWithCache: Story = {
   args: { offlineText: 'Anda sedang luar talian. Memaparkan data terakhir.' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText(/luar talian/)).toBeVisible()
     await expect(canvas.getByRole('img')).toBeVisible()
+  },
+}
+
+export const OffersOutlierToggle: Story = {
+  args: { hasOutliers: true, outlierCount: 2 },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const toggle = canvas.getByRole('button', { name: /Sembunyi luar skala/ })
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false')
+    await userEvent.click(toggle)
+    await expect(args.onToggleOutliers).toHaveBeenCalled()
+  },
+}
+
+export const OutliersHidden: Story = {
+  args: { hasOutliers: true, hideOutliers: true, outlierCount: 2 },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: /Sembunyi luar skala/ }),
+    ).toHaveAttribute('aria-pressed', 'true')
+  },
+}
+
+export const NoOutliersNoToggle: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).queryByRole('button', { name: /Sembunyi luar skala/ }),
+    ).toBeNull()
+  },
+}
+
+export const LegendSupportsArrowKeys: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const first = canvas.getByRole('button', { name: /Subuh/ })
+    first.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(canvas.getByRole('button', { name: /Zuhur/ })).toHaveFocus()
+    await userEvent.keyboard('{ArrowLeft}')
+    await expect(first).toHaveFocus()
   },
 }

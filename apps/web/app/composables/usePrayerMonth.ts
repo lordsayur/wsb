@@ -18,6 +18,7 @@ import {
   type TimeFormat,
 } from '@wsb/core'
 import { getPrayerRepository } from './usePrayerTimes'
+import { useDelayedFlag } from '~/utils/delayedFlag'
 
 export interface MonthRow {
   prayer: string
@@ -52,6 +53,8 @@ export function usePrayerMonth(
   const days = ref<LoadedMonthDay[]>([])
   const state = ref<'loading' | 'ready' | 'unavailable'>('loading')
   const stale = ref(false)
+  const { flag: refreshing, start: startRefreshing, stop: stopRefreshing } =
+    useDelayedFlag()
 
   const title = computed(() => formatMonth(month.value, locale()))
 
@@ -90,16 +93,34 @@ export function usePrayerMonth(
     }),
   )
 
+  /** specs/web/spec.md — paint the cached month before any network work. */
+  function paintFromCache() {
+    const peek = getPrayerRepository().peekMonth?.(month.value, district())
+    if (peek?.status !== 'ok') return false
+    days.value = peek.days
+    stale.value = peek.stale
+    state.value = 'ready'
+    return true
+  }
+
   async function load() {
     if (!active()) return
-    state.value = 'loading'
+    if (!paintFromCache()) {
+      state.value = 'loading'
+      days.value = []
+      stale.value = false
+    }
+    if (state.value === 'ready') startRefreshing()
     const result = await getPrayerRepository().readMonth(
       month.value,
       district(),
     )
+    stopRefreshing()
     if (result.status === 'unavailable') {
-      state.value = 'unavailable'
-      days.value = []
+      if (state.value !== 'ready') {
+        state.value = 'unavailable'
+        days.value = []
+      }
       return
     }
     days.value = result.days
@@ -128,6 +149,7 @@ export function usePrayerMonth(
     columns,
     rows,
     state,
+    refreshing,
     stale,
     shift,
     setMonth,

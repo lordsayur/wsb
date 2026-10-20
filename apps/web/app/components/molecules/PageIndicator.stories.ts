@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { expect, within } from '@storybook/test'
+import { expect, userEvent, within } from '@storybook/test'
 import PageIndicator from './PageIndicator.vue'
 
 // specs/web/spec.md — molecule: dots mark the current page; tapping selects.
@@ -36,5 +36,30 @@ export const MonthCurrent: Story = {
       'aria-current',
       'page',
     )
+  },
+}
+
+export const KeyboardArrowsMoveAndSelect: Story = {
+  args: {
+    pages: [
+      ...pages,
+      { id: 'trend', label: 'Grafik trend' },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const day = canvas.getByRole('button', { name: 'Paparan harian' })
+    day.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(
+      canvas.getByRole('button', { name: 'Paparan bulanan' }),
+    ).toHaveFocus()
+    await expect(day).toHaveAttribute('tabindex', '-1')
+    await userEvent.keyboard('{End}')
+    await expect(
+      canvas.getByRole('button', { name: 'Grafik trend' }),
+    ).toHaveFocus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(day).toHaveFocus()
   },
 }

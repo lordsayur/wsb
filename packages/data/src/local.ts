@@ -29,6 +29,14 @@ export class LocalPrayerCacheStore implements PrayerCacheStore {
       // specs/data/spec.md — storage can be full or blocked; keep running.
     }
   }
+
+  getSync(key: string): string | null {
+    try {
+      return this.storage.getItem(key)
+    } catch {
+      return null
+    }
+  }
 }
 
 /**

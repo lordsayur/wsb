@@ -11,6 +11,15 @@
 # Safe to re-run: each step stops any server already on its port, then restarts.
 set -euo pipefail
 
+# specs/web/spec.md — one dev server owns apps/web/.nuxt. Running on the host
+# and in the devcontainer at once means two processes write the same checkout
+# through different paths and corrupt the Vite/Nuxt output. Refuse on the host.
+if [ ! -f /.dockerenv ] && [ -z "${REMOTE_CONTAINERS:-}" ] && [ -z "${CODESPACES:-}" ]; then
+  echo "dev.sh must run inside the devcontainer (see AGENTS.md)." >&2
+  echo "If you already have a server running there, use it instead of starting another." >&2
+  exit 1
+fi
+
 cd "$(dirname "$0")"
 ROOT="$(pwd)"
 

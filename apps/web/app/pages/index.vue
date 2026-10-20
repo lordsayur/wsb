@@ -73,6 +73,7 @@ const {
   entries,
   progress,
   stale,
+  refreshing: dayRefreshing,
   load,
   reloadData,
   selectDistrict,
@@ -109,6 +110,7 @@ const {
   rows: monthRows,
   state: monthState,
   stale: monthStale,
+  refreshing: monthRefreshing,
   shift: shiftMonth,
   setMonth,
   reload: reloadMonth,
@@ -132,10 +134,15 @@ const {
   xTicks,
   state: chartState,
   stale: chartStale,
+  refreshing: chartRefreshing,
+  hideOutliers,
+  hasOutliers,
+  outlierCount,
   setRange: setChartRange,
   shift: shiftChart,
   reset: resetChart,
   togglePrayer,
+  toggleOutliers,
   reload: reloadChart,
 } = usePrayerChart(
   () => district.value,
@@ -259,6 +266,7 @@ onMounted(load)
 
   <div
     class="layout"
+    :class="`view-${view}`"
     :style="{
       transform: pull
         ? `translateY(${pull}px)`
@@ -267,6 +275,8 @@ onMounted(load)
           : undefined,
     }"
   >
+    <a class="skip-link" href="#main">{{ t('a11y.skipToContent') }}</a>
+
     <PageIndicator
       :pages="pageOptions"
       :model-value="view"
@@ -280,55 +290,69 @@ onMounted(load)
       :url="MORA_PAGE_URL"
     />
 
-    <main class="main" :class="view">
-      <template v-if="view === 'day'">
-        <template v-if="state === 'ready'">
-          <p class="weekday">{{ weekday }}</p>
-          <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
-          <p v-if="nextText" class="next" :class="{ soon: nextSoon }">
-            {{ nextText }}
-          </p>
+    <ClientOnly>
+      <main id="main" class="main" :class="view" tabindex="-1">
+        <template v-if="view === 'day'">
+          <template v-if="state === 'ready'">
+            <p class="weekday">{{ weekday }}</p>
+            <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
+            <p v-if="nextText" class="next" :class="{ soon: nextSoon }">
+              {{ nextText }}
+            </p>
+          </template>
+
+          <PrayerTimeList
+            :state="state"
+            :rows="displayRows"
+            :refreshing="dayRefreshing"
+            :refreshing-text="t('state.refreshing')"
+            :loading-text="t('state.loading')"
+            :unavailable-text="t('state.unavailable')"
+            :offline-text="stale ? t('state.offline') : ''"
+          />
         </template>
 
-        <PrayerTimeList
-          :state="state"
-          :rows="displayRows"
+        <PrayerTrendChart
+          v-else-if="view === 'trend'"
+          :state="chartState"
+          :series="chartSeries"
+          :days="chartDays"
+          :axis="chartAxis"
+          :y-ticks="yTicks"
+          :x-ticks="xTicks"
+          :prayer-options="chartPrayerOptions"
+          :visible="visiblePrayers"
+          :filter-label="t('chart.filter')"
+          :chart-label="t('chart.label')"
+          :date-label="t('month.date')"
+          :refreshing="chartRefreshing"
+          :refreshing-text="t('state.refreshing')"
           :loading-text="t('state.loading')"
           :unavailable-text="t('state.unavailable')"
-          :offline-text="stale ? t('state.offline') : ''"
+          :offline-text="chartStale ? t('state.offline') : ''"
+          :has-outliers="hasOutliers"
+          :hide-outliers="hideOutliers"
+          :outlier-count="outlierCount"
+          :outlier-label="t('chart.hideOutliers')"
+          @toggle-prayer="togglePrayer"
+          @toggle-outliers="toggleOutliers"
         />
-      </template>
 
-      <PrayerTrendChart
-        v-else-if="view === 'trend'"
-        :state="chartState"
-        :series="chartSeries"
-        :days="chartDays"
-        :axis="chartAxis"
-        :y-ticks="yTicks"
-        :x-ticks="xTicks"
-        :prayer-options="chartPrayerOptions"
-        :visible="visiblePrayers"
-        :filter-label="t('chart.filter')"
-        :chart-label="t('chart.label')"
-        :date-label="t('month.date')"
-        :loading-text="t('state.loading')"
-        :unavailable-text="t('state.unavailable')"
-        :offline-text="chartStale ? t('state.offline') : ''"
-        @toggle-prayer="togglePrayer"
-      />
-
-      <MonthPrayerTable
-        v-else
-        :state="monthState"
-        :columns="monthColumns"
-        :rows="monthRows"
-        :date-label="t('month.date')"
-        :loading-text="t('state.loading')"
-        :unavailable-text="t('state.unavailable')"
-        :offline-text="monthStale ? t('state.offline') : ''"
-      />
-    </main>
+        <MonthPrayerTable
+          v-else
+          :state="monthState"
+          :columns="monthColumns"
+          :rows="monthRows"
+          :date-label="t('month.date')"
+          :table-label="t('month.tableLabel')"
+          :refreshing="monthRefreshing"
+          :refreshing-text="t('state.refreshing')"
+          :loading-text="t('state.loading')"
+          :unavailable-text="t('state.unavailable')"
+          :offline-text="monthStale ? t('state.offline') : ''"
+        />
+      </main>
+    </ClientOnly>
 
     <AppFooter
       :view="view"
@@ -418,6 +442,27 @@ onMounted(load)
   overflow: hidden;
   transition: transform 0.15s ease-out;
 }
+.skip-link {
+  position: absolute;
+  inset-inline-start: 0.5rem;
+  top: 0.5rem;
+  z-index: 40;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  translate: 0 -150%;
+  transition: translate 0.15s ease-out;
+}
+.skip-link:focus-visible {
+  translate: 0 0;
+}
+.main:focus {
+  outline: none;
+}
 .pull-indicator {
   position: fixed;
   top: 0.35rem;
@@ -457,6 +502,12 @@ onMounted(load)
 .main.trend {
   justify-content: flex-start;
   text-align: start;
+}
+@media (min-width: 768px) {
+  .layout.view-month,
+  .layout.view-trend {
+    max-width: none;
+  }
 }
 .weekday {
   margin: 0;

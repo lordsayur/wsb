@@ -42,6 +42,15 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 - When a shell has no Supabase configuration, reads behave as unavailable; there
   is no fake or direct-MORA fallback in production.
 
+### First paint
+
+- The port offers an optional synchronous `peek`/`peekMonth`/`getSelectionSync`
+  view over the device cache so an offline-first shell can render cached data
+  before any async work. It returns the cached day, or the last known day marked
+  stale, and `null` when the store cannot read synchronously.
+- Peeking never touches the network and never mutates the cache beyond the
+  in-memory copy; the async read remains the source of truth.
+
 ### Refresh
 
 - A refresh updates cached data but never blocks rendering.
@@ -142,6 +151,7 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 
 - [ ] Reading with an empty cache and no network returns *unavailable*, not an
       exception.
+- [ ] A synchronous peek returns cached data before any async read.
 - [ ] Reading with a populated cache returns it even when offline.
 - [ ] A cached day is served across repository instances without a network call.
 - [ ] A new day with only an older cached day returns that day, marked stale.
@@ -208,3 +218,5 @@ Names only.
 - 2026-10-20 — version the day cache key so pre-Dhuha entries are refetched.
 - 2026-10-20 — expose Imsak to core; version the day cache key (v3) so days
   cached without Imsak are refetched.
+- 2026-10-20 — add a synchronous cache peek so shells can paint cached times
+  before the async read.

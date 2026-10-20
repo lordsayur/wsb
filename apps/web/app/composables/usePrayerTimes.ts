@@ -21,6 +21,7 @@ import {
 } from '@wsb/data'
 import { LocalPrayerCacheStore, LocalSelectionStore } from '@wsb/data/local'
 import { SupabasePrayerSource } from '@wsb/data/supabase'
+import { useDelayedFlag } from '~/utils/delayedFlag'
 
 let repository: PrayerRepository | null = null
 
@@ -67,8 +68,12 @@ export function usePrayerTimes(
   timeFormat: () => TimeFormat = () => DEFAULT_TIME_FORMAT,
 ) {
   const repo = getPrayerRepository()
+  // Keep the initial values identical to SSR; cached data is painted in
+  // onMounted before revalidating, so hydration never mismatches.
   const state = ref<LoadState>('loading')
   const district = ref<District>(resolveDistrict(null))
+  const { flag: refreshing, start: startRefreshing, stop: stopRefreshing } =
+    useDelayedFlag()
   const entries = ref<{ prayer: PrayerName; minutes: number }[]>([])
   const baseEntries = ref<{ prayer: PrayerName; minutes: number }[]>([])
   const stale = ref(false)
@@ -77,6 +82,25 @@ export function usePrayerTimes(
   const nowSeconds = ref(bruneiNow().seconds)
   let clock: ReturnType<typeof setInterval> | undefined
 
+  function apply(next: { prayer: PrayerName; minutes: number }[], hijri: string) {
+    date.value = today()
+    baseEntries.value = next
+    entries.value = createPrayerTimes(date.value, district.value, next).entries
+    hijriDate.value = hijri
+  }
+
+  /** specs/web/spec.md — paint the cached day before any network work. */
+  function paintFromCache(): boolean {
+    const stored = repo.getSelectionSync?.()
+    if (stored) district.value = resolveDistrict(stored)
+    const cached = repo.peek?.(today(), district.value)
+    if (cached?.status !== 'ok') return false
+    apply(cached.entries, cached.hijriDate)
+    stale.value = cached.stale
+    state.value = 'ready'
+    return true
+  }
+
   onMounted(() => {
     clock = setInterval(() => {
       nowSeconds.value = bruneiNow().seconds
@@ -84,35 +108,57 @@ export function usePrayerTimes(
   })
   onUnmounted(() => clearInterval(clock))
 
+  // Client-only: fill from the cache during setup so the first render already
+  // has times instead of flashing a loading state. SSR markup stays the shell.
+  if (import.meta.client) paintFromCache()
+
   async function load() {
-    state.value = 'loading'
     const selection = await repo.getSelection()
     district.value = resolveDistrict(selection)
+
+    if (paintFromCache()) {
+      // Cached times stay on screen; revalidate quietly against the source and
+      // only show a small inline hint. A failed revalidation keeps the cache.
+      startRefreshing()
+      await repo.refresh(today(), district.value)
+      const fresh = repo.peek?.(today(), district.value)
+      if (fresh?.status === 'ok') {
+        apply(fresh.entries, fresh.hijriDate)
+        stale.value = fresh.stale
+      }
+      stopRefreshing()
+      return
+    }
+
+    state.value = 'loading'
+    entries.value = []
+    baseEntries.value = []
+    stale.value = false
+    stopRefreshing()
     const result = await repo.read(today(), district.value)
     if (result.status === 'unavailable') {
       state.value = 'unavailable'
       return
     }
-    date.value = today()
-    baseEntries.value = result.entries
-    entries.value = createPrayerTimes(
-      date.value,
-      district.value,
-      result.entries,
-    ).entries
-    hijriDate.value = result.hijriDate
+    apply(result.entries, result.hijriDate)
     stale.value = result.stale
     state.value = 'ready'
   }
 
   async function selectDistrict(next: string) {
+    // A different district has different times; don't keep the old ones on
+    // screen while the new selection loads. Cached times (if any) paint again.
     district.value = resolveDistrict(next)
+    state.value = 'loading'
+    entries.value = []
+    baseEntries.value = []
+    stale.value = false
     await repo.setSelection(district.value)
     await load()
   }
 
   async function reloadData() {
-    await repo.refresh(today(), district.value)
+    // `load` revalidates against the source; no separate refresh needed.
     await load()
   }
 
@@ -142,6 +188,7 @@ export function usePrayerTimes(
 
   return {
     state,
+    refreshing,
     district,
     entries,
     rows: displayRows,
@@ -151,6 +198,7 @@ export function usePrayerTimes(
     progress,
     stale,
     load,
+    paintFromCache,
     reloadData,
     selectDistrict,
   }

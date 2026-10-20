@@ -1,6 +1,7 @@
 <template>
   <div class="share">
     <button
+      ref="trigger"
       type="button"
       class="share-button"
       :aria-label="label"
@@ -12,7 +13,8 @@
       @pointerleave="cancelPress"
       @pointercancel="cancelPress"
       @contextmenu.prevent="open = true"
-      @keydown.down.prevent="open = true"
+      @keydown.down.prevent="openMenu"
+      @keydown.up.prevent="openMenu"
       @click="onClick"
     >
       <svg
@@ -33,7 +35,14 @@
       </svg>
     </button>
 
-    <div v-if="open" class="share-menu" role="menu">
+    <div
+      v-if="open"
+      ref="menuEl"
+      class="share-menu"
+      role="menu"
+      :aria-label="label"
+      @keydown="onGroupKeydown"
+    >
       <button type="button" role="menuitem" @click="choose('formatted')">
         {{ formattedLabel }}
       </button>
@@ -49,8 +58,9 @@
 <script setup lang="ts">
 // specs/web/spec.md — molecule: tap shares formatted text, press-and-hold
 // opens the formatted/raw choice. Clipboard work stays in the shell.
-import { onBeforeUnmount, ref } from 'vue'
+import { nextTick, onBeforeUnmount, ref } from 'vue'
 import type { ShareFormat } from '~/utils/share'
+import { onGroupKeydown } from '~/utils/rovingFocus'
 
 const props = withDefaults(
   defineProps<{
@@ -74,7 +84,15 @@ const emit = defineEmits<{ share: [format: ShareFormat] }>()
 
 const open = ref(false)
 const pressed = ref(false)
+const trigger = ref<HTMLButtonElement | null>(null)
+const menuEl = ref<HTMLElement | null>(null)
 let timer: ReturnType<typeof setTimeout> | undefined
+
+/** Keyboard users open the menu without a press-and-hold. */
+function openMenu() {
+  open.value = true
+  nextTick(() => menuEl.value?.querySelector<HTMLElement>('button')?.focus())
+}
 
 function startPress() {
   cancelPress()
@@ -114,7 +132,9 @@ function close() {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') close()
+  if (event.key !== 'Escape' || !open.value) return
+  close()
+  trigger.value?.focus()
 }
 
 if (typeof document !== 'undefined') {

@@ -412,6 +412,28 @@ export function chartIsCurrent(
   return chartBounds(date, range).start === chartBounds(today, range).start
 }
 
+/** A chart value farther than this from its entry's median is bad data. */
+export const CHART_OUTLIER_MINUTES = 90
+
+/** Median of the non-null chart values; null when there are none. */
+export function chartMedian(
+  values: readonly (number | null)[],
+): number | null {
+  const sorted = values
+    .filter((value): value is number => value !== null)
+    .sort((a, b) => a - b)
+  if (sorted.length === 0) return null
+  const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1]! + sorted[middle]!) / 2
+    : sorted[middle]!
+}
+
+/** True when a value is far enough from its range median to be bad data. */
+export function isChartOutlier(value: number, median: number): boolean {
+  return Math.abs(value - median) > CHART_OUTLIER_MINUTES
+}
+
 /** Every ISO date in a `YYYY-MM` month, in calendar order. */
 export function monthDates(month: string): string[] {
   const [year, mon] = month.split('-').map(Number) as [number, number]

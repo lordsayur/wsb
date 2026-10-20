@@ -18,7 +18,8 @@
   "state": {
     "loading": "Memuatkan…",
     "unavailable": "Waktu sembahyang tidak tersedia.",
-    "offline": "Anda sedang luar talian. Memaparkan data terakhir."
+    "offline": "Anda sedang luar talian. Memaparkan data terakhir.",
+    "refreshing": "Mengemas kini…"
   },
   "action": {
     "retry": "Cuba lagi",
@@ -178,7 +179,8 @@
     "label": "Bulan",
     "hijri": "Hijrah",
     "view": "Paparan bulanan",
-    "dayView": "Paparan harian"
+    "dayView": "Paparan harian",
+    "tableLabel": "Jadual waktu sembahyang bulanan"
   },
   "page": {
     "label": "Halaman",
@@ -192,11 +194,15 @@
     "prev": "Tempoh sebelumnya",
     "next": "Tempoh seterusnya",
     "today": "Tempoh ini",
+    "hideOutliers": "Sembunyi luar skala",
     "range": {
       "label": "Tempoh",
       "week": "Minggu",
       "month": "Bulan",
       "year": "Tahun"
     }
+  },
+  "a11y": {
+    "skipToContent": "Langkau ke kandungan"
   }
 }

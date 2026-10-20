@@ -55,6 +55,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The highlight and duration update while the app is open, without a reload.
 - The whole page fits the viewport without scrolling, at any screen size.
   The monthly view scrolls inside its table, never the page.
+- On non-mobile screens (768px and wider) the monthly view and the trend chart
+  use the full width of the screen; the daily view keeps its compact centred
+  column.
 - The daily view maximises the prayer text: the eight entries share the space
   left between the header and the controls, with their labels and times scaled
   to the available height.
@@ -109,10 +112,15 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   that entry alone; otherwise a chip toggles that entry in or out. Removing the
   last shown entry restores the default (all entries).
 - Days with no data leave a gap in the line rather than a false point.
+- Values more than 90 minutes from their entry's median are off-scale data
+  errors (a time near midnight typed into the wrong field, say). The chart
+  offers one **Hide off-scale** toggle, shown only while such values exist,
+  with a count; it is off by default so the error stays visible, and when on it
+  renders those points as gaps rather than guessing a replacement.
 - The chart is read through the Data port (`readMonth`) and is stale when any
   day in the range is missing; the offline state renders cached days.
 - The chart is decorative to assistive tech; a visually hidden table carries
-  the same values.
+  the same values, with off-scale points replaced by an em dash when hidden.
 
 ### Notifications
 
@@ -258,6 +266,16 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The app ships as an installable PWA (manifest, icons, standalone display,
   app-shell precache) so it loads without a network after the first visit.
 
+### First paint
+
+- Offline first means cached times paint immediately on open: no full-page
+  loading state when the device already has data.
+- While cached data revalidates against the source, show a small inline
+  updating hint beside the data; never hide the times or the header.
+- The full loading state appears only when there is genuinely no cached data to
+  show. A failed revalidation keeps the cached data on screen.
+- The monthly and trend pages follow the same rule using their cached month.
+
 ### Updates
 
 - The service worker registers in `prompt` mode: a new build never takes over
@@ -286,6 +304,22 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - Every atom, molecule and organism ships with Storybook stories covering
   default, loading, error and edge values. Stories double as tests via `play`
   functions run headless in CI.
+
+### Keyboard
+
+- The app is usable without a pointer: every control is a native button, link,
+  select or input, in DOM order, with a visible focus ring.
+- A skip link is the first focus stop and moves focus to the main content.
+- Page indicators are one tab stop: arrow keys move and switch page,
+  Home/End jump to the ends.
+- Menu, share menu and chart legend behave the same way: one tab stop, arrow
+  keys walk the items, Home/End jump, Escape closes and returns focus to the
+  trigger.
+- The monthly table's scroll area is focusable so keyboard users can scroll it;
+  it carries an accessible label.
+- Focus never moves without a user action; closing a panel returns focus to the
+  control that opened it.
+- Shortcut keys never fire while focus is in a text field or over a menu.
 
 ## Invariants
 
@@ -317,6 +351,11 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The trend range defaults to month and offers week and year.
 - [ ] Every entry is plotted by default; tapping a legend chip filters to it.
 - [ ] Days without data leave a gap in the trend line.
+- [ ] Off-scale values are flagged and one toggle hides or shows them; the
+      toggle only appears when such values exist.
+- [ ] Every control is reachable and operable with the keyboard alone.
+- [ ] Arrow keys move within the page indicators, both menus and the chart
+      legend; Escape closes a panel and restores focus.
 - [ ] The eight daily entries scale to fill the space between header and
       controls without scrolling.
 - [ ] The footer month selector steps to the previous/next month and back to
@@ -358,6 +397,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Selecting Belait shifts every entry +3 minutes versus default.
 - [ ] A legacy Temburong selection renders Brunei & Muara times.
 - [ ] Offline with cache renders the last known good times.
+- [ ] Opening the app with cached data shows the times immediately, with only a
+      small inline updating hint during revalidation.
 - [ ] Offline without cache renders an empty state, not a crash.
 - [ ] The MORA/KHEU source link is visible and localized.
 - [ ] A waiting service worker shows a localized reload prompt.
@@ -435,3 +476,8 @@ None published. Consumes core and the Data port.
   with top page indicators, and band the month table by calendar week.
 - 2026-10-20 — add a trend chart page: prayer times over date, week/month/year
   range, per-entry filtering.
+- 2026-10-20 — paint cached times immediately on open and show only a small
+  inline hint while revalidating.
+- 2026-10-20 — full-width month and trend views on non-mobile screens.
+- 2026-10-20 — add a Hide off-scale toggle to the trend chart and make the app
+  keyboard-first.

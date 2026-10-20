@@ -1,6 +1,6 @@
 <template>
   <div class="range-selector">
-    <div class="segments" role="group" :aria-label="label">
+    <div class="segments" role="group" :aria-label="label" @keydown="onGroupKeydown">
       <button
         v-for="option in options"
         :key="option.value"
@@ -39,6 +39,8 @@
 
 <script setup lang="ts">
 // specs/web/spec.md — molecule: switch the chart range and step through it.
+import { onGroupKeydown } from '~/utils/rovingFocus'
+
 export interface RangeOption<T extends string = string> {
   value: T
   label: string

@@ -9,8 +9,10 @@ import {
   bruneiNow,
   chartBounds,
   chartIsCurrent,
+  chartMedian,
   formatShortDate,
   formatTime,
+  isChartOutlier,
   monthOf,
   rangeDates,
   shiftChartDate,
@@ -21,6 +23,7 @@ import {
 } from '@wsb/core'
 import { axisTicks, minuteAxis, sampleIndices } from '~/utils/chart'
 import { getPrayerRepository } from './usePrayerTimes'
+import { useDelayedFlag } from '~/utils/delayedFlag'
 
 interface ChartDay {
   date: string
@@ -53,8 +56,49 @@ export function usePrayerChart(
   const days = ref<ChartDay[]>([])
   const state = ref<'loading' | 'ready' | 'unavailable'>('loading')
   const stale = ref(false)
+  const { flag: refreshing, start: startRefreshing, stop: stopRefreshing } =
+    useDelayedFlag()
   const selected = ref<PrayerName[]>([])
+  const hideOutliers = ref(false)
   let request = 0
+
+  /** Synchronous cached view of a range, so the chart paints before revalidating. */
+  function peekRange(
+    anchorDate: string,
+    rangeValue: ChartRange,
+    districtValue: District,
+    localeValue: string,
+  ): { days: ChartDay[]; stale: boolean } | null {
+    const repo = getPrayerRepository()
+    if (!repo.peekMonth) return null
+    const { start, end } = chartBounds(anchorDate, rangeValue)
+    const dates = rangeDates(start, end)
+    const months = [...new Set(dates.map(monthOf))]
+    const found = new Map<string, Partial<Record<PrayerName, number>>>()
+    let any = false
+    let staleResult = false
+    for (const month of months) {
+      const result = repo.peekMonth(month, districtValue)
+      if (!result || result.status !== 'ok') continue
+      any = true
+      staleResult ||= result.stale
+      for (const day of result.days) {
+        found.set(
+          day.date,
+          Object.fromEntries(day.entries.map((e) => [e.prayer, e.minutes])),
+        )
+      }
+    }
+    if (!any) return null
+    return {
+      days: dates.map((date) => ({
+        date,
+        label: formatShortDate(date, localeValue),
+        entries: found.get(date) ?? {},
+      })),
+      stale: staleResult || dates.some((date) => !found.has(date)),
+    }
+  }
 
   const isCurrent = computed(() =>
     chartIsCurrent(anchor.value, range.value, today),
@@ -68,18 +112,52 @@ export function usePrayerChart(
     selected.value.length > 0 ? selected.value : [...PRAYER_ORDER],
   )
 
+  const rawSeries = computed<ChartSeries[]>(() =>
+    visiblePrayers.value.map((prayer) => {
+      const values = days.value.map((day) => day.entries[prayer] ?? null)
+      return {
+        prayer,
+        label: t(`prayer.${prayer}`),
+        times: values.map((minutes) =>
+          minutes === null ? '—' : formatTime(minutes, locale(), timeFormat()),
+        ),
+        values,
+      }
+    }),
+  )
+
+  /** Points far from their entry's median; a typo reads as a spike or drop. */
+  const outliers = computed(() => {
+    const found = new Set<string>()
+    for (const line of rawSeries.value) {
+      const median = chartMedian(line.values)
+      if (median === null) continue
+      line.values.forEach((value, index) => {
+        if (value !== null && isChartOutlier(value, median)) {
+          found.add(`${line.prayer}:${index}`)
+        }
+      })
+    }
+    return found
+  })
+
+  const hasOutliers = computed(() => outliers.value.size > 0)
+
+  const outlierCount = computed(() => outliers.value.size)
+
   const series = computed<ChartSeries[]>(() =>
-    visiblePrayers.value.map((prayer) => ({
-      prayer,
-      label: t(`prayer.${prayer}`),
-      times: days.value.map((day) => {
-        const minutes = day.entries[prayer]
-        return minutes === undefined
-          ? '—'
-          : formatTime(minutes, locale(), timeFormat())
-      }),
-      values: days.value.map((day) => day.entries[prayer] ?? null),
-    })),
+    rawSeries.value.map((line) => {
+      if (!hideOutliers.value) return line
+      const hidden = (index: number) =>
+        outliers.value.has(`${line.prayer}:${index}`)
+      return {
+        ...line,
+        values: line.values.map((value, index) =>
+          hidden(index) ? null : value,
+        ),
+        times: line.times.map((text, index) => (hidden(index) ? '—' : text)),
+      }
+    }),
   )
 
   const rangeOptions = computed(() =>
@@ -110,7 +188,15 @@ export function usePrayerChart(
   async function load() {
     if (!active()) return
     const id = ++request
-    state.value = 'loading'
+    const peek = peekRange(anchor.value, range.value, district(), locale())
+    if (peek) {
+      days.value = peek.days
+      stale.value = peek.stale
+      state.value = 'ready'
+    } else if (state.value !== 'ready') {
+      state.value = 'loading'
+    }
+    if (state.value === 'ready') startRefreshing()
     const { start, end } = chartBounds(anchor.value, range.value)
     const dates = rangeDates(start, end)
     const months = [...new Set(dates.map(monthOf))]
@@ -131,16 +217,20 @@ export function usePrayerChart(
         }
       }
     } catch {
-      if (id === request) {
+      stopRefreshing()
+      if (id === request && state.value !== 'ready') {
         state.value = 'unavailable'
         days.value = []
       }
       return
     }
+    stopRefreshing()
     if (id !== request) return
     if (found.size === 0) {
-      state.value = 'unavailable'
-      days.value = []
+      if (state.value !== 'ready') {
+        state.value = 'unavailable'
+        days.value = []
+      }
       return
     }
     days.value = dates.map((date) => ({
@@ -176,6 +266,10 @@ export function usePrayerChart(
       next.length === 0 || next.length === PRAYER_ORDER.length ? [] : next
   }
 
+  function toggleOutliers() {
+    hideOutliers.value = !hideOutliers.value
+  }
+
   watch([range, anchor, district, locale, timeFormat, active], load, {
     immediate: true,
   })
@@ -192,11 +286,16 @@ export function usePrayerChart(
     yTicks,
     xTicks,
     state,
+    refreshing,
     stale,
+    hideOutliers,
+    hasOutliers,
+    outlierCount,
     setRange,
     shift,
     reset,
     togglePrayer,
+    toggleOutliers,
     reload: load,
   }
 }

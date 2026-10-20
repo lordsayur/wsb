@@ -18,7 +18,8 @@
   "state": {
     "loading": "Loading…",
     "unavailable": "Prayer times are unavailable.",
-    "offline": "You are offline. Showing the last known data."
+    "offline": "You are offline. Showing the last known data.",
+    "refreshing": "Updating…"
   },
   "action": {
     "retry": "Try again",
@@ -178,7 +179,8 @@
     "label": "Month",
     "hijri": "Hijri",
     "view": "Monthly view",
-    "dayView": "Daily view"
+    "dayView": "Daily view",
+    "tableLabel": "Monthly prayer times table"
   },
   "page": {
     "label": "Pages",
@@ -192,11 +194,15 @@
     "prev": "Previous period",
     "next": "Next period",
     "today": "This period",
+    "hideOutliers": "Hide off-scale",
     "range": {
       "label": "Range",
       "week": "Week",
       "month": "Month",
       "year": "Year"
     }
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
   }
 }

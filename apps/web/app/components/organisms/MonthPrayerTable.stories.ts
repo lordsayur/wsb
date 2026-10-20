@@ -97,6 +97,15 @@ export const OfflineWithCache: Story = {
   },
 }
 
+export const RefreshingWithCache: Story = {
+  args: { refreshing: true, refreshingText: 'Mengemas kini…' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Mengemas kini…')).toBeVisible()
+    await expect(canvas.getAllByRole('row')).toHaveLength(4)
+  },
+}
+
 export const TodayRowHighlighted: Story = {
   play: async ({ canvasElement }) => {
     const rows = canvasElement.querySelectorAll('tr[aria-current="date"]')

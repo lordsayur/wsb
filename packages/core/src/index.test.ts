@@ -16,6 +16,8 @@ import {
   isTimeFormat,
   chartBounds,
   chartIsCurrent,
+  chartMedian,
+  isChartOutlier,
   formatShortDate,
   rangeDates,
   shiftChartDate,
@@ -456,5 +458,19 @@ describe('chart ranges', () => {
   it('formats a compact day + month label', () => {
     expect(formatShortDate('2026-10-21', 'en')).toBe('Oct 21')
     expect(formatShortDate('2026-10-21', 'ms')).toBe('21 Okt')
+  })
+})
+
+// specs/core/spec.md — off-scale chart values are detected against the median.
+describe('chart outliers', () => {
+  it('finds the median of the present values only', () => {
+    expect(chartMedian([1080, null, 1090, 1070])).toBe(1080)
+    expect(chartMedian([1080, 1090])).toBe(1085)
+    expect(chartMedian([null, null])).toBeNull()
+  })
+
+  it('flags a value far from the median and keeps normal variation', () => {
+    expect(isChartOutlier(930, 1080)).toBe(true)
+    expect(isChartOutlier(1110, 1080)).toBe(false)
   })
 })

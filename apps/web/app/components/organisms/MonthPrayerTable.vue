@@ -3,9 +3,14 @@
     <p v-if="state === 'loading'" class="state">{{ loadingText }}</p>
     <p v-else-if="state === 'unavailable'" class="state">{{ unavailableText }}</p>
     <template v-else>
+      <p v-if="refreshing" class="state refreshing" role="status">
+        <span class="spinner" aria-hidden="true" />
+        {{ refreshingText }}
+      </p>
       <p v-if="offlineText" class="state offline">{{ offlineText }}</p>
-      <div class="table-wrap">
+      <div class="table-wrap" tabindex="0" role="region" :aria-label="tableLabel">
         <table class="table">
+          <caption class="visually-hidden">{{ tableLabel }}</caption>
           <thead>
             <tr>
               <th scope="col" class="date-col">{{ dateLabel }}</th>
@@ -58,17 +63,23 @@ withDefaults(
     columns?: { prayer: string; label: string }[]
     rows?: MonthDayRow[]
     dateLabel?: string
+    tableLabel?: string
     loadingText?: string
     unavailableText?: string
     offlineText?: string
+    refreshing?: boolean
+    refreshingText?: string
   }>(),
   {
     columns: () => [],
     rows: () => [],
     dateLabel: 'Date',
+    tableLabel: 'Monthly prayer times',
     loadingText: 'Loading…',
     unavailableText: 'Prayer times are unavailable.',
     offlineText: '',
+    refreshing: false,
+    refreshingText: 'Updating…',
   },
 )
 
@@ -82,6 +93,27 @@ withDefaults(
   width: 100%;
   min-height: 0;
   flex: 1;
+}
+.refreshing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  opacity: 0.65;
+}
+.spinner {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .table-wrap {
   flex: 1;
@@ -161,5 +193,17 @@ withDefaults(
 .offline {
   font-size: 0.8rem;
   opacity: 0.75;
+}
+.table-wrap:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 </style>

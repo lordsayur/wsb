@@ -56,3 +56,24 @@ export const Copied: Story = {
     ).toBeVisible()
   },
 }
+
+export const KeyboardOpensMenu: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole('button', {
+      name: 'Kongsi waktu sembahyang',
+    })
+    button.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Teks berformat' }),
+    ).toHaveFocus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Teks mentah' }),
+    ).toHaveFocus()
+    await userEvent.keyboard('{Escape}')
+    await expect(button).toHaveFocus()
+    await expect(canvas.queryByRole('menu')).toBeNull()
+  },
+}

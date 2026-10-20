@@ -3,9 +3,18 @@
     <p v-if="state === 'loading'" class="state">{{ loadingText }}</p>
     <p v-else-if="state === 'unavailable'" class="state">{{ unavailableText }}</p>
     <template v-else>
+      <p v-if="refreshing" class="state refreshing" role="status">
+        <span class="spinner" aria-hidden="true" />
+        {{ refreshingText }}
+      </p>
       <p v-if="offlineText" class="state offline">{{ offlineText }}</p>
 
-      <div class="legend" role="group" :aria-label="filterLabel">
+      <div
+        class="legend"
+        role="group"
+        :aria-label="filterLabel"
+        @keydown="onGroupKeydown"
+      >
         <button
           v-for="option in prayerOptions"
           :key="option.prayer"
@@ -21,6 +30,18 @@
             aria-hidden="true"
           />
           {{ option.label }}
+        </button>
+
+        <button
+          v-if="hasOutliers"
+          type="button"
+          class="chip toggle"
+          :aria-pressed="hideOutliers"
+          @click="emit('toggleOutliers')"
+        >
+          <span class="strike" aria-hidden="true" />
+          {{ outlierLabel }}
+          <span class="count" aria-hidden="true">{{ outlierCount }}</span>
         </button>
       </div>
 
@@ -140,6 +161,7 @@ import type {
   ChartSeries,
 } from '~/composables/usePrayerChart'
 import type { PrayerName } from '@wsb/core'
+import { onGroupKeydown } from '~/utils/rovingFocus'
 
 interface ChartDay {
   date: string
@@ -163,6 +185,12 @@ const props = withDefaults(
     loadingText?: string
     unavailableText?: string
     offlineText?: string
+    refreshing?: boolean
+    refreshingText?: string
+    hasOutliers?: boolean
+    hideOutliers?: boolean
+    outlierCount?: number
+    outlierLabel?: string
   }>(),
   {
     series: () => [],
@@ -178,11 +206,21 @@ const props = withDefaults(
     loadingText: 'Loading…',
     unavailableText: 'Prayer times are unavailable.',
     offlineText: '',
+    refreshing: false,
+    refreshingText: 'Updating…',
+    hasOutliers: false,
+    hideOutliers: false,
+    outlierCount: 0,
+    outlierLabel: 'Hide off-scale',
   },
 )
 
-const emit = defineEmits<{ togglePrayer: [prayer: PrayerName] }>()
+const emit = defineEmits<{
+  togglePrayer: [prayer: PrayerName]
+  toggleOutliers: []
+}>()
 
+/** Arrow keys move between chips; Home/End jump to the ends. */
 /** Percentage across the plot for a day index. */
 function percentX(index: number): number {
   return scaleX(index, props.days.length, 100)
@@ -257,6 +295,25 @@ const points = computed(() =>
 }
 .chip.off {
   opacity: 0.45;
+}
+.chip.toggle {
+  margin-inline-start: auto;
+}
+.chip.toggle[aria-pressed='true'] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-fg);
+}
+.strike {
+  width: 0.8rem;
+  height: 2px;
+  background: currentColor;
+  rotate: -35deg;
+}
+.count {
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
 }
 .swatch {
   width: 0.55rem;
@@ -342,6 +399,27 @@ const points = computed(() =>
 .offline {
   font-size: 0.8rem;
   opacity: 0.75;
+}
+.refreshing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  opacity: 0.65;
+}
+.spinner {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .visually-hidden {
   position: absolute;

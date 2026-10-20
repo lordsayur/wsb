@@ -31,6 +31,15 @@ export interface PrayerRepository {
   /** The persisted district selection, or null when missing/corrupt. */
   getSelection(): Promise<District | null>
   setSelection(district: District): Promise<void>
+  /**
+   * Best-effort synchronous cache view for the first paint of an offline-first
+   * shell; null when the store cannot read synchronously or nothing is cached.
+   */
+  peek?(date: string, district: District): ReadResult | null
+  /** Synchronous selection read for the first paint; null when unavailable. */
+  getSelectionSync?(): District | null
+  /** Synchronous month cache view; null when unavailable or empty. */
+  peekMonth?(month: string, district: District): MonthResult | null
 }
 
 /** Key/value storage the adapters use; kept vendor-free. */
@@ -45,6 +54,8 @@ export const SELECTION_KEY = 'wsb.selection'
 export interface PrayerCacheStore {
   get(key: string): Promise<string | null>
   set(key: string, value: string): Promise<void>
+  /** Optional synchronous read; lets shells render cached data before paint. */
+  getSync?(key: string): string | null
 }
 
 // specs/data/spec.md — v3: entries written before Imsak existed lack `imsak`,
@@ -99,6 +110,48 @@ export class CachedPrayerRepository implements PrayerRepository {
     this.source = deps.source
     this.cache = deps.cache
     this.selection = deps.selection
+  }
+
+  peek(date: string, district: District): ReadResult | null {
+    const cached =
+      this.memory.get(cacheKey(date, district)) ??
+      this.peekCache(date, district)
+    if (cached) {
+      return {
+        status: 'ok',
+        entries: cached.entries,
+        hijriDate: cached.hijriDate,
+        stale: false,
+      }
+    }
+    const lastKnown =
+      this.lastKnownMemory(district) ?? this.peekLastKnownCache(district)
+    return lastKnown
+      ? {
+          status: 'ok',
+          entries: lastKnown.entries,
+          hijriDate: lastKnown.hijriDate,
+          stale: true,
+        }
+      : null
+  }
+
+  getSelectionSync(): District | null {
+    const value = this.selection?.get(SELECTION_KEY) ?? null
+    return isKnownDistrict(value) ? value : null
+  }
+
+  peekMonth(month: string, district: District): MonthResult | null {
+    const dates = monthDates(month)
+    const days: PrayerMonthDay[] = []
+    for (const date of dates) {
+      const cached =
+        this.memory.get(cacheKey(date, district)) ??
+        this.peekCache(date, district)
+      if (cached) days.push(toMonthDay(cached))
+    }
+    if (days.length === 0) return null
+    return { status: 'ok', days, stale: days.length < dates.length }
   }
 
   async read(date: string, district: District): Promise<ReadResult> {
@@ -215,6 +268,31 @@ export class CachedPrayerRepository implements PrayerRepository {
       await this.cache.set(lastDayCacheKey(data.district), payload)
     } catch {
       // specs/data/spec.md — cache writes are best-effort; memory still works.
+    }
+  }
+
+  private peekCache(
+    date: string,
+    district: District,
+  ): CachedPrayerData | undefined {
+    if (!this.cache?.getSync) return undefined
+    try {
+      const raw = this.cache.getSync(dayCacheKey(date, district))
+      return raw ? parseCachedDay(raw) : undefined
+    } catch {
+      return undefined
+    }
+  }
+
+  private peekLastKnownCache(
+    district: District,
+  ): CachedPrayerData | undefined {
+    if (!this.cache?.getSync) return undefined
+    try {
+      const raw = this.cache.getSync(lastDayCacheKey(district))
+      return raw ? parseCachedDay(raw) : undefined
+    } catch {
+      return undefined
     }
   }
 

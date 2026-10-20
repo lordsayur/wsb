@@ -209,3 +209,41 @@ export const OpenDownloads: Story = {
     await expect(args.onDownloads).toHaveBeenCalledTimes(1)
   },
 }
+
+export const KeyboardArrowOpensMenu: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole('button', { name: 'Menu' })
+    button.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(canvas.getByRole('menuitem', { name: 'Tetapan' })).toHaveFocus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(canvas.getByRole('menuitem', { name: 'Platform lain' })).toHaveFocus()
+    await userEvent.keyboard('{End}')
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Muat semula aplikasi' }),
+    ).toHaveFocus()
+  },
+}
+
+export const KeyboardEscapeClosesAndRestoresFocus: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole('button', { name: 'Menu' })
+    await userEvent.click(button)
+    await expect(canvas.getByRole('menuitem', { name: 'Tetapan' })).toBeVisible()
+    await userEvent.keyboard('{Escape}')
+    await expect(button).toHaveFocus()
+    await expect(canvas.queryByRole('menu')).toBeNull()
+  },
+}
+
+export const KeyboardSettingsBackReturnsToMenu: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Tetapan' }))
+    await userEvent.keyboard('{Escape}')
+    await expect(canvas.getByRole('menuitem', { name: 'Tetapan' })).toHaveFocus()
+  },
+}

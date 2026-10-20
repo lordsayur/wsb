@@ -1,7 +1,7 @@
 <template>
   <section class="time-format">
     <p class="heading">{{ label }}</p>
-    <div class="options" role="group" :aria-label="label">
+    <div class="options" role="group" :aria-label="label" @keydown="onGroupKeydown">
       <button
         v-for="option in options"
         :key="option.value"
@@ -18,6 +18,7 @@
 <script setup lang="ts">
 // specs/web/spec.md — molecule: 12/24-hour choice, prop-driven.
 import type { TimeFormat } from '@wsb/core'
+import { onGroupKeydown } from '~/utils/rovingFocus'
 
 export interface TimeFormatOption {
   value: TimeFormat

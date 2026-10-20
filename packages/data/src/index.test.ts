@@ -180,6 +180,71 @@ describe('durable cache', () => {
       stale: false,
     })
   })
+
+  it('peeks a cached day synchronously for the first paint', async () => {
+    const values = new Map<string, string>()
+    const cache: PrayerCacheStore = {
+      get: async (key) => values.get(key) ?? null,
+      set: async (key, value) => {
+        values.set(key, value)
+      },
+      getSync: (key) => values.get(key) ?? null,
+    }
+    const repo = new CachedPrayerRepository({
+      source: source(async () => day(entries, 'date')),
+      cache,
+    })
+    await repo.read('2026-10-18', 'bruneiMuara')
+
+    const fresh = new CachedPrayerRepository({
+      source: source(async () => {
+        throw new Error('offline')
+      }),
+      cache,
+    })
+    expect(fresh.peek('2026-10-18', 'bruneiMuara')).toEqual({
+      status: 'ok',
+      entries,
+      hijriDate: 'date',
+      stale: false,
+    })
+  })
+
+  it('peeks the last known day synchronously, marked stale', async () => {
+    const values = new Map<string, string>()
+    const cache: PrayerCacheStore = {
+      get: async (key) => values.get(key) ?? null,
+      set: async (key, value) => {
+        values.set(key, value)
+      },
+      getSync: (key) => values.get(key) ?? null,
+    }
+    const online = new CachedPrayerRepository({
+      source: source(async () => day(entries, 'date')),
+      cache,
+    })
+    await online.read('2026-10-18', 'bruneiMuara')
+
+    const fresh = new CachedPrayerRepository({
+      source: source(async () => {
+        throw new Error('offline')
+      }),
+      cache,
+    })
+    expect(fresh.peek('2026-10-19', 'bruneiMuara')).toEqual({
+      status: 'ok',
+      entries,
+      hijriDate: 'date',
+      stale: true,
+    })
+  })
+
+  it('peeks nothing when the store cannot read synchronously', () => {
+    const repo = new CachedPrayerRepository({
+      source: source(async () => day(entries)),
+    })
+    expect(repo.peek('2026-10-18', 'bruneiMuara')).toBeNull()
+  })
 })
 
 describe('selection', () => {

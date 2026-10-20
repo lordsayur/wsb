@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Waktu Sembahyang Brunei",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Waktu sembahyang Brunei di bar alat dan pada setiap halaman.",
   "permissions": [
     "storage",
