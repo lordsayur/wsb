@@ -11,6 +11,7 @@ import type { Locale } from './i18n.js'
 
 export interface ExtensionSettings {
   statusBar: boolean
+  notifications: boolean
   locale: Locale
   timeFormat: TimeFormat
   district: District
@@ -18,6 +19,7 @@ export interface ExtensionSettings {
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
   statusBar: true,
+  notifications: false,
   locale: 'ms',
   timeFormat: DEFAULT_TIME_FORMAT,
   district: DEFAULT_DISTRICT,
@@ -34,6 +36,7 @@ export function resolveSettings(value: unknown): ExtensionSettings {
   const stored = (value ?? {}) as Partial<ExtensionSettings>
   return {
     statusBar: stored.statusBar !== false,
+    notifications: stored.notifications === true,
     locale: isLocale(stored.locale) ? stored.locale : 'ms',
     timeFormat: isTimeFormat(stored.timeFormat)
       ? stored.timeFormat

@@ -1,12 +1,24 @@
 // specs/vscode/spec.md — VS Code shell: status bar item plus the times panel.
 // Rendering and platform glue only; core computes and data supplies.
 import * as vscode from 'vscode'
-import { bruneiNow, type District } from '@wsb/core'
+import {
+  adjustForDistrict,
+  bruneiNow,
+  type District,
+  type PrayerNotification,
+} from '@wsb/core'
 import type { PrayerRepository } from '@wsb/data'
 import { t } from './shared/i18n.js'
 import { resolveSettings, type ExtensionSettings } from './shared/settings.js'
 import { buildDayView, type DayView } from './shared/view.js'
 import { loadDay, mementoCache, repository, type LoadedDay } from './shared/day.js'
+import {
+  LATE_WINDOW_SECONDS,
+  isDue,
+  nextReminder,
+  reminderId,
+  reminderText,
+} from './shared/notifications.js'
 import { TimesPanel, panelState, setExtensionRoot, type PanelMessage } from './panel.js'
 
 const STATUS_REFRESH_MS = 30_000
@@ -16,6 +28,9 @@ let statusItem: vscode.StatusBarItem | null = null
 let panel: TimesPanel | null = null
 let day: LoadedDay | null = null
 let loading = true
+let timer: ReturnType<typeof setTimeout> | undefined
+let pending: PrayerNotification | undefined
+const fired = new Set<string>()
 
 function settings(): ExtensionSettings {
   return resolveSettings(vscode.workspace.getConfiguration('wsb'))
@@ -40,7 +55,12 @@ function renderStatus(): void {
     statusItem.show()
     return
   }
-  statusItem.text = `$(clock) ${dayView.nextPrayer} ${dayView.nextTime}`
+  // The label carries the current entry; the next one lives in the tooltip so
+  // the status bar stays quiet.
+  const currentLabel = dayView.currentPrayer
+    ? `${dayView.currentPrayer} ${dayView.currentTime}`
+    : dayView.nextPrayer
+  statusItem.text = `$(clock) ${currentLabel}`
   statusItem.tooltip = [
     `${dayView.weekday} · ${dayView.masihi} · ${dayView.hijri}`,
     dayView.next,
@@ -60,6 +80,42 @@ async function refresh(force = false): Promise<void> {
   day = await loadDay(repo, force)
   loading = false
   render()
+  schedule()
+}
+
+/**
+ * Best-effort in-editor reminders: a timer on core's schedule fires while the
+ * extension host runs. ponytail: VS Code has no background worker, so nothing
+ * fires while the editor is closed; upgrade path is an OS-level notifier.
+ */
+function schedule(): void {
+  clearTimeout(timer)
+  pending = undefined
+  if (!settings().notifications || !day) return
+  const event = nextReminder(
+    adjustForDistrict(day.entries, settings().district),
+    bruneiNow().seconds,
+    fired,
+  )
+  if (!event) return
+  pending = event
+  // A due event fires now; an upcoming one waits until it enters the window.
+  const delay = isDue(event)
+    ? Math.max(0, event.secondsUntil)
+    : Math.max(0, event.secondsUntil - LATE_WINDOW_SECONDS)
+  timer = setTimeout(fire, delay * 1_000)
+}
+
+async function fire(): Promise<void> {
+  const event = pending
+  pending = undefined
+  if (!event) return
+  if (settings().notifications && isDue(event)) {
+    fired.add(reminderId(event))
+    const { title, body } = reminderText(event, settings())
+    void vscode.window.showInformationMessage(`${title} — ${body}`)
+  }
+  schedule()
 }
 
 function onPanelMessage(message: PanelMessage): void {
@@ -112,6 +168,7 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!event.affectsConfiguration('wsb')) return
       if (statusItem) statusItem.name = t(settings().locale, 'extension.title')
       render()
+      schedule()
     }),
   )
 
@@ -123,5 +180,7 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
+  clearTimeout(timer)
+  pending = undefined
   panel = null
 }

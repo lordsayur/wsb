@@ -16,14 +16,28 @@ platform glue only; no domain rules.
 
 ### Status bar
 
-- A right-aligned status bar item shows the next entry's translated label and
-  its formatted time, for the selected district.
+- A right-aligned status bar item shows the current entry's translated label and
+  its formatted time, for the selected district. Before the day's first entry
+  there is no current entry, so it shows the next one instead.
 - Its tooltip carries the Masihi and Hijri dates, the duration to the next
-  entry, the district and the data-source credit.
+  entry, the district and the data-source credit. The next entry lives only in
+  the tooltip so the bar stays quiet.
 - The item updates while the editor is open, without a reload.
 - Clicking the item opens the times panel.
 - The item can be hidden with the `wsb.statusBar` setting; the choice persists
   in the editor configuration.
+
+### Notifications
+
+- Notifications are opt-in (`wsb.notifications`, off by default); the choice
+  persists in the editor configuration.
+- When enabled, the extension raises one notification 15 minutes before each
+  prayer and one at the prayer's time. `imsak`, `syuruk` and `doha` are time
+  boundaries and never notify.
+- Delivery uses a timer in the extension host against core's reminder schedule,
+  so it only fires while the editor is running; a missed reminder is caught up
+  to two minutes late.
+- Reminder text is localized and uses the chosen time format.
 
 ### Times panel
 
@@ -50,9 +64,10 @@ platform glue only; no domain rules.
 
 ### Settings
 
-- Settings: status bar on/off, language, time format, district.
-- Defaults: status bar on, language `ms`, time format `24h`, district
-  Brunei & Muara.
+- Settings: status bar on/off, notifications on/off, language, time format,
+  district.
+- Defaults: status bar on, notifications off, language `ms`, time format `24h`,
+  district Brunei & Muara.
 - Settings are contributed under the `wsb.*` namespace and survive restarts.
 
 ### Packaging
@@ -74,7 +89,9 @@ platform glue only; no domain rules.
 
 ## Acceptance criteria
 
-- [ ] The status bar shows the next entry and time for the selected district.
+- [ ] The status bar shows the current entry and time for the selected district;
+      before the first entry it shows the next one.
+- [ ] The status bar tooltip carries the next entry and the duration to it.
 - [ ] The panel renders the eight entries in order.
 - [ ] Selecting Tutong/Belait shifts the entries by +1/+3 minutes.
 - [ ] The current entry is highlighted and the duration to next is shown.
@@ -82,6 +99,8 @@ platform glue only; no domain rules.
 - [ ] Choosing Arabic or Jawi flips the panel right-to-left and uses the
       Arabic-script font.
 - [ ] Hiding the status bar removes it immediately and persists.
+- [ ] Enabling notifications persists the choice and schedules reminders.
+- [ ] Imsak, Syuruk and Dhuha never notify; the five prayers do.
 - [ ] Times fall back to the last known day when the source is unreachable.
 - [ ] The build produces a `.vsix` artifact.
 
@@ -89,9 +108,12 @@ platform glue only; no domain rules.
 
 - Business logic — core.
 - Backend/network adapters — Data.
-- Editor notifications/reminders — a later shell decision.
+- OS-level delivery while the editor is closed — the timer only runs with the
+  extension host.
 - Marketplace publishing — the `.vsix` ships from GitHub releases.
 
 ## Changelog
 
 - 2026-10-20 — initial: status bar, times panel, settings, vsix packaging.
+- 2026-10-20 — the status bar shows the current entry; the next entry moves to
+  the tooltip. Add opt-in in-editor prayer notifications.

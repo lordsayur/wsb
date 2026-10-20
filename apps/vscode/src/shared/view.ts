@@ -32,6 +32,8 @@ export interface DayView {
   next: string
   nextPrayer: string
   nextTime: string
+  currentPrayer: string | null
+  currentTime: string | null
   soon: boolean
   rows: RowView[]
 }
@@ -65,6 +67,12 @@ export function buildDayView(
           })
         : t(locale, 'duration.minutes', { minutes: n(parts.minutes) })
   const label = (prayer: string) => t(locale, `prayer.${prayer}`)
+  const time = (prayer: string) =>
+    formatTime(
+      entries.find((entry) => entry.prayer === prayer)?.minutes ?? 0,
+      locale,
+      format,
+    )
 
   return {
     weekday: formatWeekday(day.date, locale),
@@ -75,11 +83,9 @@ export function buildDayView(
       prayer: label(progress.next),
     }),
     nextPrayer: label(progress.next),
-    nextTime: formatTime(
-      entries.find((entry) => entry.prayer === progress.next)?.minutes ?? 0,
-      locale,
-      format,
-    ),
+    nextTime: time(progress.next),
+    currentPrayer: progress.current ? label(progress.current) : null,
+    currentTime: progress.current ? time(progress.current) : null,
     soon: total <= 15 * 60,
     rows: entries.map((entry) => ({
       prayer: entry.prayer,

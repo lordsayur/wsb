@@ -2,7 +2,7 @@
   "name": "wsb-vscode",
   "displayName": "Waktu Sembahyang Brunei",
   "description": "Waktu sembahyang Brunei di bar status editor.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "lordsayur",
   "private": true,
   "type": "module",
@@ -37,7 +37,12 @@
         "wsb.statusBar": {
           "type": "boolean",
           "default": true,
-          "description": "Show the next entry and its time in the status bar."
+          "description": "Show the current entry and its time in the status bar."
+        },
+        "wsb.notifications": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show a notification 15 minutes before and at each prayer while VS Code is running."
         },
         "wsb.locale": {
           "type": "string",
