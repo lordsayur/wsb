@@ -115,7 +115,10 @@
     "available": "ترسيديا",
     "soon": "اکن داتڠ",
     "download": "موات تورون",
-    "installNote": "موات تورون فايل zip، کموديان بوک chrome://extensions، هيدوڤکن مود ڤمباڠون دان ڤيليه \"Load unpacked\" ڤد فولدر يڠ تله دايکستراک.",
+    "installNote": {
+      "extension": "موات تورون فايل zip، کموديان بوک chrome://extensions، هيدوڤکن مود ڤمباڠون دان ڤيليه \"Load unpacked\" ڤد فولدر يڠ تله دايکستراک.",
+      "vscode": "موات تورون فايل .vsix، کموديان جالانکن \"Extensions: Install from VSIX…\" دري ڤاليت اراهن."
+    },
     "platforms": {
       "extension": {
         "name": "سمبوڠن ڤلاير",

@@ -115,7 +115,10 @@
     "available": "متوفر",
     "soon": "قريبًا",
     "download": "تحميل",
-    "installNote": "نزّل ملف zip، ثم افتح chrome://extensions، وفعّل وضع المطوّر، واختر \"Load unpacked\" على المجلد المستخرج.",
+    "installNote": {
+      "extension": "نزّل ملف zip، ثم افتح chrome://extensions، وفعّل وضع المطوّر، واختر \"Load unpacked\" على المجلد المستخرج.",
+      "vscode": "نزّل ملف .vsix، ثم نفّذ \"Extensions: Install from VSIX…\" من لوحة الأوامر."
+    },
     "platforms": {
       "extension": {
         "name": "إضافة المتصفح",

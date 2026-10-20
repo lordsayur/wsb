@@ -1,0 +1,6 @@
+src/**
+scripts/**
+tsconfig.json
+vitest.config.ts
+*.vsix
+node_modules/**

@@ -25,7 +25,13 @@ jobs:
         env:
           WSB_SUPABASE_URL: ${{ secrets.WSB_SUPABASE_URL }}
           WSB_SUPABASE_ANON_KEY: ${{ secrets.WSB_SUPABASE_ANON_KEY }}
+      - run: pnpm --filter wsb-vscode package
+        env:
+          WSB_SUPABASE_URL: ${{ secrets.WSB_SUPABASE_URL }}
+          WSB_SUPABASE_ANON_KEY: ${{ secrets.WSB_SUPABASE_ANON_KEY }}
       - uses: softprops/action-gh-release@v2
         with:
-          files: apps/extension/wsb-extension.zip
+          files: |
+            apps/extension/wsb-extension.zip
+            apps/vscode/wsb-vscode.vsix
           generate_release_notes: true

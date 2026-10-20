@@ -46,8 +46,8 @@ useSeoMeta({
             :action-label="platform.actionLabel"
             :href="platform.url"
           />
-          <p v-if="platform.installNote === 'extension'" class="note">
-            {{ t('downloads.installNote') }}
+          <p v-if="platform.installNote" class="note">
+            {{ t(`downloads.installNote.${platform.installNote}`) }}
           </p>
         </div>
       </div>

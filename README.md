@@ -55,6 +55,19 @@ Release: push a `v*` tag; `.github/workflows/extension-release.yml` attaches
 → Other platforms) links to
 `https://github.com/lordsayur/wsb/releases/latest/download/wsb-extension.zip`.
 
+## VS Code extension
+
+```bash
+pnpm vscode:build     # bundles into apps/vscode/dist
+pnpm vscode:package   # also writes apps/vscode/wsb-vscode.vsix
+```
+
+The status bar shows the next entry and its time; clicking it opens a times
+panel with all eight entries, district/language/format choices (`wsb.*`
+settings). Times come from the editor cache first, then Supabase. Install the
+release artifact via `Extensions: Install from VSIX…`; the same release attaches
+`wsb-vscode.vsix`, linked from the web app's `/download` page.
+
 Open in the devcontainer:
 
 ```bash

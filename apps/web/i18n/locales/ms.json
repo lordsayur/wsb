@@ -115,7 +115,10 @@
     "available": "Tersedia",
     "soon": "Akan datang",
     "download": "Muat turun",
-    "installNote": "Muat turun fail zip, kemudian buka chrome://extensions, hidupkan Mod Pembangun dan pilih \"Load unpacked\" pada folder yang telah diekstrak.",
+    "installNote": {
+      "extension": "Muat turun fail zip, kemudian buka chrome://extensions, hidupkan Mod Pembangun dan pilih \"Load unpacked\" pada folder yang telah diekstrak.",
+      "vscode": "Muat turun fail .vsix, kemudian jalankan \"Extensions: Install from VSIX…\" dari palet arahan."
+    },
     "platforms": {
       "extension": {
         "name": "Sambungan pelayar",

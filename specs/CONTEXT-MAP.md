@@ -6,8 +6,8 @@ core"). Arrows are dependencies: the left depends on the right.
 ```
 apps/web ─────┐
               ├──▶ packages/core ──▶ packages/data (port)
-apps/extension┘      (core domain)        ▲
-                                          │ implements
+apps/extension┤      (core domain)        ▲
+apps/vscode ──┘                           │ implements
                      Supabase adapter (runtime) + MORA import (manual)
 ```
 
@@ -46,6 +46,17 @@ apps/extension┘      (core domain)        ▲
   key ship; no service-role key, and no MORA calls at runtime.
 - **Depends on:** Prayer Times (core) and Data.
 - **Spec:** [`extension/spec.md`](./extension/spec.md).
+
+## VS Code shell — presentation
+
+- **Owns:** the status bar item and the times-panel webview. Rendering and
+  platform glue only.
+- **Published language:** none. It reads core state and draws it.
+- **Invariant:** no business logic. Offline first, Supabase-only at runtime.
+  Only the public Supabase URL + anon key ship; no service-role key, and no
+  MORA calls at runtime.
+- **Depends on:** Prayer Times (core) and Data.
+- **Spec:** [`vscode/spec.md`](./vscode/spec.md).
 
 ## Dependency rules
 

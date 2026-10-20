@@ -21,6 +21,7 @@ language; see [`CONTEXT-MAP.md`](./CONTEXT-MAP.md) for how they relate.
 | Data (port + adapters) | `packages/data` | [`data/spec.md`](./data/spec.md) |
 | Web shell | `apps/web` | [`web/spec.md`](./web/spec.md) |
 | Extension shell | `apps/extension` | [`extension/spec.md`](./extension/spec.md) |
+| VS Code shell | `apps/vscode` | [`vscode/spec.md`](./vscode/spec.md) |
 | Testing (cross-cutting) | all | [`testing/spec.md`](./testing/spec.md) |
 
 `packages/shared` is not a context. It is a placeholder being split into `core`

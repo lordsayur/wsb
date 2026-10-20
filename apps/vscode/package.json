@@ -1,0 +1,110 @@
+{
+  "name": "wsb-vscode",
+  "displayName": "Waktu Sembahyang Brunei",
+  "description": "Waktu sembahyang Brunei di bar status editor.",
+  "version": "0.1.0",
+  "publisher": "lordsayur",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lordsayur/wsb"
+  },
+  "main": "./dist/extension.cjs",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "wsb.openPanel",
+        "title": "Waktu Sembahyang: Open times panel"
+      },
+      {
+        "command": "wsb.reloadData",
+        "title": "Waktu Sembahyang: Reload data"
+      }
+    ],
+    "configuration": {
+      "title": "Waktu Sembahyang",
+      "properties": {
+        "wsb.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the next entry and its time in the status bar."
+        },
+        "wsb.locale": {
+          "type": "string",
+          "default": "ms",
+          "enum": [
+            "ms",
+            "ms-Arab",
+            "ar",
+            "en"
+          ],
+          "enumDescriptions": [
+            "Bahasa Melayu",
+            "بهاس ملايو (Jawi)",
+            "العربية",
+            "English"
+          ],
+          "description": "Language for the status bar and times panel."
+        },
+        "wsb.timeFormat": {
+          "type": "string",
+          "default": "24h",
+          "enum": [
+            "24h",
+            "12h"
+          ],
+          "enumDescriptions": [
+            "24-hour",
+            "12-hour"
+          ],
+          "description": "Clock format for times."
+        },
+        "wsb.district": {
+          "type": "string",
+          "default": "bruneiMuara",
+          "enum": [
+            "bruneiMuara",
+            "tutong",
+            "belait"
+          ],
+          "enumDescriptions": [
+            "Brunei & Muara",
+            "Tutong (+1 minute)",
+            "Belait (+3 minutes)"
+          ],
+          "description": "District whose prayer times are shown."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node --env-file-if-exists=../../.env scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "vscode:prepublish": "node --env-file-if-exists=../../.env scripts/build.mjs",
+    "package": "vsce package --no-dependencies --out wsb-vscode.vsix"
+  },
+  "dependencies": {
+    "@wsb/core": "workspace:*",
+    "@wsb/data": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
+  }
+}

@@ -15,6 +15,8 @@
     "watch": "pnpm --filter web dev",
     "import:mora": "node --env-file-if-exists=.env scripts/import-mora.ts",
     "extension:build": "pnpm --filter @wsb/extension build",
-    "extension:zip": "pnpm --filter @wsb/extension zip"
+    "extension:zip": "pnpm --filter @wsb/extension zip",
+    "vscode:build": "pnpm --filter wsb-vscode build",
+    "vscode:package": "pnpm --filter wsb-vscode package"
   }
 }

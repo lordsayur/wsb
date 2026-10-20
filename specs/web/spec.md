@@ -160,10 +160,10 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - `/download` is a page listing the app for other platforms. Each platform is a
   card with its name, a short description, a status (available / coming soon)
   and a download action when available.
-- The browser extension is listed first and is available: its action downloads
-  the extension zip attached to the latest GitHub release (repository
-  `lordsayur/wsb`). CLI, TUI, VS Code extension, Raycast and terminal surfaces
-  are listed as coming soon.
+- The browser extension and the VS Code extension are available: each action
+  downloads the artifact attached to the latest GitHub release (repository
+  `lordsayur/wsb`), with its own install note. CLI, TUI and Raycast are listed
+  as coming soon.
 - The menu panel has a **Other platforms** entry that opens `/download`; it
   closes the menu.
 - The page links back to the app, credits the MORA/KHEU source, and is fully
@@ -394,8 +394,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The decrement key stops at zero; reset returns to zero; the count caps at
       9999.
 - [ ] Increment, decrement, and reset request a vibration where supported.
-- [ ] Other platforms opens `/download`; the extension card links to the latest
-      GitHub release artifact; other platforms are marked coming soon.
+- [ ] Other platforms opens `/download`; the extension cards link to the latest
+      GitHub release artifacts; other platforms are marked coming soon.
 - [ ] Settings opens the theme controls, time format, language, notifications,
       reload data, and reload app.
 - [ ] 24-hour time is the default; 12-hour adds an AM/PM marker everywhere.
@@ -511,3 +511,5 @@ None published. Consumes core and the Data port.
 - 2026-10-20 — add a `/tasbih` page: SVG digital tasbih with increment (whole
   page), decrement, reset, and vibration.
 - 2026-10-20 — adopt Nuxt Icon (Lucide) for menu, controls, and actions.
+- 2026-10-20 — mark the VS Code extension available on the downloads page with
+  its own `.vsix` link and install note.

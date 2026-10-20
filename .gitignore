@@ -45,3 +45,7 @@ apps/extension/*.zip
 
 # Netlify build output
 .netlify/
+
+# VS Code extension build output (regenerable; vsix ships via GitHub releases)
+apps/vscode/dist/
+apps/vscode/*.vsix
