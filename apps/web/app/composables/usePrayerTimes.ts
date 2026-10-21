@@ -63,15 +63,36 @@ function today(): string {
 
 export type LoadState = 'loading' | 'ready' | 'unavailable'
 
+/**
+ * Read-only district for pages that only need the selection (the trend chart),
+ * without loading the day's times.
+ */
+export function useDistrict(initialDistrict: District | null = null) {
+  const repo = getPrayerRepository()
+  const district = ref<District>(
+    resolveDistrict(initialDistrict ?? repo.getSelectionSync?.() ?? null),
+  )
+  onMounted(async () => {
+    if (initialDistrict) {
+      await repo.setSelection(initialDistrict)
+      return
+    }
+    district.value = resolveDistrict(await repo.getSelection())
+  })
+  return { district }
+}
+
 export function usePrayerTimes(
   locale: () => string,
   timeFormat: () => TimeFormat = () => DEFAULT_TIME_FORMAT,
+  initialDistrict: District | null = null,
 ) {
   const repo = getPrayerRepository()
   // Keep the initial values identical to SSR; cached data is painted in
   // onMounted before revalidating, so hydration never mismatches.
   const state = ref<LoadState>('loading')
-  const district = ref<District>(resolveDistrict(null))
+  const stored = initialDistrict ?? repo.getSelectionSync?.() ?? null
+  const district = ref<District>(resolveDistrict(stored))
   const { flag: refreshing, start: startRefreshing, stop: stopRefreshing } =
     useDelayedFlag()
   const entries = ref<{ prayer: PrayerName; minutes: number }[]>([])
@@ -91,7 +112,6 @@ export function usePrayerTimes(
 
   /** specs/web/spec.md — paint the cached day before any network work. */
   function paintFromCache(): boolean {
-    const stored = repo.getSelectionSync?.()
     if (stored) district.value = resolveDistrict(stored)
     const cached = repo.peek?.(today(), district.value)
     if (cached?.status !== 'ok') return false
@@ -113,8 +133,12 @@ export function usePrayerTimes(
   if (import.meta.client) paintFromCache()
 
   async function load() {
-    const selection = await repo.getSelection()
-    district.value = resolveDistrict(selection)
+    if (initialDistrict) {
+      // A link names the district; keep it as the saved choice too.
+      await repo.setSelection(initialDistrict)
+    } else if (!stored) {
+      district.value = resolveDistrict(await repo.getSelection())
+    }
 
     if (paintFromCache()) {
       // Cached times stay on screen; revalidate quietly against the source and

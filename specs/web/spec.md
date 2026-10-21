@@ -69,18 +69,36 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Pages
 
-- The shell has three pages: the daily view, the monthly view, and the trend
-  chart.
-- Swiping horizontally, or tapping a page indicator, cycles between them in
-  either direction; the cycle wraps around.
+- The app has three views: the daily view and the monthly view inside `/`,
+  and the trend chart on its own `/trend` page.
+- `/trend` loads on first visit as a separate route bundle; the main page does
+  not ship the chart code. The menu has a **Trend chart** entry that opens it,
+  and the page links back to the app.
+- In `/`, the daily and monthly views are the two pages: swiping horizontally,
+  or tapping a page indicator, cycles between them in either direction; the
+  cycle wraps around.
 - A row of circular page indicators sits at the top of the page; the current
   page's circle is highlighted and carries an accessible current marker.
+- The daily and monthly views share one cached month; the monthly view does not
+  load anything extra for data the daily view already holds.
+- The address carries the current view and its selection, and is updated in
+  place (`replace`, no history entry) as they change. Defaults stay out of the
+  address, so `/` and `/trend` stay clean and shareable:
+  - `view=month` when `/` shows the monthly view,
+  - `month=YYYY-MM` while the monthly view shows another month,
+  - `district=<district>` when it is not the default Brunei & Muara,
+  - `/trend` carries `range=week|year` when not the default month range, and
+    `date=YYYY-MM-DD` when the range is not the current one.
+- Opening a link restores the view and selection it names; unknown or malformed
+  values fall back to the defaults instead of erroring.
 
 ### Monthly view
 
 - A horizontal swipe switches between the daily view and a monthly view:
   swiping right shows the month, swiping left returns to the day. Vertical
   drags and drags starting on form controls are ignored.
+- The view and the shown month are reflected in the address (`view`, `month`)
+  as described under **Pages**.
 - Consecutive calendar weeks (Monday-first) alternate a visible row background
   so each week reads as a band; today's highlight still wins.
 - The monthly view shows one row per day of the selected Brunei month with the
@@ -106,10 +124,10 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 - The trend page plots the prayer entries as a line graph: the x axis is the
   date and the y axis is the time of day, with a line per entry.
-- The range defaults to **month**; the footer offers **week**, **month** and
-  **year** and steps backwards/forwards through the range. In the trend view
-  the footer replaces the district selector and share button with the range
-  selector.
+- The range defaults to **month**; the page's footer offers **week**,
+  **month** and **year** and steps backwards/forwards through the range.
+- The range and its anchor are reflected in the address (`range`, `date`) as
+  described under **Pages**.
 - By default every entry is plotted. While all are shown, tapping a chip shows
   that entry alone; otherwise a chip toggles that entry in or out. Removing the
   last shown entry restores the default (all entries).
@@ -148,12 +166,24 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   never goes below zero and stops at 9999.
 - The main round key increments by one. A reset key returns the count to zero;
   a decrement key subtracts one. Both side keys do nothing at their limits.
+- Resetting a non-zero count asks for confirmation first, so an accidental tap
+  cannot wipe a running zikir; confirming resets to zero and cancelling leaves
+  the count untouched.
 - Tapping anywhere on the page also increments, except on the reset and
   decrement keys and on links. Space/Enter do the same from the keyboard.
 - Every increment, decrement, and reset requests a short device vibration where
-  `navigator.vibrate` exists; unsupported devices are unaffected.
-- The count is kept for the open tab, so leaving the page and coming back keeps
-  it.
+  `navigator.vibrate` exists; unsupported devices are unaffected. An increment
+  that lands on the notification step uses a longer, repeating pattern instead.
+- A notification step defaults to 100 and is editable on the page (whole number,
+  stored on the device). When device notifications are on, every increment that
+  lands exactly on a multiple of the step raises a notification: step 100 rings
+  at 100, 200, 300…; step 33 rings at 33, 66, 99…. Zero never rings.
+- The page offers the same device-notification switch as the menu: enabling it
+  requests permission and turns on the shared `wsb.notifications` preference, so
+  prayer reminders and tasbih milestones share one choice. A blocked browser is
+  labelled, not silently ignored.
+- The count and the step are stored on the device, so a reload or a later visit
+  resumes where the user left off; reset stores zero.
 - The menu panel has a **Tasbih** entry that opens `/tasbih`; it closes the
   menu. The page links back to the app and is fully localized (Malay first).
 
@@ -183,14 +213,13 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   district, with the current district highlighted. Left/Right arrows move
   between the options. It has no visible group label; its accessible name
   carries the "District" label instead.
-- The menu button opens a panel with **Settings**, **Tasbih**, and **Other
-  platforms**; it closes on Escape or after choosing an action.
+- The menu button opens a panel with **Settings**, **Trend chart**, **Tasbih**,
+  and **Other platforms**; it closes on Escape or after choosing an action.
 - Settings is a second panel reached from the menu, with a back entry. It
   contains the theme controls, the time-format choice, the language selector,
   the notification toggle, and the "reload data" and "reload app" actions.
   Escape returns to the menu, then closes.
-- "Reload data" refetches the current view (day, month, or trend) from the
-  source.
+- "Reload data" refetches the current view (day or month) from the source.
 - "Reload app" reloads the page.
 - Icons come from Nuxt Icon (`@nuxt/icon`, Lucide set): the menu, share,
   steppers, theme modes, notifications, downloads, and reload actions all use
@@ -376,6 +405,10 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Swiping right from the day shows the month; swiping left returns.
 - [ ] Swiping past either edge cycles back to the other page.
 - [ ] Tapping a page indicator switches pages and highlights that circle.
+- [ ] The address reflects the view, month, district, trend range and anchor,
+      and opening such a link restores it; malformed values fall back.
+- [ ] The menu's Trend chart entry opens `/trend`; the page links back.
+- [ ] `/trend` is a separate route bundle; the main page does not ship it.
 - [ ] The trend page plots one line per entry with date on x and time on y.
 - [ ] The trend range defaults to month and offers week and year.
 - [ ] Every entry is plotted by default; tapping a legend chip filters to it.
@@ -400,7 +433,11 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
       decrement keys and links.
 - [ ] The decrement key stops at zero; reset returns to zero; the count caps at
       9999.
-- [ ] Increment, decrement, and reset request a vibration where supported.
+- [ ] Resetting a non-zero count asks for confirmation; cancelling keeps it.
+- [ ] Increment, decrement, and reset request a vibration where supported, with
+      a distinct pattern on each milestone.
+- [ ] The tasbih count and step survive a reload.
+- [ ] Tasbih notifications ring on every multiple of the step (100 by default).
 - [ ] Other platforms opens `/download`; the extension cards link to the latest
       GitHub release artifacts; other platforms are marked coming soon.
 - [ ] The VS Code card links to the Marketplace listing and still offers the
@@ -528,3 +565,10 @@ None published. Consumes core and the Data port.
   the footer row beside the share and menu buttons.
 - 2026-10-21 — keep the eight prayer rows and their names on screen while the
   day loads, with muted placeholder times, so the first open is never blank.
+- 2026-10-21 — add tasbih milestone notifications on every multiple of a
+  device-stored step (default 100), sharing the prayer notification preference.
+- 2026-10-21 — persist the tasbih count and step, vibrate distinctly on each
+  milestone, and confirm before resetting a non-zero count.
+- 2026-10-22 — move the trend chart to its own `/trend` page opened from the
+  menu, so the main page does not ship the chart; keep the day and month on one
+  cached month, and mirror the view and selection in the address.

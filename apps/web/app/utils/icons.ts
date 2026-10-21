@@ -3,6 +3,7 @@
 export const ICONS = [
   'lucide:arrow-left',
   'lucide:bell',
+  'lucide:chart-line',
   'lucide:chevron-left',
   'lucide:chevron-right',
   'lucide:circle-dot-dashed',

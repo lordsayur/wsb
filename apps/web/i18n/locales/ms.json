@@ -30,6 +30,7 @@
     "reloadApp": "Muat semula aplikasi",
     "share": "Kongsi waktu sembahyang",
     "downloads": "Platform lain",
+    "trend": "Grafik trend",
     "tasbih": "Tasbih"
   },
   "source": {
@@ -212,6 +213,9 @@
       "year": "Tahun"
     }
   },
+  "trend": {
+    "back": "Kembali ke aplikasi"
+  },
   "tasbih": {
     "title": "Tasbih",
     "intro": "Tasbih digital untuk zikir. Ketik di mana-mana untuk mengira.",
@@ -221,7 +225,13 @@
     "hint": "Ketik di mana-mana untuk tambah satu. Guna kekunci sisi untuk tolak satu atau set semula.",
     "increment": "Tambah satu",
     "decrement": "Tolak satu",
-    "reset": "Set semula kepada sifar"
+    "reset": "Set semula kepada sifar",
+    "stepLabel": "Notifikasi setiap",
+    "enableNotifications": "Hidupkan notifikasi",
+    "notificationsOn": "Notifikasi setiap {step}",
+    "notifyTitle": "Tasbih {count}",
+    "notifyBody": "Kiraan tasbih mencapai {count}.",
+    "resetConfirm": "Set semula kiraan kepada sifar?"
   },
   "a11y": {
     "skipToContent": "Langkau ke kandungan"

@@ -11,8 +11,12 @@ import {
   type PrayerNotification,
   type TimeFormat,
 } from '@wsb/core'
+import {
+  NOTIFICATIONS_ENABLED_KEY,
+  showDeviceNotification,
+} from '~/utils/notify'
 
-const ENABLED_KEY = 'wsb.notifications'
+const ENABLED_KEY = NOTIFICATIONS_ENABLED_KEY
 
 export type NotificationStatus = 'unsupported' | 'default' | 'granted' | 'denied'
 
@@ -61,20 +65,7 @@ export function usePrayerNotifications(
       prayer,
       time: formatTime(event.minutes, locale(), timeFormat()),
     })
-    const options: NotificationOptions = {
-      body,
-      icon: '/pwa-192x192.png',
-      tag: `wsb-${event.prayer}-${event.kind}`,
-    }
-
-    if ('serviceWorker' in navigator) {
-      const registration = await navigator.serviceWorker.getRegistration()
-      if (registration) {
-        await registration.showNotification(title, options)
-        return
-      }
-    }
-    new Notification(title, options)
+    await showDeviceNotification(title, body, `wsb-${event.prayer}-${event.kind}`)
   }
 
   async function enable() {

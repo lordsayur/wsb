@@ -19,20 +19,6 @@
         @share="emit('share', $event)"
       />
 
-      <RangeSelector
-        v-if="view === 'trend'"
-        :label="rangeLabel"
-        :value="range"
-        :options="rangeOptions"
-        :current="rangeCurrent"
-        :prev-label="rangePrevLabel"
-        :next-label="rangeNextLabel"
-        :today-label="rangeTodayLabel"
-        @update:range="emit('update:range', $event)"
-        @shift="emit('shiftChart', $event)"
-        @today="emit('todayChart')"
-      />
-
       <MonthSelector
         v-if="view === 'month'"
         :label="monthLabel"
@@ -78,6 +64,10 @@
               {{ settingsLabel }}
             </button>
             <hr class="divider" />
+            <button type="button" role="menuitem" @click="openTrend">
+              <Icon name="lucide:chart-line" aria-hidden="true" />
+              {{ trendLabel }}
+            </button>
             <button type="button" role="menuitem" @click="openTasbih">
               <Icon name="lucide:circle-dot-dashed" aria-hidden="true" />
               {{ tasbihLabel }}
@@ -168,9 +158,6 @@ import DistrictSelector, {
 } from '../molecules/DistrictSelector.vue'
 import ShareButton from '../molecules/ShareButton.vue'
 import MonthSelector from '../molecules/MonthSelector.vue'
-import RangeSelector, {
-  type RangeOption,
-} from '../molecules/RangeSelector.vue'
 import ThemeControls, {
   type ModeOption,
   type PaletteOption,
@@ -188,14 +175,7 @@ export interface LanguageOption {
 }
 
 const props = defineProps<{
-  view?: 'day' | 'month' | 'trend'
-  rangeLabel: string
-  range: string
-  rangeOptions: RangeOption[]
-  rangeCurrent: boolean
-  rangePrevLabel: string
-  rangeNextLabel: string
-  rangeTodayLabel: string
+  view?: 'day' | 'month'
   monthLabel: string
   monthTitle: string
   monthCurrent: boolean
@@ -223,6 +203,7 @@ const props = defineProps<{
   timeFormat: TimeFormat
   timeFormatOptions: TimeFormatOption[]
   downloadsLabel: string
+  trendLabel: string
   tasbihLabel: string
   reloadDataLabel: string
   reloadAppLabel: string
@@ -238,9 +219,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   shiftMonth: [delta: number]
-  'update:range': [value: string]
-  shiftChart: [delta: number]
-  todayChart: []
   todayMonth: []
   'update:district': [value: string]
   'update:locale': [value: string]
@@ -250,6 +228,7 @@ const emit = defineEmits<{
   'update:timeFormat': [value: TimeFormat]
   share: [format: 'formatted' | 'raw']
   downloads: []
+  trend: []
   tasbih: []
   reloadData: []
   reloadApp: []
@@ -290,6 +269,11 @@ function chooseLocale(code: string) {
 
 function openDownloads() {
   emit('downloads')
+  close()
+}
+
+function openTrend() {
+  emit('trend')
   close()
 }
 

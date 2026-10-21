@@ -7,3 +7,4 @@ export function vibrate(pattern: number | number[]): void {
 export const INCREMENT_VIBRATION = 10
 export const DECREMENT_VIBRATION = 10
 export const RESET_VIBRATION = [20, 40, 20]
+export const MILESTONE_VIBRATION = [40, 60, 40, 60, 40]

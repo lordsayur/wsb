@@ -8,17 +8,6 @@ const meta: Meta<typeof AppFooter> = {
   component: AppFooter,
   args: {
     view: 'day',
-    rangeLabel: 'Tempoh',
-    range: 'month',
-    rangeOptions: [
-      { value: 'week', label: 'Minggu' },
-      { value: 'month', label: 'Bulan' },
-      { value: 'year', label: 'Tahun' },
-    ],
-    rangeCurrent: true,
-    rangePrevLabel: 'Tempoh sebelumnya',
-    rangeNextLabel: 'Tempoh seterusnya',
-    rangeTodayLabel: 'Tempoh ini',
     monthLabel: 'Bulan',
     monthTitle: 'Oktober 2026',
     monthCurrent: true,
@@ -62,6 +51,7 @@ const meta: Meta<typeof AppFooter> = {
       { code: 'en', name: 'English' },
     ],
     downloadsLabel: 'Platform lain',
+    trendLabel: 'Grafik trend',
     tasbihLabel: 'Tasbih',
     reloadDataLabel: 'Muat semula data',
     reloadAppLabel: 'Muat semula aplikasi',
@@ -80,6 +70,7 @@ const meta: Meta<typeof AppFooter> = {
     'onUpdate:timeFormat': fn(),
     onShare: fn(),
     onDownloads: fn(),
+    onTrend: fn(),
     onTasbih: fn(),
     onReloadData: fn(),
     onReloadApp: fn(),
@@ -114,6 +105,9 @@ export const MenuOpen: Story = {
     ).toBeVisible()
     await expect(
       canvas.getByRole('menuitem', { name: 'Tasbih' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Grafik trend' }),
     ).toBeVisible()
     await expect(
       canvas.queryByRole('menuitem', { name: 'Muat semula data' }),
@@ -241,6 +235,15 @@ export const OpenTasbih: Story = {
   },
 }
 
+export const OpenTrend: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Grafik trend' }))
+    await expect(args.onTrend).toHaveBeenCalledTimes(1)
+  },
+}
+
 export const KeyboardArrowOpensMenu: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -248,6 +251,10 @@ export const KeyboardArrowOpensMenu: Story = {
     button.focus()
     await userEvent.keyboard('{ArrowDown}')
     await expect(canvas.getByRole('menuitem', { name: 'Tetapan' })).toHaveFocus()
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Grafik trend' }),
+    ).toHaveFocus()
     await userEvent.keyboard('{ArrowDown}')
     await expect(canvas.getByRole('menuitem', { name: 'Tasbih' })).toHaveFocus()
     await userEvent.keyboard('{End}')

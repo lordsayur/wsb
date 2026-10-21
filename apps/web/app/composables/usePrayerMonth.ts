@@ -47,9 +47,10 @@ export function usePrayerMonth(
   locale: () => string,
   timeFormat: () => TimeFormat = () => DEFAULT_TIME_FORMAT,
   active: () => boolean = () => true,
+  initialMonth: string | null = null,
 ) {
   const { t } = useI18n()
-  const month = ref(monthOf(bruneiNow().date))
+  const month = ref(initialMonth ?? monthOf(bruneiNow().date))
   const days = ref<LoadedMonthDay[]>([])
   const state = ref<'loading' | 'ready' | 'unavailable'>('loading')
   const stale = ref(false)

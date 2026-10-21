@@ -30,6 +30,7 @@
     "reloadApp": "Reload app",
     "share": "Share prayer times",
     "downloads": "Other platforms",
+    "trend": "Trend chart",
     "tasbih": "Tasbih"
   },
   "source": {
@@ -212,6 +213,9 @@
       "year": "Year"
     }
   },
+  "trend": {
+    "back": "Back to the app"
+  },
   "tasbih": {
     "title": "Tasbih",
     "intro": "Digital tasbih for zikir. Tap anywhere to count.",
@@ -221,7 +225,13 @@
     "hint": "Tap anywhere to add one. Use the side keys to subtract one or reset.",
     "increment": "Add one",
     "decrement": "Subtract one",
-    "reset": "Reset to zero"
+    "reset": "Reset to zero",
+    "stepLabel": "Notify every",
+    "enableNotifications": "Enable notifications",
+    "notificationsOn": "Notify every {step}",
+    "notifyTitle": "Tasbih {count}",
+    "notifyBody": "Tasbih count reached {count}.",
+    "resetConfirm": "Reset the count to zero?"
   },
   "a11y": {
     "skipToContent": "Skip to content"

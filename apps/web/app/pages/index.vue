@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  DEFAULT_DISTRICT,
   DISTRICTS,
   NOTIFICATION_LEAD_MINUTES,
   bruneiNow,
@@ -13,7 +14,6 @@ import {
 import { MORA_PAGE_URL } from '@wsb/data/mora'
 import PrayerTimeList from '~/components/organisms/PrayerTimeList.vue'
 import MonthPrayerTable from '~/components/organisms/MonthPrayerTable.vue'
-import PrayerTrendChart from '~/components/organisms/PrayerTrendChart.vue'
 import AppFooter from '~/components/organisms/AppFooter.vue'
 import DateDisplay from '~/components/molecules/DateDisplay.vue'
 import PageIndicator from '~/components/molecules/PageIndicator.vue'
@@ -21,7 +21,6 @@ import SourceNote from '~/components/molecules/SourceNote.vue'
 import UpdatePrompt from '~/components/molecules/UpdatePrompt.vue'
 import { usePrayerTimes } from '~/composables/usePrayerTimes'
 import { usePrayerMonth } from '~/composables/usePrayerMonth'
-import { usePrayerChart } from '~/composables/usePrayerChart'
 import { useSwipe } from '~/composables/useSwipe'
 import { usePrayerNotifications } from '~/composables/usePrayerNotifications'
 import { usePwaUpdate } from '~/composables/usePwaUpdate'
@@ -30,8 +29,19 @@ import { useSettings } from '~/composables/useSettings'
 import { useSharePrayerTimes } from '~/composables/useSharePrayerTimes'
 import { useTheme } from '~/composables/useTheme'
 import { PALETTES, type PaletteId, type ThemeMode } from '~/utils/theme'
+import {
+  parseDistrict,
+  parseMonth,
+  parseView,
+  queryValue,
+  type ViewName,
+} from '~/utils/query'
 
-// specs/web/spec.md — page wires the shell to core state. No logic here.
+// specs/web/spec.md — the day and month share the cached month; the trend is
+// its own page. The address carries the view and its selection.
+const route = useRoute()
+const router = useRouter()
+
 const { t, locale, locales, setLocale } = useI18n()
 
 const {
@@ -80,12 +90,16 @@ const {
 } = usePrayerTimes(
   () => locale.value,
   () => timeFormat.value,
+  parseDistrict(route.query.district),
 )
 
-const PAGES = ['day', 'month', 'trend'] as const
-type Page = (typeof PAGES)[number]
+const PAGES: readonly ViewName[] = ['day', 'month']
 
-const view = ref<Page>('day')
+// A month link opens the monthly view; a bare view link stays on the day.
+const initialMonth = parseMonth(route.query.month)
+const view = ref<ViewName>(
+  parseView(route.query.view) ?? (initialMonth ? 'month' : 'day'),
+)
 
 const pageOptions = computed(() =>
   PAGES.map((page) => ({
@@ -100,7 +114,7 @@ function goToPage(delta: number) {
 }
 
 function selectPage(page: string) {
-  if (PAGES.includes(page as Page)) view.value = page as Page
+  if (PAGES.includes(page as ViewName)) view.value = page as ViewName
 }
 
 const {
@@ -119,41 +133,45 @@ const {
   () => locale.value,
   () => timeFormat.value,
   () => view.value === 'month',
+  initialMonth,
 )
 
-const {
-  range: chartRange,
-  rangeOptions: chartRangeOptions,
-  isCurrent: chartCurrent,
-  prayerOptions: chartPrayerOptions,
-  visiblePrayers,
-  series: chartSeries,
-  days: chartDays,
-  axis: chartAxis,
-  yTicks,
-  xTicks,
-  state: chartState,
-  stale: chartStale,
-  refreshing: chartRefreshing,
-  hideOutliers,
-  hasOutliers,
-  outlierCount,
-  setRange: setChartRange,
-  shift: shiftChart,
-  reset: resetChart,
-  togglePrayer,
-  toggleOutliers,
-  reload: reloadChart,
-} = usePrayerChart(
-  () => district.value,
-  () => locale.value,
-  () => timeFormat.value,
-  () => view.value === 'trend',
-  t,
+/** specs/web/spec.md — the address mirrors the view and its selection. */
+function syncUrl() {
+  if (!import.meta.client) return
+  // Defaults stay out of the address, so "/" stays clean and shareable.
+  const target: Record<string, string> = {}
+  if (district.value !== DEFAULT_DISTRICT) target.district = district.value
+  if (view.value === 'month') {
+    target.view = 'month'
+    if (month.value !== monthOf(bruneiNow().date)) target.month = month.value
+  }
+  const current = route.query as Record<string, unknown>
+  const keys = new Set([...Object.keys(target), ...Object.keys(current)])
+  const same = [...keys].every(
+    (key) => (target[key] ?? null) === queryValue(current[key]),
+  )
+  if (!same) void router.replace({ query: target })
+}
+
+watch([view, district, month], syncUrl)
+
+/** A pasted or history-restored address restores the same view. */
+watch(
+  () => route.query,
+  (query) => {
+    const nextView = parseView(query.view) ?? 'day'
+    if (nextView !== view.value) view.value = nextView
+    const nextMonth = parseMonth(query.month)
+    if (nextMonth && nextMonth !== month.value) setMonth(nextMonth)
+    const nextDistrict = parseDistrict(query.district)
+    if (nextDistrict && nextDistrict !== district.value) {
+      void selectDistrict(nextDistrict)
+    }
+  },
 )
 
 const currentMonth = computed(() => monthOf(bruneiNow().date))
-
 
 const { offset: swipeOffset } = useSwipe({
   right: () => goToPage(-1),
@@ -241,7 +259,6 @@ function reloadApp() {
 
 function reloadCurrent() {
   if (view.value === 'month') void reloadMonth()
-  else if (view.value === 'trend') void reloadChart()
   else reloadData()
 }
 
@@ -253,7 +270,19 @@ function openTasbih() {
   navigateTo('/tasbih')
 }
 
-onMounted(load)
+function openTrend() {
+  // The trend page reads the same district, so carry it across.
+  navigateTo(
+    district.value === DEFAULT_DISTRICT
+      ? '/trend'
+      : { path: '/trend', query: { district: district.value } },
+  )
+}
+
+onMounted(async () => {
+  await load()
+  syncUrl()
+})
 </script>
 
 <template>
@@ -315,32 +344,6 @@ onMounted(load)
           />
         </template>
 
-        <PrayerTrendChart
-          v-else-if="view === 'trend'"
-          :state="chartState"
-          :series="chartSeries"
-          :days="chartDays"
-          :axis="chartAxis"
-          :y-ticks="yTicks"
-          :x-ticks="xTicks"
-          :prayer-options="chartPrayerOptions"
-          :visible="visiblePrayers"
-          :filter-label="t('chart.filter')"
-          :chart-label="t('chart.label')"
-          :date-label="t('month.date')"
-          :refreshing="chartRefreshing"
-          :refreshing-text="t('state.refreshing')"
-          :loading-text="t('state.loading')"
-          :unavailable-text="t('state.unavailable')"
-          :offline-text="chartStale ? t('state.offline') : ''"
-          :has-outliers="hasOutliers"
-          :hide-outliers="hideOutliers"
-          :outlier-count="outlierCount"
-          :outlier-label="t('chart.hideOutliers')"
-          @toggle-prayer="togglePrayer"
-          @toggle-outliers="toggleOutliers"
-        />
-
         <MonthPrayerTable
           v-else
           :state="monthState"
@@ -359,13 +362,6 @@ onMounted(load)
 
     <AppFooter
       :view="view"
-      :range-label="t('chart.range.label')"
-      :range="chartRange"
-      :range-options="chartRangeOptions"
-      :range-current="chartCurrent"
-      :range-prev-label="t('chart.prev')"
-      :range-next-label="t('chart.next')"
-      :range-today-label="t('chart.today')"
       :month-label="t('month.label')"
       :month-title="monthTitle"
       :month-current="month === currentMonth"
@@ -393,6 +389,7 @@ onMounted(load)
       :time-format="timeFormat"
       :time-format-options="timeFormatOptions"
       :downloads-label="t('action.downloads')"
+      :trend-label="t('action.trend')"
       :tasbih-label="t('action.tasbih')"
       :reload-data-label="t('action.reloadData')"
       :reload-app-label="t('action.reloadApp')"
@@ -405,9 +402,6 @@ onMounted(load)
       :notifications-enabled="notificationsEnabled"
       :notifications-supported="notificationsSupported"
       @shift-month="shiftMonth"
-      @update:range="setChartRange"
-      @shift-chart="shiftChart"
-      @today-chart="resetChart"
       @today-month="setMonth(currentMonth)"
       @update:district="selectDistrict"
       @share="share"
@@ -417,6 +411,7 @@ onMounted(load)
       @update:custom-color="setCustom"
       @update:time-format="setTimeFormat"
       @downloads="openDownloads"
+      @trend="openTrend"
       @tasbih="openTasbih"
       @reload-data="reloadCurrent"
       @reload-app="reloadApp"
@@ -433,7 +428,6 @@ onMounted(load)
     />
   </div>
 </template>
-
 <style scoped>
 .layout {
   height: 100vh;
@@ -503,14 +497,12 @@ onMounted(load)
   text-align: center;
   gap: 0.5rem;
 }
-.main.month,
-.main.trend {
+.main.month {
   justify-content: flex-start;
   text-align: start;
 }
 @media (min-width: 768px) {
-  .layout.view-month,
-  .layout.view-trend {
+  .layout.view-month {
     max-width: none;
   }
 }

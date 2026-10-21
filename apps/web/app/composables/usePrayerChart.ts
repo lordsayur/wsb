@@ -49,10 +49,11 @@ export function usePrayerChart(
   timeFormat: () => TimeFormat = () => DEFAULT_TIME_FORMAT,
   active: () => boolean = () => true,
   t: (key: string) => string,
+  initial: { range?: ChartRange | null; anchor?: string | null } = {},
 ) {
   const today = bruneiNow().date
-  const range = ref<ChartRange>('month')
-  const anchor = ref(today)
+  const range = ref<ChartRange>(initial.range ?? 'month')
+  const anchor = ref(initial.anchor ?? today)
   const days = ref<ChartDay[]>([])
   const state = ref<'loading' | 'ready' | 'unavailable'>('loading')
   const stale = ref(false)
@@ -276,6 +277,7 @@ export function usePrayerChart(
 
   return {
     range,
+    anchor,
     rangeOptions,
     isCurrent,
     prayerOptions,
