@@ -2,7 +2,7 @@
   "name": "wsb-vscode",
   "displayName": "Waktu Sembahyang Brunei",
   "description": "Waktu sembahyang Brunei di bar status editor.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "license": "MIT",
   "publisher": "lordsayur",
   "private": true,
