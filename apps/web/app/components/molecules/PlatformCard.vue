@@ -5,10 +5,21 @@
       <span class="status">{{ statusLabel }}</span>
     </header>
     <p class="description">{{ description }}</p>
-    <a v-if="href" class="action" :href="href" rel="noopener">
-      <Icon name="lucide:download" aria-hidden="true" />
-      {{ actionLabel }}
-    </a>
+    <div v-if="href || storeHref" class="actions">
+      <a v-if="href" class="action" :href="href" rel="noopener">
+        <Icon name="lucide:download" aria-hidden="true" />
+        {{ actionLabel }}
+      </a>
+      <a
+        v-if="storeHref"
+        class="action secondary"
+        :href="storeHref"
+        rel="noopener"
+      >
+        <Icon name="lucide:store" aria-hidden="true" />
+        {{ storeLabel }}
+      </a>
+    </div>
     <p v-else class="action disabled" aria-disabled="true">{{ actionLabel }}</p>
   </article>
 </template>
@@ -23,8 +34,10 @@ withDefaults(
     statusLabel: string
     actionLabel: string
     href?: string
+    storeLabel?: string
+    storeHref?: string
   }>(),
-  { href: undefined },
+  { href: undefined, storeLabel: undefined, storeHref: undefined },
 )
 </script>
 
@@ -75,6 +88,17 @@ withDefaults(
   text-decoration: none;
   background: var(--primary);
   color: var(--primary-fg);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.action.secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
 }
 .action.disabled {
   background: transparent;

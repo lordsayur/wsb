@@ -118,6 +118,7 @@
     "available": "متوفر",
     "soon": "قريبًا",
     "download": "تحميل",
+    "marketplace": "احصل عليه من المتجر",
     "installNote": {
       "extension": "نزّل ملف zip، ثم افتح chrome://extensions، وفعّل وضع المطوّر، واختر \"Load unpacked\" على المجلد المستخرج.",
       "vscode": "نزّل ملف .vsix، ثم نفّذ \"Extensions: Install from VSIX…\" من لوحة الأوامر."

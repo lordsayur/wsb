@@ -29,6 +29,27 @@ export const Available: Story = {
   },
 }
 
+export const WithMarketplace: Story = {
+  args: {
+    name: 'Sambungan VS Code',
+    description: 'Waktu sembahyang di bar status editor.',
+    href: 'https://github.com/lordsayur/wsb/releases/latest/download/wsb-vscode.vsix',
+    storeHref:
+      'https://marketplace.visualstudio.com/items?itemName=lordsayur.wsb-vscode',
+    storeLabel: 'Dapatkan di Marketplace',
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('link', { name: 'Muat turun' })).toHaveAttribute(
+      'href',
+      args.href!,
+    )
+    await expect(
+      canvas.getByRole('link', { name: 'Dapatkan di Marketplace' }),
+    ).toHaveAttribute('href', args.storeHref!)
+  },
+}
+
 export const ComingSoon: Story = {
   args: {
     name: 'CLI',

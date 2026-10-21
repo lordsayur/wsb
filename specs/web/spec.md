@@ -164,6 +164,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   downloads the artifact attached to the latest GitHub release (repository
   `lordsayur/wsb`), with its own install note. CLI, TUI and Raycast are listed
   as coming soon.
+- The VS Code card also offers a "Get it on the Marketplace" action that opens
+  the extension's VS Code Marketplace listing; the download action stays.
 - The menu panel has a **Other platforms** entry that opens `/download`; it
   closes the menu.
 - The page links back to the app, credits the MORA/KHEU source, and is fully
@@ -396,6 +398,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Increment, decrement, and reset request a vibration where supported.
 - [ ] Other platforms opens `/download`; the extension cards link to the latest
       GitHub release artifacts; other platforms are marked coming soon.
+- [ ] The VS Code card links to the Marketplace listing and still offers the
+      `.vsix` download.
 - [ ] Settings opens the theme controls, time format, language, notifications,
       reload data, and reload app.
 - [ ] 24-hour time is the default; 12-hour adds an AM/PM marker everywhere.
@@ -513,3 +517,5 @@ None published. Consumes core and the Data port.
 - 2026-10-20 — adopt Nuxt Icon (Lucide) for menu, controls, and actions.
 - 2026-10-20 — mark the VS Code extension available on the downloads page with
   its own `.vsix` link and install note.
+- 2026-10-21 — add a Marketplace action to the VS Code card, keeping the
+  `.vsix` download.

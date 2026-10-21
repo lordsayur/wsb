@@ -118,6 +118,7 @@
     "available": "Available",
     "soon": "Coming soon",
     "download": "Download",
+    "marketplace": "Get it on the Marketplace",
     "installNote": {
       "extension": "Download the zip, then open chrome://extensions, enable Developer mode and choose \"Load unpacked\" on the extracted folder.",
       "vscode": "Download the .vsix, then run \"Extensions: Install from VSIX…\" from the command palette."

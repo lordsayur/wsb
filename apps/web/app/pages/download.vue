@@ -21,6 +21,7 @@ const platforms = computed(() =>
       platform.status === 'available'
         ? t('downloads.download')
         : t('downloads.soon'),
+    storeLabel: platform.storeUrl ? t('downloads.marketplace') : undefined,
   })),
 )
 
@@ -45,6 +46,8 @@ useSeoMeta({
             :status-label="platform.statusLabel"
             :action-label="platform.actionLabel"
             :href="platform.url"
+            :store-href="platform.storeUrl"
+            :store-label="platform.storeLabel"
           />
           <p v-if="platform.installNote" class="note">
             {{ t(`downloads.installNote.${platform.installNote}`) }}
