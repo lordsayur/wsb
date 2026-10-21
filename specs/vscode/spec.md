@@ -18,7 +18,9 @@ only; no domain rules.
 
 - A right-aligned status bar item shows the current entry's translated label and
   its formatted time, for the selected district. Before the day's first entry
-  there is no current entry, so it shows the next one instead.
+  there is no current entry, so it shows the next one instead. When the next
+  entry is within 15 minutes, the item shows the duration to that entry instead
+  of the current entry's time.
 - Its tooltip carries the Masihi and Hijri dates, the duration to the next
   entry, the district and the data-source credit. The next entry lives only in
   the tooltip so the bar stays quiet.
@@ -100,6 +102,8 @@ only; no domain rules.
 
 - [ ] The status bar shows the current entry and time for the selected district;
       before the first entry it shows the next one.
+- [ ] Within 15 minutes of the next entry the status bar shows the duration to
+      it instead of the current entry's time.
 - [ ] The status bar tooltip carries the next entry and the duration to it.
 - [ ] The times view renders the eight entries in order in the sidebar.
 - [ ] Selecting Tutong/Belait shifts the entries by +1/+3 minutes.
@@ -132,3 +136,5 @@ only; no domain rules.
   browser extension's icon.
 - 2026-10-21 — publish the `.vsix` to the VS Code Marketplace and Open VSX from
   the release workflow when tokens are present (was out of scope).
+- 2026-10-21 — within 15 minutes of the next entry the status bar shows the
+  duration to it instead of the current entry's time.

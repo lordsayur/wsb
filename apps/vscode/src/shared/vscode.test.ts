@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { PrayerEntry } from '@wsb/core'
-import { buildDayView } from './view.js'
+import { buildDayView, statusLabel } from './view.js'
 import { DEFAULT_SETTINGS, resolveSettings } from './settings.js'
 import { isRtl, t } from './i18n.js'
 import { reminderText, nextReminder, isDue, reminderId } from './notifications.js'
@@ -94,6 +94,18 @@ describe('buildDayView', () => {
     expect(view.nextPrayer).toBe('Asar')
     expect(view.nextTime).toBe('15:20')
     expect(view.next).toContain('3 jam 10 minit')
+  })
+
+  it('shows the current entry in the status bar by default', () => {
+    const view = buildDayView(day, DEFAULT_SETTINGS, 12 * 60 * 60 + 10 * 60)
+    expect(statusLabel(view)).toBe('Zuhur 12:05')
+  })
+
+  it('shows the duration to the next entry once it is within 15 minutes', () => {
+    const view = buildDayView(day, DEFAULT_SETTINGS, 15 * 60 * 60 + 10 * 60)
+    expect(view.soon).toBe(true)
+    expect(statusLabel(view)).toBe(view.next)
+    expect(statusLabel(view)).toContain('10 minit')
   })
 
   it('renders 12-hour times when chosen', () => {

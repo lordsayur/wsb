@@ -10,7 +10,7 @@ import {
 import type { PrayerRepository } from '@wsb/data'
 import { t } from './shared/i18n.js'
 import { resolveSettings, type ExtensionSettings } from './shared/settings.js'
-import { buildDayView, type DayView } from './shared/view.js'
+import { buildDayView, statusLabel, type DayView } from './shared/view.js'
 import { loadDay, mementoCache, repository, type LoadedDay } from './shared/day.js'
 import {
   LATE_WINDOW_SECONDS,
@@ -58,11 +58,9 @@ function renderStatus(): void {
     return
   }
   // The label carries the current entry; the next one lives in the tooltip so
-  // the status bar stays quiet.
-  const currentLabel = dayView.currentPrayer
-    ? `${dayView.currentPrayer} ${dayView.currentTime}`
-    : dayView.nextPrayer
-  statusItem.text = `$(clock) ${currentLabel}`
+  // the status bar stays quiet. Within 15 minutes of the next entry the
+  // duration to it replaces the current entry's time.
+  statusItem.text = `$(clock) ${statusLabel(dayView)}`
   statusItem.tooltip = [
     `${dayView.weekday} · ${dayView.masihi} · ${dayView.hijri}`,
     dayView.next,

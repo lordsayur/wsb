@@ -44,6 +44,14 @@ export interface DayInput {
   hijriDate: string
 }
 
+/** The status-bar label: current entry, or the duration when the next is near. */
+export function statusLabel(view: DayView): string {
+  if (view.soon) return view.next
+  return view.currentPrayer
+    ? `${view.currentPrayer} ${view.currentTime}`
+    : view.nextPrayer
+}
+
 /** Renders one loaded day for the status bar and panel. */
 export function buildDayView(
   day: DayInput,
