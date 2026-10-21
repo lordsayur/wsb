@@ -1,0 +1,115 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "wsb-raycast",
+  "title": "Waktu Sembahyang Brunei",
+  "description": "Waktu sembahyang Brunei untuk Brunei dan Muara, Tutong dan Belait, dari pelancar anda.",
+  "icon": "icon.png",
+  "author": "lordsayur",
+  "license": "MIT",
+  "categories": [
+    "Productivity"
+  ],
+  "keywords": [
+    "prayer",
+    "sembahyang",
+    "brunei",
+    "waktu",
+    "islam"
+  ],
+  "commands": [
+    {
+      "name": "prayer-times",
+      "title": "Waktu Sembahyang",
+      "description": "Lihat waktu sembahyang hari ini untuk daerah anda.",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "locale",
+      "title": "Bahasa",
+      "description": "Bahasa untuk label dan tarikh.",
+      "type": "dropdown",
+      "required": false,
+      "default": "ms",
+      "data": [
+        {
+          "title": "Bahasa Melayu",
+          "value": "ms"
+        },
+        {
+          "title": "بهاس ملايو (Jawi)",
+          "value": "ms-Arab"
+        },
+        {
+          "title": "العربية",
+          "value": "ar"
+        },
+        {
+          "title": "English",
+          "value": "en"
+        }
+      ]
+    },
+    {
+      "name": "timeFormat",
+      "title": "Format masa",
+      "description": "Format 24 jam atau 12 jam.",
+      "type": "dropdown",
+      "required": false,
+      "default": "24h",
+      "data": [
+        {
+          "title": "24 jam",
+          "value": "24h"
+        },
+        {
+          "title": "12 jam",
+          "value": "12h"
+        }
+      ]
+    },
+    {
+      "name": "district",
+      "title": "Daerah lalai",
+      "description": "Daerah yang dipilih semasa pertama kali dibuka.",
+      "type": "dropdown",
+      "required": false,
+      "default": "bruneiMuara",
+      "data": [
+        {
+          "title": "Brunei dan Muara",
+          "value": "bruneiMuara"
+        },
+        {
+          "title": "Tutong",
+          "value": "tutong"
+        },
+        {
+          "title": "Belait",
+          "value": "belait"
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^2.8.2",
+    "react": "^19.0.0",
+    "@wsb/core": "workspace:*",
+    "@wsb/data": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.10",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  },
+  "scripts": {
+    "build": "node --env-file-if-exists=../../.env scripts/build.mjs",
+    "typecheck": "node scripts/build.mjs --config-only && tsc -p tsconfig.json --noEmit",
+    "lint": "node scripts/build.mjs --config-only && tsc -p tsconfig.json --noEmit",
+    "test": "node scripts/build.mjs --config-only && vitest run",
+    "dev": "node scripts/build.mjs --dev",
+    "store:export": "node --env-file-if-exists=../../.env scripts/store.mjs"
+  }
+}

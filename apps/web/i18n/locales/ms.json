@@ -19,7 +19,8 @@
     "loading": "Memuatkan…",
     "unavailable": "Waktu sembahyang tidak tersedia.",
     "offline": "Anda sedang luar talian. Memaparkan data terakhir.",
-    "refreshing": "Mengemas kini…"
+    "refreshing": "Mengemas kini…",
+    "current": "Semasa"
   },
   "action": {
     "retry": "Cuba lagi",

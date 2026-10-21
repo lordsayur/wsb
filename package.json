@@ -18,6 +18,8 @@
     "extension:build": "pnpm --filter @wsb/extension build",
     "extension:zip": "pnpm --filter @wsb/extension zip",
     "vscode:build": "pnpm --filter wsb-vscode build",
-    "vscode:package": "pnpm --filter wsb-vscode package"
+    "vscode:package": "pnpm --filter wsb-vscode package",
+    "raycast:build": "pnpm --filter ./apps/raycast build",
+    "raycast:store": "pnpm --filter ./apps/raycast run store:export"
   }
 }

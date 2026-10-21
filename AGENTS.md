@@ -28,6 +28,8 @@ pnpm typecheck        # typecheck all packages
 pnpm lint             # lint all packages
 pnpm extension:build  # bundle the browser extension into apps/extension/dist
 pnpm extension:zip    # also write apps/extension/wsb-extension.zip
+pnpm raycast:build    # build the Raycast extension into apps/raycast/dist
+pnpm raycast:store    # export a self-contained Raycast Store folder
 ```
 
 ## Conventions
