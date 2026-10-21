@@ -22,9 +22,20 @@ export const Default: Story = {
   args: { label: 'Daerah', modelValue: 'bruneiMuara', options },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
-    const select = canvas.getByLabelText('Daerah')
-    await userEvent.selectOptions(select, 'belait')
+    const group = canvas.getByRole('radiogroup', { name: 'Daerah' })
+    await expect(group).toBeVisible()
+    await userEvent.click(canvas.getByRole('radio', { name: 'Belait' }))
     await expect(args['onUpdate:modelValue']).toHaveBeenCalledWith('belait')
+  },
+}
+
+export const Keyboard: Story = {
+  args: { label: 'Daerah', modelValue: 'bruneiMuara', options },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    canvas.getByRole('radio', { name: 'Brunei dan Muara' }).focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(canvas.getByRole('radio', { name: 'Tutong' })).toHaveFocus()
   },
 }
 
@@ -32,7 +43,7 @@ export const Loading: Story = {
   args: { label: 'Daerah', modelValue: 'bruneiMuara', options: [] },
   play: async ({ canvasElement }) => {
     await expect(
-      within(canvasElement).getByLabelText('Daerah'),
+      within(canvasElement).getByRole('radiogroup', { name: 'Daerah' }),
     ).toBeVisible()
   },
 }

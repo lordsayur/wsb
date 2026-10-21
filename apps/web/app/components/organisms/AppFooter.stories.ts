@@ -95,7 +95,9 @@ type Story = StoryObj<typeof AppFooter>
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByLabelText('Daerah')).toBeVisible()
+    await expect(
+      canvas.getByRole('radiogroup', { name: 'Daerah' }),
+    ).toBeVisible()
     await expect(canvas.getByRole('button', { name: 'Menu' })).toBeVisible()
   },
 }
@@ -214,9 +216,8 @@ export const ShareCopied: Story = {
 
 export const SelectDistrict: Story = {
   play: async ({ canvasElement, args }) => {
-    await userEvent.selectOptions(
-      within(canvasElement).getByLabelText('Daerah'),
-      'tutong',
+    await userEvent.click(
+      within(canvasElement).getByRole('radio', { name: 'Tutong' }),
     )
     await expect(args['onUpdate:district']).toHaveBeenCalledWith('tutong')
   },

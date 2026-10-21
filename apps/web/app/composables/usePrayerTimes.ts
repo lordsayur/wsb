@@ -163,11 +163,9 @@ export function usePrayerTimes(
   }
 
   const rows = computed(() =>
-    PRAYER_ORDER.filter((prayer) =>
-      entries.value.some((entry) => entry.prayer === prayer),
-    ).map((prayer) => ({
+    PRAYER_ORDER.map((prayer) => ({
       prayer,
-      minutes: entries.value.find((entry) => entry.prayer === prayer)!.minutes,
+      minutes: entries.value.find((entry) => entry.prayer === prayer)?.minutes,
     })),
   )
 
@@ -178,10 +176,15 @@ export function usePrayerTimes(
     hijri: formatHijriDate(date.value, locale(), hijriDate.value),
   }))
 
+  // specs/web/spec.md — the eight rows are always on screen; a missing entry
+  // renders an empty time so the sheet can show a placeholder instead.
   const displayRows = computed(() =>
     rows.value.map((row) => ({
       ...row,
-      time: formatTime(row.minutes, locale(), timeFormat()),
+      time:
+        row.minutes === undefined
+          ? ''
+          : formatTime(row.minutes, locale(), timeFormat()),
       current: row.prayer === progress.value.current,
     })),
   )

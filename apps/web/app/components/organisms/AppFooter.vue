@@ -352,10 +352,11 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.4rem;
 }
 .menu {
   position: relative;
+  flex: none;
 }
 .menu-button {
   font: inherit;

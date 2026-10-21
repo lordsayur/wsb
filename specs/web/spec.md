@@ -46,7 +46,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   side by side, the duration to the next entry, then the prayer times.
 - There is no title or tagline in the UI.
 - Show all eight entries in order, labelled (Imsak, Subuh, Syuruk, Dhuha,
-  Zuhur, Asar, Maghrib, Isyak).
+  Zuhur, Asar, Maghrib, Isyak). The names and rows are always on screen: while
+  loading or unavailable their times render as a muted placeholder, so opening
+  the app never shows a blank sheet.
 - Highlight the current entry (from core's current/next progress) with a visible
   style and an accessible current marker.
 - Show the duration to the next entry, labelled with the next entry's name.
@@ -177,8 +179,10 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   width, a share button, and a menu button on the right. All three are aligned
   on one row and share the same height. In the monthly view the selector and
   share button are replaced by the month selector.
-- The district selector has no visible label; its accessible name carries the
-  "District" label instead.
+- The district selector is an inline radio group: one segmented button per
+  district, with the current district highlighted. Left/Right arrows move
+  between the options. It has no visible group label; its accessible name
+  carries the "District" label instead.
 - The menu button opens a panel with **Settings**, **Tasbih**, and **Other
   platforms**; it closes on Escape or after choosing an action.
 - Settings is a second panel reached from the menu, with a back entry. It
@@ -247,7 +251,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Share
 
-- The share button sits between the district selector and the menu button.
+- The share button sits between the district selector and the menu button,
+  squeezed into the same footer row.
 - A tap copies a formatted plain-text summary and confirms the copy to the user
   (localized, announced via a live region).
 - A press-and-hold (or right-click / ArrowDown) opens a small menu offering
@@ -357,8 +362,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ## Acceptance criteria
 
-- [ ] Loading renders the eight entries for the default district, Imsak and
-      Dhuha included.
+- [ ] Loading renders the eight named entries for the default district with
+      placeholder times, Imsak and Dhuha included.
 - [ ] The day name is shown above the Masihi and Hijri dates.
 - [ ] The Masihi and Hijri dates render side by side.
 - [ ] The main section is centered and has no title or tagline.
@@ -519,3 +524,7 @@ None published. Consumes core and the Data port.
   its own `.vsix` link and install note.
 - 2026-10-21 — add a Marketplace action to the VS Code card, keeping the
   `.vsix` download.
+- 2026-10-21 — make the district selector an inline radio group, squeezed into
+  the footer row beside the share and menu buttons.
+- 2026-10-21 — keep the eight prayer rows and their names on screen while the
+  day loads, with muted placeholder times, so the first open is never blank.

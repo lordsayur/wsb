@@ -23,9 +23,17 @@ export default meta
 type Story = StoryObj<typeof PrayerTimeList>
 
 export const Loading: Story = {
-  args: { state: 'loading', loadingText: 'Memuatkan…' },
+  args: {
+    state: 'loading',
+    loadingText: 'Memuatkan…',
+    rows: rows.map((row) => ({ ...row, time: '' })),
+    pendingTime: '--:--',
+  },
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByText('Memuatkan…')).toBeVisible()
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Memuatkan…')).toBeVisible()
+    await expect(canvas.getAllByRole('article')).toHaveLength(8)
+    await expect(canvas.getAllByText('--:--')).toHaveLength(8)
   },
 }
 
@@ -84,10 +92,15 @@ export const RefreshingWithCache: Story = {
 }
 
 export const Unavailable: Story = {
-  args: { state: 'unavailable', unavailableText: 'Tidak tersedia.' },
+  args: {
+    state: 'unavailable',
+    unavailableText: 'Tidak tersedia.',
+    rows: rows.map((row) => ({ ...row, time: '' })),
+    pendingTime: '--:--',
+  },
   play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByText('Tidak tersedia.'),
-    ).toBeVisible()
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Tidak tersedia.')).toBeVisible()
+    await expect(canvas.getAllByRole('article')).toHaveLength(8)
   },
 }

@@ -1,19 +1,29 @@
 <template>
-  <div class="district-selector">
-    <select
-      :value="modelValue"
-      :aria-label="label"
-      @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
+  <div
+    class="district-selector"
+    role="radiogroup"
+    :aria-label="label"
+    @keydown="onGroupKeydown"
+  >
+    <button
+      v-for="option in options"
+      :key="option.value"
+      type="button"
+      role="radio"
+      :aria-checked="option.value === modelValue"
+      :title="option.label"
+      :class="{ active: option.value === modelValue }"
+      @click="emit('update:modelValue', option.value)"
     >
-      <option v-for="option in options" :key="option.value" :value="option.value">
-        {{ option.label }}
-      </option>
-    </select>
+      {{ option.label }}
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-// specs/web/spec.md — molecule: select a District, no offset logic here.
+// specs/web/spec.md — molecule: inline district radio group, no offset logic.
+import { onGroupKeydown } from '~/utils/rovingFocus'
+
 export interface DistrictOption {
   value: string
   label: string
@@ -33,16 +43,31 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
   flex: 1;
   min-width: 0;
   display: flex;
-}
-select {
-  font: inherit;
-  width: 100%;
   height: var(--control-h);
-  padding: 0 0.75rem;
+  padding: 0.2rem;
   border-radius: 8px;
-  background: var(--surface);
-  color: var(--fg);
   border: 1px solid var(--border);
+  background: var(--surface);
+}
+.district-selector button {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: clamp(0.62rem, 3vw, 0.78rem);
+  line-height: 1.05;
+  padding: 0 0.15rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg);
   cursor: pointer;
+  text-align: center;
+  text-wrap: balance;
+  overflow: hidden;
+}
+.district-selector button.active {
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-weight: 700;
 }
 </style>

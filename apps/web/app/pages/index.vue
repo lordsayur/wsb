@@ -297,13 +297,11 @@ onMounted(load)
     <ClientOnly>
       <main id="main" class="main" :class="view" tabindex="-1">
         <template v-if="view === 'day'">
-          <template v-if="state === 'ready'">
-            <p class="weekday">{{ weekday }}</p>
-            <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
-            <p v-if="nextText" class="next" :class="{ soon: nextSoon }">
-              {{ nextText }}
-            </p>
-          </template>
+          <p class="weekday">{{ weekday }}</p>
+          <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
+          <p v-if="nextText" class="next" :class="{ soon: nextSoon }">
+            {{ nextText }}
+          </p>
 
           <PrayerTimeList
             :state="state"
@@ -312,6 +310,7 @@ onMounted(load)
             :refreshing-text="t('state.refreshing')"
             :loading-text="t('state.loading')"
             :unavailable-text="t('state.unavailable')"
+            :pending-time="t('state.pending')"
             :offline-text="stale ? t('state.offline') : ''"
           />
         </template>

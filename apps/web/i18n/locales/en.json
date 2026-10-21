@@ -17,6 +17,7 @@
   },
   "state": {
     "loading": "Loading…",
+    "pending": "--:--",
     "unavailable": "Prayer times are unavailable.",
     "offline": "You are offline. Showing the last known data.",
     "refreshing": "Updating…",

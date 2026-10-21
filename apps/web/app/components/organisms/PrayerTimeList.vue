@@ -1,6 +1,9 @@
 <template>
   <section class="prayer-list">
-    <p v-if="state === 'loading'" class="state">{{ loadingText }}</p>
+    <p v-if="state === 'loading'" class="state" role="status" aria-live="polite">
+      <span class="spinner" aria-hidden="true" />
+      {{ loadingText }}
+    </p>
     <p v-else-if="state === 'unavailable'" class="state">
       {{ unavailableText }}
     </p>
@@ -16,19 +19,22 @@
       </p>
       <p v-if="offlineText" class="state offline">{{ offlineText }}</p>
       <p v-if="nextText" class="state next">{{ nextText }}</p>
-      <PrayerRow
-        v-for="row in rows"
-        :key="row.prayer"
-        :label="row.label"
-        :time="row.time"
-        :current="row.current"
-      />
     </template>
+    <PrayerRow
+      v-for="row in rows"
+      :key="row.prayer"
+      :label="row.label"
+      :time="row.time || pendingTime"
+      :current="row.current"
+      :class="{ pending: !row.time }"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-// specs/web/spec.md — organism: renders state from core, no time math.
+// specs/web/spec.md — organism: renders state from core, no time math. The
+// eight rows stay on screen while loading or unavailable, with placeholder
+// times, so the sheet never collapses to a bare message.
 import PrayerRow from '../molecules/PrayerRow.vue'
 
 export interface PrayerRowModel {
@@ -46,6 +52,7 @@ withDefaults(
     unavailableText?: string
     offlineText?: string
     nextText?: string
+    pendingTime?: string
     refreshing?: boolean
     refreshingText?: string
   }>(),
@@ -55,6 +62,7 @@ withDefaults(
     unavailableText: 'Prayer times are unavailable.',
     offlineText: '',
     nextText: '',
+    pendingTime: '--:--',
     refreshing: false,
     refreshingText: 'Updating…',
   },
@@ -78,8 +86,17 @@ withDefaults(
   align-items: center;
   padding-block: 0.15rem;
 }
+.prayer-list :deep(.prayer-row.pending .time-text) {
+  opacity: 0.35;
+}
 .state {
-  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0.75;
 }
 .offline {
   font-size: 0.85rem;
@@ -104,6 +121,7 @@ withDefaults(
   pointer-events: none;
 }
 .spinner {
+  display: inline-block;
   width: 0.6rem;
   height: 0.6rem;
   border-radius: 50%;

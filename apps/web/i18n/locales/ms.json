@@ -17,6 +17,7 @@
   },
   "state": {
     "loading": "Memuatkan…",
+    "pending": "--:--",
     "unavailable": "Waktu sembahyang tidak tersedia.",
     "offline": "Anda sedang luar talian. Memaparkan data terakhir.",
     "refreshing": "Mengemas kini…",
