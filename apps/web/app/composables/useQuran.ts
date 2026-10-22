@@ -3,17 +3,16 @@
 import { computed, ref, shallowRef } from 'vue'
 import { QuranCorpus, type JuzLoader } from '@wsb/data/quran'
 import {
-  WHOLE_QURAN,
   initialReveal,
-  normalizeRange,
   passage,
   pickAyah,
   rangeCount,
   reveal as latch,
-  type AyahRange,
+  scopeRange,
   type AyahRef,
   type Reveal,
   type RevealKind,
+  type Scope,
 } from '@wsb/core'
 
 export type QuranPhase = 'setup' | 'reading'
@@ -35,8 +34,8 @@ function getCorpus(): QuranCorpus {
 export function useQuran() {
   const index = getCorpus().index
   const phase = ref<QuranPhase>('setup')
-  const draft = ref<AyahRange>({ ...WHOLE_QURAN })
-  const active = ref<AyahRange>({ ...WHOLE_QURAN })
+  const draft = ref<Scope>({ kind: 'all' })
+  const active = ref<Scope>({ kind: 'all' })
   const current = shallowRef<AyahRef | null>(null)
   const hints = ref<Reveal>(initialReveal())
   const refs = shallowRef<AyahRef[]>([])
@@ -45,9 +44,11 @@ export function useQuran() {
   const failed = ref(false)
 
   const suras = index.suras
-  const count = computed(() => rangeCount(index, draft.value))
+  const draftRange = computed(() => scopeRange(draft.value))
+  const activeRange = computed(() => scopeRange(active.value))
+  const count = computed(() => rangeCount(index, draftRange.value))
   const rangeEmpty = computed(() => count.value === 0)
-  const activeCount = computed(() => rangeCount(index, active.value))
+  const activeCount = computed(() => rangeCount(index, activeRange.value))
 
   const sura = computed(() => {
     const ref = current.value
@@ -58,7 +59,7 @@ export function useQuran() {
 
   async function load(picked: AyahRef, extra: number) {
     const token = (request += 1)
-    const nextRefs = passage(index, picked, active.value, extra)
+    const nextRefs = passage(index, picked, activeRange.value, extra)
     loading.value = true
     failed.value = false
     try {
@@ -77,7 +78,7 @@ export function useQuran() {
   }
 
   function roll() {
-    const picked = pickAyah(index, active.value)
+    const picked = pickAyah(index, activeRange.value)
     current.value = picked
     hints.value = initialReveal()
     refs.value = []
@@ -86,10 +87,10 @@ export function useQuran() {
     if (picked) void load(picked, 0)
   }
 
-  /** Apply the draft (normalized) and show the first ayah of the new range. */
+  /** Apply the draft scope and show the first ayah of the new scope. */
   function start() {
     if (rangeEmpty.value) return
-    active.value = normalizeRange(draft.value)
+    active.value = { ...draft.value }
     phase.value = 'reading'
     roll()
   }
@@ -124,6 +125,8 @@ export function useQuran() {
     phase,
     draft,
     active,
+    draftRange,
+    activeRange,
     current,
     hints,
     refs,

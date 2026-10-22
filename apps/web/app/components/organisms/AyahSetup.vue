@@ -5,29 +5,21 @@
       <p class="intro">{{ intro }}</p>
     </header>
 
-    <RangePicker
+    <ScopePicker
+      :scope-label="scopeLabel"
+      :all-label="allLabel"
       :juz-label="juzLabel"
       :surah-label="surahLabel"
       :search-placeholder="searchPlaceholder"
-      :from-label="fromLabel"
-      :to-label="toLabel"
       :start-label="startLabel"
       :empty-label="emptyLabel"
       :empty-reason="emptyReason"
       :disabled="disabled"
       :locale="locale"
       :index="index"
-      :juz-min="juzMin"
-      :juz-max="juzMax"
+      :scope="scope"
       :juz-max-value="juzMaxValue"
-      :surah-min="surahMin"
-      :surah-max="surahMax"
-      :sura-max="suraMax"
-      @update:juz-min="emit('update:juzMin', $event)"
-      @update:juz-max="emit('update:juzMax', $event)"
-      @update:surah-min="emit('update:surahMin', $event)"
-      @update:surah-max="emit('update:surahMax', $event)"
-      @select-surah="emit('selectSurah', $event)"
+      @select-scope="emit('selectScope', $event)"
       @start="emit('start')"
     />
 
@@ -41,19 +33,19 @@
 
 <script setup lang="ts">
 // specs/quran/spec.md — organism: the setup state. No ayah is picked or
-// fetched until Start; the page owns the draft selection.
-import type { QuranIndex } from '@wsb/core'
+// fetched until Start; the page owns the draft scope.
+import type { QuranIndex, Scope } from '@wsb/core'
 import SourceNote from '../molecules/SourceNote.vue'
-import RangePicker from '../molecules/RangePicker.vue'
+import ScopePicker from '../molecules/ScopePicker.vue'
 
 defineProps<{
   title: string
   intro: string
+  scopeLabel: string
+  allLabel: string
   juzLabel: string
   surahLabel: string
   searchPlaceholder: string
-  fromLabel: string
-  toLabel: string
   startLabel: string
   emptyLabel: string
   emptyReason: string
@@ -64,20 +56,12 @@ defineProps<{
   disabled: boolean
   locale: string
   index: QuranIndex
-  juzMin: number
-  juzMax: number
+  scope: Scope
   juzMaxValue: number
-  surahMin: number
-  surahMax: number
-  suraMax: number
 }>()
 
 const emit = defineEmits<{
-  'update:juzMin': [value: number]
-  'update:juzMax': [value: number]
-  'update:surahMin': [value: number]
-  'update:surahMax': [value: number]
-  selectSurah: [surah: number]
+  selectScope: [scope: Scope]
   start: []
 }>()
 </script>

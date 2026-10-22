@@ -243,21 +243,19 @@
   },
   "ayat": {
     "title": "Quran verse",
-    "intro": "Read one verse at random from a range you choose. Nothing is shown until you ask.",
+    "intro": "Read one verse at random from a scope you choose. Nothing is shown until you ask.",
     "back": "Back to the app",
     "juz": "Juz",
     "surah": "Surah",
     "search": "Search a surah (e.g. baqarah)",
     "searchEmpty": "No matching surah.",
-    "from": "from",
-    "to": "to",
     "start": "Start",
-    "empty": "No verse in this range.",
+    "empty": "No verse in this scope.",
     "count": "{count} of {total} verses",
     "next": "Next verse",
     "new": "New verse",
     "changeFilter": "Change filter",
-    "end": "This is the last verse in the range.",
+    "end": "This is the last verse in the scope.",
     "passage": "Passage",
     "ayahLabel": "Verse",
     "reveals": "Reveals",
@@ -267,7 +265,9 @@
     "revealedJuz": "Juz {juz}",
     "revealedSurah": "Surah {surah}",
     "revealedAyah": "Verse {ayah}",
-    "attribution": "Quran text by Tanzil.net (Uthmani, Hafs)"
+    "attribution": "Quran text by Tanzil.net (Uthmani, Hafs)",
+    "scope": "Choose a scope",
+    "whole": "The whole Quran"
   },
   "a11y": {
     "skipToContent": "Skip to content"

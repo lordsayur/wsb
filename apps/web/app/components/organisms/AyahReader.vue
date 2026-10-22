@@ -1,6 +1,6 @@
 <template>
   <article class="ayah-card">
-    <div class="texts" role="group" :aria-label="passageLabel">
+    <div class="texts" role="group" :tabindex="0" :aria-label="passageLabel">
       <template v-if="loading && texts.length === 0">
         <div class="skeleton" aria-hidden="true" />
       </template>
@@ -87,10 +87,17 @@ const emit = defineEmits<{
   flex-direction: column;
   gap: 1rem;
   min-height: 7rem;
+  max-height: min(55vh, 30rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 1.25rem;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
+}
+.texts:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .facts {
   display: flex;

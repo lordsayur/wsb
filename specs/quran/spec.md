@@ -8,14 +8,14 @@
 ## Purpose
 
 Read one Quran ayah at a time, in Arabic, drawn uniformly at random from a
-range the reader chooses. The reader can narrow the range by juz and by surah,
-then reveal the ayah's juz, surah and number — or reveal the following ayah —
+scope the reader chooses: the whole Quran, one juz, or one surah. The reader
+then reveals the ayah's juz, surah and number — or reveals the following ayah —
 one step at a time. Nothing about the ayah is disclosed until the reader asks.
 
 ## Ubiquitous language
 
 Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
-**Ayah range**, **Reveal**.
+**Scope**, **Reveal**.
 
 ## Behavior
 
@@ -23,28 +23,34 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 
 - `/ayat` opens in the **setup state**: only the range selection is shown.
   No ayah is loaded, fetched or picked.
-- The selection is a **juz range** (1–30) and a **surah range** (1–114); a
-  single value is a range whose ends are equal. The two ranges intersect.
+- The reader chooses **one** scope: the whole Quran, a single **juz** (1–30),
+  or a single **surah** (1–114). Juz and surah are alternatives, never
+  combined; choosing one clears the other.
+- The juz is picked from a drop-down list of the 30 juz.
 - A Latin-alphabet fuzzy search field finds a surah by its Malay or English
-  name (weighted equally) and sets the surah range. The Arabic name is shown
-  as a label and is not matched by Latin input.
-- **Start** applies the selection and enters the reading state. It is disabled,
-  with an inline reason, when the intersection contains no ayah.
+  name (weighted equally) and selects it. Each result shows the surah's Arabic
+  name alongside the localized name. Arabic input is not matched.
+- **Start** applies the scope and enters the reading state. Every scope
+  contains ayahs, so Start is always enabled once the scope is chosen.
 - The selection defaults to the whole Quran; changing it does not re-roll until
   Start is pressed.
 
 ### Reading state
 
 - Shows exactly one ayah in Arabic. No surah, juz or ayah number is shown.
+- The revealed surah name is always shown in Arabic, with the localized name
+  beside it when the locale is not Arabic-script.
 - The basmalah is never rendered: it is not a numbered ayah and would reveal
   that the ayah opens a surah.
 - Controls are separate and independent: **Reveal juz**, **Reveal surah**,
   **Reveal ayah number**, **Next ayah**, **New ayah**, **Change filter**.
 - A reveal is a latch: once used, that hint stays visible and its button is
   disabled until **New ayah** or a filter change.
-- **Next ayah** appends the next ayah of the range, repeatable, building the
-  passage gradually. It continues into the following surah past a surah's last
-  ayah and stops at the last ayah of the range.
+- The ayah area is a bounded, scrollable pane: a long ayah or passage scrolls
+  inside it, so the reveal chips and actions below stay visible.
+- **Next ayah** appends the next ayah of the scope, repeatable, building the
+  passage gradually. In a juz scope it continues into the following surah past
+  a surah's last ayah; in a surah scope it stops at that surah's last ayah.
 - **New ayah** picks again inside the active range and resets every reveal.
 - **Change filter** opens the setup state pre-filled with the active selection.
   **Start** applies it, re-rolls immediately and returns to the reading state
@@ -52,10 +58,11 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 
 ### Picking
 
-- Each ayah in the range intersection has equal probability; surah length does
-  not weight the pick.
-- An ayah outside the active range is never shown; a filter change always
-  yields a new ayah inside the new range.
+- Each ayah in the active scope has equal probability; surah length does not
+  weight the pick.
+- An ayah outside the active scope is never shown; a filter change always
+  yields a new ayah inside the new scope.
+- A surah scope never crosses into another surah, not even for **Next ayah**.
 - The pick is unlimited and random: there is no daily seed, streak or score.
 
 ### Source and presentation
@@ -77,6 +84,7 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
   juz, and every juz is contiguous and non-empty.
 - `next` never leaves the active range and never returns a basmalah.
 - A revealed value never changes while the same ayah is shown.
+- Juz and surah scopes are mutually exclusive; exactly one may be active.
 - No identifying information is rendered without its reveal.
 
 ## Acceptance criteria
@@ -84,13 +92,14 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 - [x] Setup shows no ayah before Start; Start is disabled on an empty
       intersection.
 - [x] Picking over the whole corpus is uniform per ayah.
-- [x] Juz and surah ranges intersect exactly, including single-value ranges.
+- [x] A juz scope and a surah scope each draw only from their own ayahs and
+      never combine.
 - [x] Every ayah maps to one juz; juz boundaries match the corpus index.
 - [x] Each reveal button is independent and latches until the ayah changes.
 - [x] `2:286 → 3:1` is the next ayah; the passage stops at the range end.
 - [x] A filter change re-rolls inside the new range and clears all reveals.
 - [x] Search finds `baqarah`, `kahf`, `ikhlas` and a one-edit typo, ranking
-      Malay and English names equally.
+      Malay and English names equally, and lists the Arabic name.
 - [x] The corpus integrity check passes: 114 surahs, 30 juz, 6,236 ayahs.
 - [x] `/ayat` does not pull the corpus into the main page bundle.
 
@@ -99,9 +108,10 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 ```
 Ref      { surah, ayah }                      1-based
 AyahRef  Ref & { juz, index }                 index 0..6235
-Range    { juzMin, juzMax, surahMin, surahMax }
+Scope    { kind: 'all' } | { kind: 'juz', juz } | { kind: 'surah', surah }
 Reveal   { juz, surah, ayah, next }           booleans + next count
 
+scopeRange(scope): AyahRange                  internal intersection form
 pickAyah(index, range, rng): AyahRef | null
 nextAyah(index, ref, range): AyahRef | null
 searchSurah(query, index): SurahInfo[]
@@ -120,3 +130,7 @@ The types live in core and are dataset-injected; core performs no I/O.
 
 - 2026-10-22 — initial spec: setup/reading states, per-ayah uniform pick,
   independent reveals, incremental next ayah.
+
+- 2026-10-23 — one scope per session (juz or surah, never both); single juz
+  from a drop-down, single surah from search; Arabic surah name always shown;
+  bounded scrollable ayah pane.

@@ -148,11 +148,11 @@ One of the 30 canonical divisions of the Quran. Each ayah belongs to exactly
 one juz, and the juz are contiguous and non-empty. A juz can span surah
 boundaries.
 
-## Ayah range
+## Scope
 
-A selection of ayahs for the Quran Ayat reader: a juz range and a surah range,
-each with an inclusive minimum and maximum. A single value is a range whose
-ends are equal; the reader draws from the intersection of the two ranges.
+What the Quran Ayat reader draws from: the whole Quran, one juz, or one surah.
+A scope is exactly one of those, never a combination — a juz scope spans every
+surah in that juz, and a surah scope spans every juz of that surah.
 
 ## Reveal
 

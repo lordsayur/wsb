@@ -243,21 +243,19 @@
   },
   "ayat": {
     "title": "Ayat Al-Quran",
-    "intro": "Baca satu ayat secara rawak dalam julat pilihan anda. Tiada apa-apa ditunjukkan sehingga anda mahu.",
+    "intro": "Baca satu ayat secara rawak daripada skop pilihan anda. Tiada apa-apa ditunjukkan sehingga anda mahu.",
     "back": "Kembali ke aplikasi",
     "juz": "Juzuk",
     "surah": "Surah",
     "search": "Cari surah (contoh: baqarah)",
     "searchEmpty": "Tiada surah sepadan.",
-    "from": "dari",
-    "to": "hingga",
     "start": "Mula",
-    "empty": "Tiada ayat dalam julat ini.",
+    "empty": "Tiada ayat dalam skop ini.",
     "count": "{count} daripada {total} ayat",
     "next": "Ayat seterusnya",
     "new": "Ayat baharu",
     "changeFilter": "Tukar penapis",
-    "end": "Ini ayat terakhir dalam julat ini.",
+    "end": "Ini ayat terakhir dalam skop ini.",
     "passage": "Bacaan",
     "ayahLabel": "Ayat",
     "reveals": "Pendedahan",
@@ -267,7 +265,9 @@
     "revealedJuz": "Juzuk {juz}",
     "revealedSurah": "Surah {surah}",
     "revealedAyah": "Ayat {ayah}",
-    "attribution": "Teks Al-Quran oleh Tanzil.net (Uthmani, Hafs)"
+    "attribution": "Teks Al-Quran oleh Tanzil.net (Uthmani, Hafs)",
+    "scope": "Pilih skop",
+    "whole": "Seluruh Al-Quran"
   },
   "a11y": {
     "skipToContent": "Langkau ke kandungan"

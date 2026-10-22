@@ -10,7 +10,7 @@ const meta: Meta<typeof AyahReader> = {
     texts: ['بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ'],
     revealed: { juz: false, surah: false, ayah: false, next: 0 },
     juzLabel: 'Juzuk 1',
-    surahLabel: 'Surah Al-Fatihah',
+    surahLabel: 'الفاتحة · Surah Al-Fatihah',
     ayahNumberLabel: 'Ayat 1',
     passageLabel: 'Bacaan',
     ayahLabel: 'Ayat',
@@ -38,7 +38,7 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByText(/بِسْمِ/)).toBeVisible()
     await expect(canvas.queryByText('Juzuk 1')).toBeNull()
-    await expect(canvas.queryByText('Surah Al-Fatihah')).toBeNull()
+    await expect(canvas.queryByText(/الفاتحة/)).toBeNull()
   },
 }
 
@@ -47,7 +47,7 @@ export const Revealed: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('Juzuk 1')).toBeVisible()
-    await expect(canvas.getByText('Surah Al-Fatihah')).toBeVisible()
+    await expect(canvas.getByText(/الفاتحة/)).toBeVisible()
     await expect(canvas.getByText('Ayat 1')).toBeVisible()
   },
 }
@@ -57,7 +57,25 @@ export const PartialReveal: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('Juzuk 1')).toBeVisible()
-    await expect(canvas.queryByText('Surah Al-Fatihah')).toBeNull()
+    await expect(canvas.queryByText(/الفاتحة/)).toBeNull()
+  },
+}
+
+export const LongAyahScrolls: Story = {
+  args: {
+    texts: [
+      'ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۗ مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَىْءٍ مِّنْ عِلْمِهِۦٓ إِلَّا بِمَا شَآءَ ۚ وَسِعَ كُرْسِيُّهُ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضَ ۖ وَلَا يَـُٔودُهُۥ حِفْظُهُمَا ۚ وَهُوَ ٱلْعَلِىُّ ٱلْعَظِيمُ',
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const pane = canvas.getByRole('group', { name: 'Bacaan' })
+    await expect(pane).toHaveClass('texts')
+    const overflow = await new Promise<string>((resolve) => {
+      requestAnimationFrame(() => resolve(getComputedStyle(pane).overflowY))
+    })
+    await expect(overflow).toBe('auto')
+    await expect(canvas.getByRole('button', { name: 'Ayat seterusnya' })).toBeVisible()
   },
 }
 

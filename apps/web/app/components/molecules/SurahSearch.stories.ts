@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from '@storybook/test'
 import { QURAN_INDEX } from '@wsb/data/quran/index'
 import SurahSearch from './SurahSearch.vue'
 
-// specs/quran/spec.md — molecule: Latin fuzzy search over the real surah names.
+// specs/quran/spec.md — molecule: Latin fuzzy search; the Arabic name shows.
 const meta: Meta<typeof SurahSearch> = {
   title: 'Molecules/SurahSearch',
   component: SurahSearch,
@@ -25,6 +25,7 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     await userEvent.type(canvas.getByRole('searchbox'), 'baqarah')
     const option = await canvas.findByRole('option', { name: /Al-Baqarah/ })
+    await expect(within(option).getByText(/البقرة/)).toBeVisible()
     await userEvent.click(option)
     await expect(args.onSelect).toHaveBeenCalledWith(2)
   },

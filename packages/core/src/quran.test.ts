@@ -12,6 +12,7 @@ import {
   nextAyah,
   normalizeRange,
   passage,
+  scopeRange,
   pickAyah,
   rangeBounds,
   rangeCount,
@@ -107,6 +108,38 @@ describe('range', () => {
     expect(normalizeRange({ juzMin: 0, juzMax: 99, surahMin: 5, surahMax: 1 }))
       .toEqual({ juzMin: 1, juzMax: JUZ_COUNT, surahMin: 1, surahMax: 5 })
     expect(normalizeRange(WHOLE_QURAN)).toEqual(WHOLE_QURAN)
+  })
+})
+
+describe('scope', () => {
+  it('turns one scope into one range', () => {
+    expect(scopeRange({ kind: 'all' })).toEqual(WHOLE_QURAN)
+    expect(scopeRange({ kind: 'juz', juz: 3 }))
+      .toEqual({ juzMin: 3, juzMax: 3, surahMin: 1, surahMax: SURA_COUNT })
+    expect(scopeRange({ kind: 'surah', surah: 18 }))
+      .toEqual({ juzMin: 1, juzMax: JUZ_COUNT, surahMin: 18, surahMax: 18 })
+  })
+
+  it('clamps a scope into the corpus', () => {
+    expect(scopeRange({ kind: 'juz', juz: 0 }).juzMin).toBe(1)
+    expect(scopeRange({ kind: 'juz', juz: 99 }).juzMax).toBe(JUZ_COUNT)
+    expect(scopeRange({ kind: 'surah', surah: 999 }).surahMax).toBe(SURA_COUNT)
+  })
+
+  it('never combines juz and surah', () => {
+    const juz = scopeRange({ kind: 'juz', juz: 2 })
+    expect(juz.surahMin).toBe(1)
+    expect(juz.surahMax).toBe(SURA_COUNT)
+    const surah = scopeRange({ kind: 'surah', surah: 2 })
+    expect(surah.juzMin).toBe(1)
+    expect(surah.juzMax).toBe(JUZ_COUNT)
+  })
+
+  it('keeps a surah scope inside that surah for next', () => {
+    const only = scopeRange({ kind: 'surah', surah: 2 })
+    expect(rangeCount(FIXTURE, only)).toBe(5)
+    expect(nextAyah(FIXTURE, { surah: 2, ayah: 5 }, only)).toBeNull()
+    expect(pickAyah(FIXTURE, only, () => 0.99)!.surah).toBe(2)
   })
 })
 

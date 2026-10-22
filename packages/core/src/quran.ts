@@ -43,6 +43,15 @@ export interface AyahRange {
   surahMax: number
 }
 
+/**
+ * What the reader draws from: the whole Quran, one juz, or one surah. A scope
+ * is always exactly one of these; juz and surah never combine.
+ */
+export type Scope =
+  | { kind: 'all' }
+  | { kind: 'juz'; juz: number }
+  | { kind: 'surah'; surah: number }
+
 export type RevealKind = 'juz' | 'surah' | 'ayah'
 
 export interface Reveal {
@@ -111,6 +120,19 @@ export function normalizeRange(range: AyahRange): AyahRange {
   }
 }
 
+/** The intersection range a scope stands for. */
+export function scopeRange(scope: Scope): AyahRange {
+  if (scope.kind === 'juz') {
+    const juz = Math.min(JUZ_COUNT, Math.max(1, Math.round(scope.juz)))
+    return { juzMin: juz, juzMax: juz, surahMin: 1, surahMax: SURA_COUNT }
+  }
+  if (scope.kind === 'surah') {
+    const surah = Math.min(SURA_COUNT, Math.max(1, Math.round(scope.surah)))
+    return { juzMin: 1, juzMax: JUZ_COUNT, surahMin: surah, surahMax: surah }
+  }
+  return { ...WHOLE_QURAN }
+}
+
 export const WHOLE_QURAN: AyahRange = {
   juzMin: 1,
   juzMax: JUZ_COUNT,
@@ -123,8 +145,11 @@ export function rangeBounds(
   index: QuranIndex,
   range: AyahRange,
 ): { start: number; end: number } | null {
-  const juzStart = index.juzs.find((part) => part.juz === range.juzMin)
-  const juzEnd = index.juzs.find((part) => part.juz === range.juzMax)
+  const lastJuz = index.juzs.length
+  const juzMin = Math.min(lastJuz, Math.max(1, range.juzMin))
+  const juzMax = Math.min(lastJuz, Math.max(1, range.juzMax))
+  const juzStart = index.juzs.find((part) => part.juz === juzMin)
+  const juzEnd = index.juzs.find((part) => part.juz === juzMax)
   if (!juzStart || !juzEnd) return null
   let suraSurahFirst = 0
   let suraSurahLast = 0

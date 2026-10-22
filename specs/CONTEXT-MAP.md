@@ -86,7 +86,7 @@ apps/web ──▶ Quran Ayat (core) ──▶ Quran corpus (static, bundled)
 
 ## Quran Ayat — core domain
 
-- **Owns:** the ayah index, juz/surah ranges, uniform picking, the incremental
+- **Owns:** the ayah index, the reader's scope, uniform picking, the incremental
   passage, reveal state and surah-name search.
 - **Pure TypeScript.** The corpus is injected; no I/O, no DOM, no vendor types.
 - **Published language:** `Ref`, `AyahRef`, `Range`, `Reveal`. See

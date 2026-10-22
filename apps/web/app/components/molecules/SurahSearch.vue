@@ -21,7 +21,10 @@
           :class="{ active: i === highlighted }"
           @click="choose(i)"
         >
-          <span class="name">{{ nameOf(sura) }}</span>
+          <span class="names">
+            <span class="arabic" dir="rtl" lang="ar">{{ sura.ar }}</span>
+            <span class="name">{{ nameOf(sura) }}</span>
+          </span>
           <span class="meta">{{ sura.n }} · {{ sura.ayahs }}</span>
         </button>
       </li>
@@ -34,7 +37,7 @@
 
 <script setup lang="ts">
 // specs/quran/spec.md — molecule: Latin fuzzy search over the surah names.
-// The Arabic name is a label; only Malay/English/Latin names match.
+// Every result shows the Arabic name; only Malay/English/Latin names match.
 import { computed, ref, useId } from 'vue'
 import { searchSurah, type QuranIndex, type QuranSura } from '@wsb/core'
 import { surahName } from '~/utils/quran'
@@ -126,9 +129,24 @@ input {
 .results button:hover {
   background: var(--surface-2);
 }
+.names {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.arabic {
+  font-family: 'Noto Naskh Arabic', system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+.name {
+  font-size: 0.9rem;
+}
 .meta {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+  align-self: center;
 }
 .empty {
   padding: 0.45rem 0.5rem;

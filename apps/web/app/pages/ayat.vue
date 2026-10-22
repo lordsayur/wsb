@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { JUZ_COUNT, SURA_COUNT, QURAN_TOTAL, formatNumber } from '@wsb/core'
+import { JUZ_COUNT, QURAN_TOTAL, formatNumber } from '@wsb/core'
 import { QURAN_ATTRIBUTION } from '@wsb/data/quran'
 import AyahReader from '~/components/organisms/AyahReader.vue'
 import AyahSetup from '~/components/organisms/AyahSetup.vue'
 import RevealChip from '~/components/molecules/RevealChip.vue'
 import { useQuran } from '~/composables/useQuran'
-import { surahName } from '~/utils/quran'
+import { surahDisplay } from '~/utils/quran'
 
 // specs/quran/spec.md — /ayat: pick one ayah in a chosen range, reveal its
 // identity one step at a time. All rules live in core; this page renders.
@@ -43,7 +43,7 @@ const revealedJuz = computed(() =>
   current.value ? formatNumber(current.value.juz, locale.value) : '',
 )
 const revealedSurah = computed(() =>
-  sura.value ? surahName(sura.value, locale.value) : '',
+  sura.value ? surahDisplay(sura.value, locale.value) : '',
 )
 const revealedAyah = computed(() =>
   current.value ? formatNumber(current.value.ayah, locale.value) : '',
@@ -55,10 +55,6 @@ const countLabel = computed(() =>
     total: formatNumber(QURAN_TOTAL, locale.value),
   }),
 )
-
-function selectSurah(surah: number) {
-  draft.value = { ...draft.value, surahMin: surah, surahMax: surah }
-}
 
 useSeoMeta({
   title: () => t('ayat.title'),
@@ -78,11 +74,11 @@ useSeoMeta({
         v-if="phase === 'setup'"
         :title="t('ayat.title')"
         :intro="t('ayat.intro')"
+        :scope-label="t('ayat.scope')"
+        :all-label="t('ayat.whole')"
         :juz-label="t('ayat.juz')"
         :surah-label="t('ayat.surah')"
         :search-placeholder="t('ayat.search')"
-        :from-label="t('ayat.from')"
-        :to-label="t('ayat.to')"
         :start-label="t('ayat.start')"
         :empty-label="t('ayat.searchEmpty')"
         :empty-reason="t('ayat.empty')"
@@ -93,17 +89,9 @@ useSeoMeta({
         :disabled="rangeEmpty"
         :locale="locale"
         :index="index"
-        :juz-min="draft.juzMin"
-        :juz-max="draft.juzMax"
+        :scope="draft"
         :juz-max-value="JUZ_COUNT"
-        :surah-min="draft.surahMin"
-        :surah-max="draft.surahMax"
-        :sura-max="SURA_COUNT"
-        @update:juz-min="draft.juzMin = $event"
-        @update:juz-max="draft.juzMax = $event"
-        @update:surah-min="draft.surahMin = $event"
-        @update:surah-max="draft.surahMax = $event"
-        @select-surah="selectSurah"
+        @select-scope="draft = $event"
         @start="start"
       />
 

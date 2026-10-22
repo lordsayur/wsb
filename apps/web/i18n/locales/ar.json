@@ -249,8 +249,6 @@
     "surah": "السورة",
     "search": "ابحث عن سورة (مثل: baqarah)",
     "searchEmpty": "لا توجد سورة مطابقة.",
-    "from": "من",
-    "to": "إلى",
     "start": "ابدأ",
     "empty": "لا توجد آية في هذا النطاق.",
     "count": "{count} من {total} آية",
@@ -267,7 +265,9 @@
     "revealedJuz": "الجزء {juz}",
     "revealedSurah": "سورة {surah}",
     "revealedAyah": "الآية {ayah}",
-    "attribution": "نص القرآن من Tanzil.net (العثماني، حفص)"
+    "attribution": "نص القرآن من Tanzil.net (العثماني، حفص)",
+    "scope": "اختر النطاق",
+    "whole": "القرآن كاملًا"
   },
   "a11y": {
     "skipToContent": "تخطَّ إلى المحتوى"
