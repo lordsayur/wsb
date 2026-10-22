@@ -5,7 +5,7 @@ import {
   PRAYER_ORDER,
   adjustForDistrict,
   chartBounds,
-  formatMonth,
+  formatChartPeriod,
   formatShortDate,
   rangeDates,
   type ChartRange,
@@ -77,18 +77,6 @@ export function sampleIndices(length: number, count: number): number[] {
   return [...indices].sort((a, b) => a - b)
 }
 
-/** The chart title for a range: month name, year, or a week span. */
-function titleFor(
-  anchor: string,
-  range: ChartRange,
-  locale: Locale,
-): string {
-  if (range === 'year') return anchor.slice(0, 4)
-  if (range === 'month') return formatMonth(anchor.slice(0, 7), locale)
-  const { start, end } = chartBounds(anchor, range)
-  return `${formatShortDate(start, locale)} – ${formatShortDate(end, locale)}`
-}
-
 export function buildTrendView(
   days: readonly TrendDayInput[],
   settings: TuiSettings,
@@ -124,7 +112,7 @@ export function buildTrendView(
   return {
     range,
     anchor,
-    title: titleFor(anchor, range, locale),
+    title: formatChartPeriod(anchor, range, locale),
     dates,
     series,
     min: axis.min,

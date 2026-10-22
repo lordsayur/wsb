@@ -20,6 +20,7 @@ const meta: Meta<typeof RangeSelector> = {
     prevLabel: 'Tempoh sebelumnya',
     nextLabel: 'Tempoh seterusnya',
     todayLabel: 'Tempoh ini',
+    period: 'Oktober 2026',
     'onUpdate:range': fn(),
     onShift: fn(),
     onToday: fn(),
@@ -38,8 +39,25 @@ export const Default: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Minggu' }))
     await expect(args['onUpdate:range']).toHaveBeenCalledWith('week')
 
+    await expect(canvas.getByText('Oktober 2026')).toBeVisible()
+
     await userEvent.click(canvas.getByLabelText('Tempoh seterusnya'))
     await expect(args.onShift).toHaveBeenCalledWith(1)
+  },
+}
+
+export const YearPeriod: Story = {
+  args: { value: 'year', period: '2026' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('2026')).toBeVisible()
+  },
+}
+
+export const WeekPeriod: Story = {
+  args: { value: 'week', period: '12 Okt – 18 Okt' },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText('12 Okt – 18 Okt')).toBeVisible()
   },
 }
 

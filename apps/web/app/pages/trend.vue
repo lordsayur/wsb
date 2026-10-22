@@ -23,6 +23,7 @@ const { district } = useDistrict(parseDistrict(route.query.district))
 const {
   range,
   anchor,
+  periodLabel,
   rangeOptions,
   isCurrent,
   prayerOptions,
@@ -152,6 +153,7 @@ useSeoMeta({
           :prev-label="t('chart.prev')"
           :next-label="t('chart.next')"
           :today-label="t('chart.today')"
+          :period="periodLabel"
           @update:range="setRange"
           @shift="shift"
           @today="reset"

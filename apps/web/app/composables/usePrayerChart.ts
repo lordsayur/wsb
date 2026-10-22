@@ -10,6 +10,7 @@ import {
   chartBounds,
   chartIsCurrent,
   chartMedian,
+  formatChartPeriod,
   formatShortDate,
   formatTime,
   isChartOutlier,
@@ -103,6 +104,11 @@ export function usePrayerChart(
 
   const isCurrent = computed(() =>
     chartIsCurrent(anchor.value, range.value, today),
+  )
+
+  /** The period the chart is showing, so the controls name it. */
+  const periodLabel = computed(() =>
+    formatChartPeriod(anchor.value, range.value, locale()),
   )
 
   const prayerOptions = computed<ChartPrayerOption[]>(() =>
@@ -278,6 +284,7 @@ export function usePrayerChart(
   return {
     range,
     anchor,
+    periodLabel,
     rangeOptions,
     isCurrent,
     prayerOptions,

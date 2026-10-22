@@ -19,6 +19,7 @@ import {
   chartMedian,
   isChartOutlier,
   formatShortDate,
+  formatChartPeriod,
   rangeDates,
   shiftChartDate,
   shiftDate,
@@ -472,5 +473,19 @@ describe('chart outliers', () => {
   it('flags a value far from the median and keeps normal variation', () => {
     expect(isChartOutlier(930, 1080)).toBe(true)
     expect(isChartOutlier(1110, 1080)).toBe(false)
+  })
+})
+
+// specs/core/spec.md — the chart period label names the selected range.
+describe('formatChartPeriod', () => {
+  it('names a month, a year and a week span', () => {
+    expect(formatChartPeriod('2026-10-15', 'month', 'en')).toBe('October 2026')
+    expect(formatChartPeriod('2026-10-15', 'year', 'en')).toBe('2026')
+    expect(formatChartPeriod('2026-10-15', 'week', 'en')).toBe('Oct 12 – Oct 18')
+  })
+
+  it('localizes and stays within the range bounds', () => {
+    expect(formatChartPeriod('2026-10-15', 'month', 'ms')).toBe('Oktober 2026')
+    expect(formatChartPeriod('2026-01-01', 'week', 'en')).toBe('Dec 29 – Jan 4')
   })
 })

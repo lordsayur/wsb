@@ -178,6 +178,8 @@ Names only; shapes finalized in code.
 - `shiftDate` / `rangeDates` / `formatShortDate` / `chartBounds` /
   `shiftChartDate` / `chartIsCurrent` / `chartMedian` / `isChartOutlier` —
   trend chart ranges, labels, and off-scale detection.
+- `formatChartPeriod` — names the period a range covers, so every shell labels
+  the selected week/month/year identically.
 - Resolve selection → district; apply offset; format times.
 - Resolve now → current/next entry and duration; format duration.
 

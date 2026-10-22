@@ -412,6 +412,22 @@ export function chartIsCurrent(
   return chartBounds(date, range).start === chartBounds(today, range).start
 }
 
+/**
+ * The period a chart range covers, named for display: a month, a year, or the
+ * dates a week spans. This is the label a shell shows so the reader always
+ * knows which period they are looking at.
+ */
+export function formatChartPeriod(
+  date: string,
+  range: ChartRange,
+  locale: string,
+): string {
+  if (range === 'year') return date.slice(0, 4)
+  if (range === 'month') return formatMonth(monthOf(date), locale)
+  const { start, end } = chartBounds(date, range)
+  return `${formatShortDate(start, locale)} – ${formatShortDate(end, locale)}`
+}
+
 /** A chart value farther than this from its entry's median is bad data. */
 export const CHART_OUTLIER_MINUTES = 90
 
