@@ -17,16 +17,29 @@
     </div>
 
     <div v-if="scope.kind === 'juz'" class="field">
-      <label class="label" :for="juzId">{{ juzLabel }}</label>
-      <select
-        :id="juzId"
-        :value="scope.juz"
-        @change="emit('selectScope', { kind: 'juz', juz: read($event) })"
-      >
-        <option v-for="juz in juzMaxValue" :key="juz" :value="juz">
-          {{ juzLabel }} {{ juz }}
-        </option>
-      </select>
+      <span class="label">{{ juzLabel }}</span>
+      <div class="pair">
+        <select
+          :aria-label="`${juzLabel} ${fromLabel}`"
+          :value="scope.juzMin"
+          @change="emit('selectScope', { ...scope, juzMin: read($event) })"
+        >
+          <option v-for="juz in juzMaxValue" :key="juz" :value="juz">
+            {{ juzLabel }} {{ juz }}
+          </option>
+        </select>
+        <span class="dash" aria-hidden="true">–</span>
+        <select
+          :aria-label="`${juzLabel} ${toLabel}`"
+          :value="scope.juzMax"
+          @change="emit('selectScope', { ...scope, juzMax: read($event) })"
+        >
+          <option v-for="juz in juzMaxValue" :key="juz" :value="juz">
+            {{ juzLabel }} {{ juz }}
+          </option>
+        </select>
+      </div>
+      <p class="chosen">{{ juzChosen }}</p>
     </div>
 
     <div v-else-if="scope.kind === 'surah'" class="field">
@@ -51,7 +64,7 @@
 <script setup lang="ts">
 // specs/quran/spec.md — molecule: exactly one scope (all, one juz, one surah)
 // plus Start. Juz and surah are alternatives; the page owns the scope.
-import { computed, useId } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { QuranIndex, Scope } from '@wsb/core'
 import { surahDisplay } from '~/utils/quran'
 import SurahSearch from './SurahSearch.vue'
@@ -60,6 +73,8 @@ const props = defineProps<{
   scopeLabel: string
   allLabel: string
   juzLabel: string
+  fromLabel: string
+  toLabel: string
   surahLabel: string
   searchPlaceholder: string
   startLabel: string
@@ -77,13 +92,42 @@ const emit = defineEmits<{
   start: []
 }>()
 
-const juzId = useId()
+const lastJuz = ref({ juzMin: 1, juzMax: 1 })
+const lastSurah = ref(1)
+watch(
+  () => props.scope,
+  (scope) => {
+    if (scope.kind === 'juz') {
+      lastJuz.value = { juzMin: scope.juzMin, juzMax: scope.juzMax }
+    } else if (scope.kind === 'surah') {
+      lastSurah.value = scope.surah
+    }
+  },
+  { immediate: true },
+)
 
 const modes = computed(() => [
   { kind: 'all', value: { kind: 'all' } as Scope, label: props.allLabel },
-  { kind: 'juz', value: { kind: 'juz', juz: 1 } as Scope, label: props.juzLabel },
-  { kind: 'surah', value: { kind: 'surah', surah: 1 } as Scope, label: props.surahLabel },
+  {
+    kind: 'juz',
+    value: { kind: 'juz', ...lastJuz.value } as Scope,
+    label: props.juzLabel,
+  },
+  {
+    kind: 'surah',
+    value: { kind: 'surah', surah: lastSurah.value } as Scope,
+    label: props.surahLabel,
+  },
 ])
+
+const juzChosen = computed(() => {
+  if (props.scope.kind !== 'juz') return ''
+  const a = Math.min(props.scope.juzMin, props.scope.juzMax)
+  const b = Math.max(props.scope.juzMin, props.scope.juzMax)
+  return a === b
+    ? `${props.juzLabel} ${a}`
+    : `${props.juzLabel} ${a}–${b}`
+})
 
 const sura = computed(() =>
   props.scope.kind === 'surah'
@@ -130,6 +174,18 @@ function read(event: Event): number {
 .modes button.active {
   background: color-mix(in srgb, var(--primary) 18%, transparent);
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+}
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.pair select {
+  flex: 1;
+  min-width: 0;
+}
+.dash {
+  color: var(--muted);
 }
 select {
   width: 100%;

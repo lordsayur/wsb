@@ -77,6 +77,8 @@ useSeoMeta({
         :scope-label="t('ayat.scope')"
         :all-label="t('ayat.whole')"
         :juz-label="t('ayat.juz')"
+        :from-label="t('ayat.from')"
+        :to-label="t('ayat.to')"
         :surah-label="t('ayat.surah')"
         :search-placeholder="t('ayat.search')"
         :start-label="t('ayat.start')"

@@ -91,7 +91,16 @@ export const Passage: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getAllByText(/[\u0600-\u06ff]/)).toHaveLength(3)
+    const verses = canvas.getAllByText(/[\u0600-\u06ff]/)
+    await expect(verses).toHaveLength(3)
+    const divided = await new Promise<string[]>((resolve) => {
+      requestAnimationFrame(() =>
+        resolve(
+          verses.map((verse) => getComputedStyle(verse).borderTopWidth),
+        ),
+      )
+    })
+    await expect(divided).toEqual(['0px', '1px', '1px'])
     await expect(canvas.getByText('Ini ayat terakhir dalam julat ini.')).toBeVisible()
   },
 }

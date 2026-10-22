@@ -23,15 +23,18 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 
 - `/ayat` opens in the **setup state**: only the range selection is shown.
   No ayah is loaded, fetched or picked.
-- The reader chooses **one** scope: the whole Quran, a single **juz** (1–30),
+- The reader chooses **one** scope: the whole Quran, a **juz range** (1–30),
   or a single **surah** (1–114). Juz and surah are alternatives, never
   combined; choosing one clears the other.
-- The juz is picked from a drop-down list of the 30 juz.
+- The juz range is picked from two drop-downs of the 30 juz.
 - A Latin-alphabet fuzzy search field finds a surah by its Malay or English
   name (weighted equally) and selects it. Each result shows the surah's Arabic
   name alongside the localized name. Arabic input is not matched.
 - **Start** applies the scope and enters the reading state. Every scope
   contains ayahs, so Start is always enabled once the scope is chosen.
+- A juz scope uses two drop-downs, **from** and **to**, either order accepted;
+  equal ends mean one juz. Switching scope mode keeps the last juz range or
+  surah chosen instead of resetting it.
 - The selection defaults to the whole Quran; changing it does not re-roll until
   Start is pressed.
 
@@ -46,8 +49,10 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
   **Reveal ayah number**, **Next ayah**, **New ayah**, **Change filter**.
 - A reveal is a latch: once used, that hint stays visible and its button is
   disabled until **New ayah** or a filter change.
-- The ayah area is a bounded, scrollable pane: a long ayah or passage scrolls
-  inside it, so the reveal chips and actions below stay visible.
+- The ayah area is a bounded, scrollable pane of fixed height: a long ayah or
+  passage scrolls inside it, so the reveal chips and actions below never move.
+  Appending an ayah scrolls the pane to the newest text. Consecutive ayahs are
+  separated by a hairline rule.
 - **Next ayah** appends the next ayah of the scope, repeatable, building the
   passage gradually. In a juz scope it continues into the following surah past
   a surah's last ayah; in a surah scope it stops at that surah's last ayah.
@@ -108,7 +113,7 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 ```
 Ref      { surah, ayah }                      1-based
 AyahRef  Ref & { juz, index }                 index 0..6235
-Scope    { kind: 'all' } | { kind: 'juz', juz } | { kind: 'surah', surah }
+Scope    { kind: 'all' } | { kind: 'juz', juzMin, juzMax } | { kind: 'surah', surah }
 Reveal   { juz, surah, ayah, next }           booleans + next count
 
 scopeRange(scope): AyahRange                  internal intersection form
@@ -131,6 +136,6 @@ The types live in core and are dataset-injected; core performs no I/O.
 - 2026-10-22 — initial spec: setup/reading states, per-ayah uniform pick,
   independent reveals, incremental next ayah.
 
-- 2026-10-23 — one scope per session (juz or surah, never both); single juz
-  from a drop-down, single surah from search; Arabic surah name always shown;
-  bounded scrollable ayah pane.
+- 2026-10-23 — one scope per session (juz or surah, never both); juz range from
+  two drop-downs, single surah from search; Arabic surah name always shown;
+  fixed-height scrollable ayah pane with rules between ayahs.

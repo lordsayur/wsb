@@ -9,6 +9,8 @@
       :scope-label="scopeLabel"
       :all-label="allLabel"
       :juz-label="juzLabel"
+      :from-label="fromLabel"
+      :to-label="toLabel"
       :surah-label="surahLabel"
       :search-placeholder="searchPlaceholder"
       :start-label="startLabel"
@@ -44,6 +46,8 @@ defineProps<{
   scopeLabel: string
   allLabel: string
   juzLabel: string
+  fromLabel: string
+  toLabel: string
   surahLabel: string
   searchPlaceholder: string
   startLabel: string

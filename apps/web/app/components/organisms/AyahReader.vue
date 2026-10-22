@@ -1,6 +1,12 @@
 <template>
   <article class="ayah-card">
-    <div class="texts" role="group" :tabindex="0" :aria-label="passageLabel">
+    <div
+      ref="pane"
+      class="texts"
+      role="group"
+      :tabindex="0"
+      :aria-label="passageLabel"
+    >
       <template v-if="loading && texts.length === 0">
         <div class="skeleton" aria-hidden="true" />
       </template>
@@ -43,10 +49,11 @@
 <script setup lang="ts">
 // specs/quran/spec.md — organism: the reading state. Arabic only until the
 // reader reveals a hint; the host owns all state and text loading.
+import { nextTick, ref, watch } from 'vue'
 import type { Reveal } from '@wsb/core'
 import AyahText from '../atoms/AyahText.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     texts: readonly (string | null)[]
     revealed: Reveal
@@ -68,6 +75,23 @@ withDefaults(
   { loading: false, unavailable: false, atEnd: false },
 )
 
+const pane = ref<HTMLElement | null>(null)
+let shown = 0
+
+watch(
+  () => props.texts.length,
+  async (length) => {
+    if (length <= shown) {
+      shown = length
+      return
+    }
+    shown = length
+    await nextTick()
+    pane.value?.scrollTo({ top: pane.value.scrollHeight, behavior: 'smooth' })
+  },
+  { immediate: true },
+)
+
 const emit = defineEmits<{
   next: []
   newAyah: []
@@ -85,9 +109,7 @@ const emit = defineEmits<{
 .texts {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  min-height: 7rem;
-  max-height: min(55vh, 30rem);
+  height: min(55vh, 30rem);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 1.25rem;
@@ -98,6 +120,11 @@ const emit = defineEmits<{
 .texts:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+.texts > .ayah-text + .ayah-text {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
 }
 .facts {
   display: flex;

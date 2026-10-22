@@ -246,6 +246,8 @@
     "intro": "Read one verse at random from a scope you choose. Nothing is shown until you ask.",
     "back": "Back to the app",
     "juz": "Juz",
+    "from": "from",
+    "to": "to",
     "surah": "Surah",
     "search": "Search a surah (e.g. baqarah)",
     "searchEmpty": "No matching surah.",

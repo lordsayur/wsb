@@ -13,6 +13,8 @@ const meta: Meta<typeof AyahSetup> = {
     scopeLabel: 'Pilih skop',
     allLabel: 'Seluruh Al-Quran',
     juzLabel: 'Juzuk',
+    fromLabel: 'dari',
+    toLabel: 'hingga',
     surahLabel: 'Surah',
     searchPlaceholder: 'Cari surah',
     startLabel: 'Mula',

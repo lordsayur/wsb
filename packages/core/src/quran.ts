@@ -44,12 +44,13 @@ export interface AyahRange {
 }
 
 /**
- * What the reader draws from: the whole Quran, one juz, or one surah. A scope
- * is always exactly one of these; juz and surah never combine.
+ * What the reader draws from: the whole Quran, a juz range, or one surah. A
+ * scope is always exactly one of these; the juz range and the surah never
+ * combine.
  */
 export type Scope =
   | { kind: 'all' }
-  | { kind: 'juz'; juz: number }
+  | { kind: 'juz'; juzMin: number; juzMax: number }
   | { kind: 'surah'; surah: number }
 
 export type RevealKind = 'juz' | 'surah' | 'ayah'
@@ -123,8 +124,16 @@ export function normalizeRange(range: AyahRange): AyahRange {
 /** The intersection range a scope stands for. */
 export function scopeRange(scope: Scope): AyahRange {
   if (scope.kind === 'juz') {
-    const juz = Math.min(JUZ_COUNT, Math.max(1, Math.round(scope.juz)))
-    return { juzMin: juz, juzMax: juz, surahMin: 1, surahMax: SURA_COUNT }
+    const clamp = (value: number) =>
+      Math.min(JUZ_COUNT, Math.max(1, Math.round(value)))
+    const a = clamp(scope.juzMin)
+    const b = clamp(scope.juzMax)
+    return {
+      juzMin: Math.min(a, b),
+      juzMax: Math.max(a, b),
+      surahMin: 1,
+      surahMax: SURA_COUNT,
+    }
   }
   if (scope.kind === 'surah') {
     const surah = Math.min(SURA_COUNT, Math.max(1, Math.round(scope.surah)))

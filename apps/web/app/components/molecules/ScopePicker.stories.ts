@@ -11,6 +11,8 @@ const meta: Meta<typeof ScopePicker> = {
     scopeLabel: 'Pilih skop',
     allLabel: 'Seluruh Al-Quran',
     juzLabel: 'Juzuk',
+    fromLabel: 'dari',
+    toLabel: 'hingga',
     surahLabel: 'Surah',
     searchPlaceholder: 'Cari surah',
     startLabel: 'Mula',
@@ -39,14 +41,20 @@ export const Default: Story = {
 }
 
 export const JuzScope: Story = {
-  args: { scope: { kind: 'juz', juz: 3 } },
+  args: { scope: { kind: 'juz', juzMin: 3, juzMax: 3 } },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
-    const select = canvas.getByRole('combobox', { name: 'Juzuk' })
-    await expect(select).toHaveValue('3')
+    const from = canvas.getByRole('combobox', { name: 'Juzuk dari' })
+    const to = canvas.getByRole('combobox', { name: 'Juzuk hingga' })
+    await expect(from).toHaveValue('3')
+    await expect(to).toHaveValue('3')
     await expect(canvas.queryByRole('searchbox')).toBeNull()
-    await userEvent.selectOptions(select, '5')
-    await expect(args.onSelectScope).toHaveBeenCalledWith({ kind: 'juz', juz: 5 })
+    await userEvent.selectOptions(to, '5')
+    await expect(args.onSelectScope).toHaveBeenCalledWith({
+      kind: 'juz',
+      juzMin: 3,
+      juzMax: 5,
+    })
   },
 }
 
@@ -63,6 +71,10 @@ export const SwitchScope: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
     await userEvent.click(canvas.getByRole('button', { name: 'Juzuk' }))
-    await expect(args.onSelectScope).toHaveBeenCalledWith({ kind: 'juz', juz: 1 })
+    await expect(args.onSelectScope).toHaveBeenCalledWith({
+      kind: 'juz',
+      juzMin: 1,
+      juzMax: 1,
+    })
   },
 }
