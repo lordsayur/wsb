@@ -125,7 +125,7 @@
     "installNote": {
       "extension": "موات تورون فايل zip، کموديان بوک chrome://extensions، هيدوڤکن مود ڤمباڠون دان ڤيليه \"Load unpacked\" ڤد فولدر يڠ تله دايکستراک.",
       "vscode": "موات تورون فايل .vsix، کموديان جالانکن \"Extensions: Install from VSIX…\" دري ڤاليت اراهن.",
-      "tui": "ݢاسڠ دڠن curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh، اتاو جالانکن تانڤ مماسڠ دڠن npx wsb-tui."
+      "tui": "تامڤل د ترمينل، اتاو جالانکن تانڤ مماسڠ دڠن npx wsb-tui."
     },
     "platforms": {
       "extension": {
@@ -148,7 +148,10 @@
         "name": "سمبوڠن Raycast",
         "description": "وقت سمبهيڠ دري ڤلنچر اندا."
       }
-    }
+    },
+    "terminal": "ترمينل",
+    "copy": "سالين",
+    "copied": "دسالين"
   },
   "admin": {
     "title": "ڤنتدبير داتا",

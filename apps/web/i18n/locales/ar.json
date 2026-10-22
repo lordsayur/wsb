@@ -125,7 +125,7 @@
     "installNote": {
       "extension": "نزّل ملف zip، ثم افتح chrome://extensions، وفعّل وضع المطوّر، واختر \"Load unpacked\" على المجلد المستخرج.",
       "vscode": "نزّل ملف .vsix، ثم نفّذ \"Extensions: Install from VSIX…\" من لوحة الأوامر.",
-      "tui": "ثبّت باستخدام curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh، أو شغّله دون تثبيت باستخدام npx wsb-tui."
+      "tui": "الصق هذا في الطرفية، أو شغّله دون تثبيت باستخدام npx wsb-tui."
     },
     "platforms": {
       "extension": {
@@ -148,7 +148,10 @@
         "name": "إضافة Raycast",
         "description": "أوقات الصلاة من مشغّلك."
       }
-    }
+    },
+    "terminal": "الطرفية",
+    "copy": "نسخ",
+    "copied": "تم النسخ"
   },
   "admin": {
     "title": "إدارة البيانات",

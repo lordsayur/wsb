@@ -195,8 +195,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The browser extension and the VS Code extension are available: each action
   downloads the artifact attached to the latest GitHub release (repository
   `lordsayur/wsb`), with its own install note.
-- The TUI is available: its action opens the latest GitHub release, and its
-  install note gives the `curl … | sh` installer and the `npx wsb-tui`
+- The TUI is available: its card shows the `curl … | sh` install command in a
+  terminal block with a copy button, its action opens the latest GitHub
+  release, and its install note offers `npx wsb-tui` as the no-install
   alternative. CLI and Raycast are listed as coming soon.
 - The VS Code card also offers a "Get it on the Marketplace" action that opens
   the extension's VS Code Marketplace listing; the download action stays.
@@ -443,6 +444,7 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Other platforms opens `/download`; the extension and TUI cards link to
       the latest GitHub release artifacts; CLI and Raycast are marked coming
       soon.
+- [ ] The TUI card shows the terminal install command and copies it on demand.
 - [ ] The VS Code card links to the Marketplace listing and still offers the
       `.vsix` download.
 - [ ] Settings opens the theme controls, time format, language, notifications,
@@ -577,3 +579,4 @@ None published. Consumes core and the Data port.
   cached month, and mirror the view and selection in the address.
 - 2026-10-22 — mark the TUI available on the downloads page with the
   `curl … | sh` install note and the `npx wsb-tui` alternative.
+- 2026-10-22 — show the TUI install command in its card with a copy button.

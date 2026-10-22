@@ -5,6 +5,16 @@
       <span class="status">{{ statusLabel }}</span>
     </header>
     <p class="description">{{ description }}</p>
+    <div v-if="command" class="command-block">
+      <span class="command-label">{{ commandLabel }}</span>
+      <div class="command-row">
+        <code class="command">{{ command }}</code>
+        <button type="button" class="copy" @click="copyCommand">
+          <Icon :name="copied ? 'lucide:check' : 'lucide:copy'" aria-hidden="true" />
+          {{ copied ? copiedLabel : copyLabel }}
+        </button>
+      </div>
+    </div>
     <div v-if="href || storeHref" class="actions">
       <a v-if="href" class="action" :href="href" rel="noopener">
         <Icon name="lucide:download" aria-hidden="true" />
@@ -25,8 +35,11 @@
 </template>
 
 <script setup lang="ts">
-// specs/web/spec.md — molecule: one platform on the downloads page.
-withDefaults(
+// specs/web/spec.md — molecule: one platform on the downloads page. A terminal
+// install command is shown with a copy button; the shell owns the clipboard.
+import { ref } from 'vue'
+
+const props = withDefaults(
   defineProps<{
     name: string
     description: string
@@ -36,9 +49,30 @@ withDefaults(
     href?: string
     storeLabel?: string
     storeHref?: string
+    command?: string
+    commandLabel?: string
+    copyLabel?: string
+    copiedLabel?: string
   }>(),
-  { href: undefined, storeLabel: undefined, storeHref: undefined },
+  {
+    href: undefined,
+    storeLabel: undefined,
+    storeHref: undefined,
+    command: undefined,
+    commandLabel: 'Terminal',
+    copyLabel: 'Copy',
+    copiedLabel: 'Copied',
+  },
 )
+
+const emit = defineEmits<{ copy: [command: string] }>()
+const copied = ref(false)
+
+function copyCommand() {
+  emit('copy', props.command!)
+  copied.value = true
+  setTimeout(() => (copied.value = false), 2_000)
+}
 </script>
 
 <style scoped>
@@ -74,6 +108,49 @@ withDefaults(
   margin: 0;
   font-size: 0.85rem;
   opacity: 0.8;
+}
+.command-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.command-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+}
+.command-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+.command {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt, rgba(0, 0, 0, 0.04));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+}
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
 }
 .action {
   align-self: flex-start;

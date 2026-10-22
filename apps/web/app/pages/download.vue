@@ -4,6 +4,15 @@ import PlatformCard from '~/components/molecules/PlatformCard.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
 import { PLATFORMS } from '~/utils/platforms'
+import { copyText } from '~/utils/clipboard'
+
+async function onCopy(command: string) {
+  try {
+    await copyText(command)
+  } catch {
+    // specs/web/spec.md — clipboard can be blocked; the command is still shown.
+  }
+}
 
 // specs/web/spec.md — downloads page: one card per platform shell.
 const { t } = useI18n()
@@ -48,6 +57,11 @@ useSeoMeta({
             :href="platform.url"
             :store-href="platform.storeUrl"
             :store-label="platform.storeLabel"
+            :command="platform.command"
+            :command-label="t('downloads.terminal')"
+            :copy-label="t('downloads.copy')"
+            :copied-label="t('downloads.copied')"
+            @copy="onCopy"
           />
           <p v-if="platform.installNote" class="note">
             {{ t(`downloads.installNote.${platform.installNote}`) }}

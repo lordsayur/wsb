@@ -125,7 +125,7 @@
     "installNote": {
       "extension": "Muat turun fail zip, kemudian buka chrome://extensions, hidupkan Mod Pembangun dan pilih \"Load unpacked\" pada folder yang telah diekstrak.",
       "vscode": "Muat turun fail .vsix, kemudian jalankan \"Extensions: Install from VSIX…\" dari palet arahan.",
-      "tui": "Pasang dengan curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh, atau jalankan tanpa memasang dengan npx wsb-tui."
+      "tui": "Tampal di terminal, atau jalankan tanpa memasang dengan npx wsb-tui."
     },
     "platforms": {
       "extension": {
@@ -148,7 +148,10 @@
         "name": "Sambungan Raycast",
         "description": "Waktu sembahyang dari pelancar anda."
       }
-    }
+    },
+    "terminal": "Terminal",
+    "copy": "Salin",
+    "copied": "Disalin"
   },
   "admin": {
     "title": "Pentadbir data",

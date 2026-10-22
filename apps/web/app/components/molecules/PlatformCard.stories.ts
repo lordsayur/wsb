@@ -67,3 +67,25 @@ export const ComingSoon: Story = {
     )
   },
 }
+
+export const WithTerminalCommand: Story = {
+  args: {
+    name: 'TUI',
+    description: 'Antara muka terminal penuh untuk waktu sembahyang.',
+    href: 'https://github.com/lordsayur/wsb/releases/latest',
+    command:
+      'curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh',
+    commandLabel: 'Terminal',
+    copyLabel: 'Salin',
+    copiedLabel: 'Disalin',
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Terminal')).toBeVisible()
+    await expect(canvas.getByText(args.command!)).toBeVisible()
+    const copy = canvas.getByRole('button', { name: 'Salin' })
+    await expect(copy).toBeVisible()
+    await copy.click()
+    await expect(canvas.getByRole('button', { name: 'Disalin' })).toBeVisible()
+  },
+}

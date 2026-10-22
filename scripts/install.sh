@@ -62,6 +62,24 @@ install -m 0755 "${tmp}/${name}" "${BIN_DIR}/wsb"
 
 echo "Installed wsb to ${BIN_DIR}/wsb"
 case ":$PATH:" in
-  *":${BIN_DIR}:"*) ;;
-  *) echo "Add ${BIN_DIR} to your PATH to run wsb." ;;
+  *":${BIN_DIR}:"*) on_path=1 ;;
+  *) on_path=0 ;;
 esac
+
+cat <<EOF
+
+Run it:
+  wsb            full-screen prayer times
+  wsb doctor     check the version, state file and data source
+
+Keys: q quit, d district, l language, f 12/24h, r reload, ? keys.
+
+EOF
+
+if [ "$on_path" = "0" ]; then
+  cat <<EOF
+${BIN_DIR} is not on your PATH. Add it, then open a new shell:
+  echo 'export PATH="${BIN_DIR}:\$PATH"' >> ~/.profile
+
+EOF
+fi

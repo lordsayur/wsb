@@ -59,7 +59,9 @@ platform glue only; no domain rules.
   `.sha256` beside it.
 - `scripts/install.sh` downloads the binary matching `uname` into
   `${WSB_BIN_DIR:-$HOME/.local/bin}`, verifies its checksum, and fails closed on
-  a mismatch. `WSB_VERSION` pins a release instead of `latest`.
+  a mismatch. `WSB_VERSION` pins a release instead of `latest`. After
+  installing it prints how to run the shell (`wsb`, `wsb doctor`), the keys, and
+  a PATH hint when the install directory is not on `PATH`.
 - The `/download` page lists the TUI as available with the `curl … | sh`
   command and the `npx wsb-tui` alternative.
 
@@ -87,6 +89,7 @@ platform glue only; no domain rules.
 - [ ] Times fall back to the last known day when the source is unreachable.
 - [ ] With no Supabase configuration the interface shows the unavailable state.
 - [ ] The build produces an npm tarball and a standalone binary.
+- [ ] The installer prints how to run the shell once it finishes.
 
 ## Out of scope
 
@@ -100,3 +103,4 @@ platform glue only; no domain rules.
 
 - 2026-10-22 — initial: full-screen interface, piped mode, npm package,
   standalone binaries and the curl installer.
+- 2026-10-22 — the installer ends with the run commands, keys and a PATH hint.
