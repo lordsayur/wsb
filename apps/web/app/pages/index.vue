@@ -270,6 +270,10 @@ function openTasbih() {
   navigateTo('/tasbih')
 }
 
+function openAyat() {
+  navigateTo('/ayat')
+}
+
 function openTrend() {
   // The trend page reads the same district, so carry it across.
   navigateTo(
@@ -391,6 +395,7 @@ onMounted(async () => {
       :downloads-label="t('action.downloads')"
       :trend-label="t('action.trend')"
       :tasbih-label="t('action.tasbih')"
+      :ayat-label="t('action.ayat')"
       :reload-data-label="t('action.reloadData')"
       :reload-app-label="t('action.reloadApp')"
       :share-label="t('action.share')"
@@ -413,6 +418,7 @@ onMounted(async () => {
       @downloads="openDownloads"
       @trend="openTrend"
       @tasbih="openTasbih"
+      @ayat="openAyat"
       @reload-data="reloadCurrent"
       @reload-app="reloadApp"
       @toggle-notifications="toggleNotifications"

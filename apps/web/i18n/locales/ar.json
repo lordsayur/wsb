@@ -31,7 +31,8 @@
     "share": "مشاركة أوقات الصلاة",
     "downloads": "منصات أخرى",
     "trend": "الرسم البياني",
-    "tasbih": "تسبيح"
+    "tasbih": "تسبيح",
+    "ayat": "آية قرآنية"
   },
   "source": {
     "label": "مصدر البيانات",
@@ -239,6 +240,34 @@
     "notifyTitle": "تسبيح {count}",
     "notifyBody": "بلغ عدد التسبيح {count}.",
     "resetConfirm": "إعادة العدد إلى صفر؟"
+  },
+  "ayat": {
+    "title": "آية من القرآن",
+    "intro": "اقرأ آية واحدة عشوائيًا من نطاق تختاره. لا يظهر شيء حتى تطلب.",
+    "back": "العودة إلى التطبيق",
+    "juz": "الجزء",
+    "surah": "السورة",
+    "search": "ابحث عن سورة (مثل: baqarah)",
+    "searchEmpty": "لا توجد سورة مطابقة.",
+    "from": "من",
+    "to": "إلى",
+    "start": "ابدأ",
+    "empty": "لا توجد آية في هذا النطاق.",
+    "count": "{count} من {total} آية",
+    "next": "الآية التالية",
+    "new": "آية جديدة",
+    "changeFilter": "تغيير التصفية",
+    "end": "هذه آخر آية في النطاق.",
+    "passage": "المقطع",
+    "ayahLabel": "آية",
+    "reveals": "الإظهار",
+    "revealJuz": "إظهار الجزء",
+    "revealSurah": "إظهار السورة",
+    "revealAyah": "إظهار رقم الآية",
+    "revealedJuz": "الجزء {juz}",
+    "revealedSurah": "سورة {surah}",
+    "revealedAyah": "الآية {ayah}",
+    "attribution": "نص القرآن من Tanzil.net (العثماني، حفص)"
   },
   "a11y": {
     "skipToContent": "تخطَّ إلى المحتوى"

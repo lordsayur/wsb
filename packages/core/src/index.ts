@@ -558,3 +558,5 @@ export function createPrayerTimes(
     entries: adjustForDistrict(baseEntries, district),
   }
 }
+
+export * from './quran.js'

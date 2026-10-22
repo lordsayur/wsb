@@ -53,6 +53,7 @@ const meta: Meta<typeof AppFooter> = {
     downloadsLabel: 'Platform lain',
     trendLabel: 'Grafik trend',
     tasbihLabel: 'Tasbih',
+    ayatLabel: 'Ayat Al-Quran',
     reloadDataLabel: 'Muat semula data',
     reloadAppLabel: 'Muat semula aplikasi',
     shareLabel: 'Kongsi waktu sembahyang',
@@ -72,6 +73,7 @@ const meta: Meta<typeof AppFooter> = {
     onDownloads: fn(),
     onTrend: fn(),
     onTasbih: fn(),
+    onAyat: fn(),
     onReloadData: fn(),
     onReloadApp: fn(),
     onToggleNotifications: fn(),
@@ -105,6 +107,9 @@ export const MenuOpen: Story = {
     ).toBeVisible()
     await expect(
       canvas.getByRole('menuitem', { name: 'Tasbih' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Ayat Al-Quran' }),
     ).toBeVisible()
     await expect(
       canvas.getByRole('menuitem', { name: 'Grafik trend' }),
@@ -232,6 +237,17 @@ export const OpenTasbih: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
     await userEvent.click(canvas.getByRole('menuitem', { name: 'Tasbih' }))
     await expect(args.onTasbih).toHaveBeenCalledTimes(1)
+  },
+}
+
+export const OpenAyat: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(
+      canvas.getByRole('menuitem', { name: 'Ayat Al-Quran' }),
+    )
+    await expect(args.onAyat).toHaveBeenCalledTimes(1)
   },
 }
 

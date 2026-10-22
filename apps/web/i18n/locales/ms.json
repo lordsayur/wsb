@@ -31,7 +31,8 @@
     "share": "Kongsi waktu sembahyang",
     "downloads": "Platform lain",
     "trend": "Grafik trend",
-    "tasbih": "Tasbih"
+    "tasbih": "Tasbih",
+    "ayat": "Ayat Al-Quran"
   },
   "source": {
     "label": "Sumber data",
@@ -239,6 +240,34 @@
     "notifyTitle": "Tasbih {count}",
     "notifyBody": "Kiraan tasbih mencapai {count}.",
     "resetConfirm": "Set semula kiraan kepada sifar?"
+  },
+  "ayat": {
+    "title": "Ayat Al-Quran",
+    "intro": "Baca satu ayat secara rawak dalam julat pilihan anda. Tiada apa-apa ditunjukkan sehingga anda mahu.",
+    "back": "Kembali ke aplikasi",
+    "juz": "Juzuk",
+    "surah": "Surah",
+    "search": "Cari surah (contoh: baqarah)",
+    "searchEmpty": "Tiada surah sepadan.",
+    "from": "dari",
+    "to": "hingga",
+    "start": "Mula",
+    "empty": "Tiada ayat dalam julat ini.",
+    "count": "{count} daripada {total} ayat",
+    "next": "Ayat seterusnya",
+    "new": "Ayat baharu",
+    "changeFilter": "Tukar penapis",
+    "end": "Ini ayat terakhir dalam julat ini.",
+    "passage": "Bacaan",
+    "ayahLabel": "Ayat",
+    "reveals": "Pendedahan",
+    "revealJuz": "Tunjuk juzuk",
+    "revealSurah": "Tunjuk surah",
+    "revealAyah": "Tunjuk nombor ayat",
+    "revealedJuz": "Juzuk {juz}",
+    "revealedSurah": "Surah {surah}",
+    "revealedAyah": "Ayat {ayah}",
+    "attribution": "Teks Al-Quran oleh Tanzil.net (Uthmani, Hafs)"
   },
   "a11y": {
     "skipToContent": "Langkau ke kandungan"

@@ -128,3 +128,34 @@ A dotted identifier (e.g. `prayer.subuh`) in
 `apps/web/i18n/locales/<locale>.json`. Every key must exist in the default
 locale (`ms`).
 
+
+## Surah
+
+One of the 114 chapters of the Quran, identified by number (1–114) and by a
+name. The Quran Ayat context uses the Malay and English names for Latin-alphabet
+search and shows the Arabic name as a label. A surah contains one or more
+ayahs.
+
+## Ayah
+
+A numbered verse of a surah, identified by `(surah, ayah)`. There are 6,236
+ayahs in the Kufi count used by the Madinah mushaf; the basmalah is numbered
+only as `1:1` and is never rendered on its own.
+
+## Juz
+
+One of the 30 canonical divisions of the Quran. Each ayah belongs to exactly
+one juz, and the juz are contiguous and non-empty. A juz can span surah
+boundaries.
+
+## Ayah range
+
+A selection of ayahs for the Quran Ayat reader: a juz range and a surah range,
+each with an inclusive minimum and maximum. A single value is a range whose
+ends are equal; the reader draws from the intersection of the two ranges.
+
+## Reveal
+
+One on-demand disclosure of an ayah's identifying information — its juz, its
+surah, its ayah number, or the next ayah's text. Reveals are independent and
+latch until the ayah changes.

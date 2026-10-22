@@ -72,6 +72,10 @@
               <Icon name="lucide:circle-dot-dashed" aria-hidden="true" />
               {{ tasbihLabel }}
             </button>
+            <button type="button" role="menuitem" @click="openAyat">
+              <Icon name="lucide:book-open" aria-hidden="true" />
+              {{ ayatLabel }}
+            </button>
             <button type="button" role="menuitem" @click="openDownloads">
               <Icon name="lucide:download" aria-hidden="true" />
               {{ downloadsLabel }}
@@ -205,6 +209,7 @@ const props = defineProps<{
   downloadsLabel: string
   trendLabel: string
   tasbihLabel: string
+  ayatLabel: string
   reloadDataLabel: string
   reloadAppLabel: string
   shareLabel: string
@@ -230,6 +235,7 @@ const emit = defineEmits<{
   downloads: []
   trend: []
   tasbih: []
+  ayat: []
   reloadData: []
   reloadApp: []
   toggleNotifications: []
@@ -279,6 +285,11 @@ function openTrend() {
 
 function openTasbih() {
   emit('tasbih')
+  close()
+}
+
+function openAyat() {
+  emit('ayat')
   close()
 }
 

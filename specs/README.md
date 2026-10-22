@@ -24,6 +24,7 @@ language; see [`CONTEXT-MAP.md`](./CONTEXT-MAP.md) for how they relate.
 | VS Code shell | `apps/vscode` | [`vscode/spec.md`](./vscode/spec.md) |
 | Raycast shell | `apps/raycast` | [`raycast/spec.md`](./raycast/spec.md) |
 | TUI shell | `apps/tui` | [`tui/spec.md`](./tui/spec.md) |
+| Quran Ayat (core domain) | `packages/core` + `packages/data` | [`quran/spec.md`](./quran/spec.md) |
 | Testing (cross-cutting) | all | [`testing/spec.md`](./testing/spec.md) |
 
 `packages/shared` is not a context. It is a placeholder being split into `core`

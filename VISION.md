@@ -32,6 +32,17 @@ for the user's district, fast and correct, on any surface.
   - Belait: **+3 minutes**
 - Minimal resource use: small payload, no network required after first load.
 
+## Secondary feature: Quran Ayat
+
+- A web-only `/ayat` page inside the same PWA: one Quran ayah at random from a
+  range the reader chooses by juz and surah.
+- Arabic only. The reader reveals the juz, surah, ayah number or the next ayah
+  on demand; nothing is disclosed before that.
+- The corpus is static, bundled and loaded lazily by juz, so the main page
+  bundle and the offline-first rule are unchanged.
+- The prayer-time core stays the product's centre; this is a separate bounded
+  context with its own spec (`specs/quran/spec.md`).
+
 ## Architecture: thin shell, thick core
 
 ```

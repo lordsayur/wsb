@@ -31,7 +31,8 @@
     "share": "کوڠسي وقت سمبهيڠ",
     "downloads": "ڤلاتفورم لاءين",
     "trend": "ݢرافيک تريند",
-    "tasbih": "تسبيح"
+    "tasbih": "تسبيح",
+    "ayat": "ايت القرءان"
   },
   "source": {
     "label": "سومبر داتا",
@@ -239,6 +240,34 @@
     "notifyTitle": "تسبيح {count}",
     "notifyBody": "کيراءن تسبيح مڠچاڤاي {count}.",
     "resetConfirm": "ست سمولا کيراءن کڤد سيفر؟"
+  },
+  "ayat": {
+    "title": "ايت القرءان",
+    "intro": "باچ ساتو ايت سچارا راواق دالم جولت ڤيليهن اندا. تياد اڤ٢ دتونجوقکن سهيڠݢ اندا ماهو.",
+    "back": "کمبالي کأڤليکاسي",
+    "juz": "جوزوق",
+    "surah": "سورة",
+    "search": "چاري سورة (چونتوه: baqarah)",
+    "searchEmpty": "تياد سورة سڤادن.",
+    "from": "داري",
+    "to": "هيڠݢ",
+    "start": "مولا",
+    "empty": "تياد ايت دالم جولت اين.",
+    "count": "{count} داريڤد {total} ايت",
+    "next": "ايت ستيروسڽ",
+    "new": "ايت بها ءرو",
+    "changeFilter": "توکر ڤناڤيس",
+    "end": "اين ايت تراخير دالم جولت اين.",
+    "passage": "باچاءن",
+    "ayahLabel": "ايت",
+    "reveals": "ڤندداڤن",
+    "revealJuz": "تونجوق جوزوق",
+    "revealSurah": "تونجوق سورة",
+    "revealAyah": "تونجوق نومبور ايت",
+    "revealedJuz": "جوزوق {juz}",
+    "revealedSurah": "سورة {surah}",
+    "revealedAyah": "ايت {ayah}",
+    "attribution": "تيكس القرءان اوليه Tanzil.net (عثماني، حفص)"
   },
   "a11y": {
     "skipToContent": "لڠکاو ک کاندوڠن"

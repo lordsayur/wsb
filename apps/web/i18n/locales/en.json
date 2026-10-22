@@ -31,7 +31,8 @@
     "share": "Share prayer times",
     "downloads": "Other platforms",
     "trend": "Trend chart",
-    "tasbih": "Tasbih"
+    "tasbih": "Tasbih",
+    "ayat": "Quran verse"
   },
   "source": {
     "label": "Data source",
@@ -239,6 +240,34 @@
     "notifyTitle": "Tasbih {count}",
     "notifyBody": "Tasbih count reached {count}.",
     "resetConfirm": "Reset the count to zero?"
+  },
+  "ayat": {
+    "title": "Quran verse",
+    "intro": "Read one verse at random from a range you choose. Nothing is shown until you ask.",
+    "back": "Back to the app",
+    "juz": "Juz",
+    "surah": "Surah",
+    "search": "Search a surah (e.g. baqarah)",
+    "searchEmpty": "No matching surah.",
+    "from": "from",
+    "to": "to",
+    "start": "Start",
+    "empty": "No verse in this range.",
+    "count": "{count} of {total} verses",
+    "next": "Next verse",
+    "new": "New verse",
+    "changeFilter": "Change filter",
+    "end": "This is the last verse in the range.",
+    "passage": "Passage",
+    "ayahLabel": "Verse",
+    "reveals": "Reveals",
+    "revealJuz": "Reveal juz",
+    "revealSurah": "Reveal surah",
+    "revealAyah": "Reveal verse number",
+    "revealedJuz": "Juz {juz}",
+    "revealedSurah": "Surah {surah}",
+    "revealedAyah": "Verse {ayah}",
+    "attribution": "Quran text by Tanzil.net (Uthmani, Hafs)"
   },
   "a11y": {
     "skipToContent": "Skip to content"

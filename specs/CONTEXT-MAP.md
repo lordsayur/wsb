@@ -11,6 +11,8 @@ apps/extension ─┤
 apps/vscode ────┤      (core domain)        ▲
 apps/raycast ───┘                           │ implements
                      Supabase adapter (runtime) + MORA import (manual)
+
+apps/web ──▶ Quran Ayat (core) ──▶ Quran corpus (static, bundled)
 ```
 
 ## Prayer Times — core domain
@@ -81,6 +83,16 @@ apps/raycast ───┘                           │ implements
   MORA calls at runtime.
 - **Depends on:** Prayer Times (core) and Data.
 - **Spec:** [`tui/spec.md`](./tui/spec.md).
+
+## Quran Ayat — core domain
+
+- **Owns:** the ayah index, juz/surah ranges, uniform picking, the incremental
+  passage, reveal state and surah-name search.
+- **Pure TypeScript.** The corpus is injected; no I/O, no DOM, no vendor types.
+- **Published language:** `Ref`, `AyahRef`, `Range`, `Reveal`. See
+  [`glossary.md`](./glossary.md).
+- **Depends on:** nothing; the corpus is static and bundled with the app.
+- **Spec:** [`quran/spec.md`](./quran/spec.md).
 
 ## Dependency rules
 
