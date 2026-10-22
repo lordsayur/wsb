@@ -124,7 +124,8 @@
     "marketplace": "داڤتکن د Marketplace",
     "installNote": {
       "extension": "موات تورون فايل zip، کموديان بوک chrome://extensions، هيدوڤکن مود ڤمباڠون دان ڤيليه \"Load unpacked\" ڤد فولدر يڠ تله دايکستراک.",
-      "vscode": "موات تورون فايل .vsix، کموديان جالانکن \"Extensions: Install from VSIX…\" دري ڤاليت اراهن."
+      "vscode": "موات تورون فايل .vsix، کموديان جالانکن \"Extensions: Install from VSIX…\" دري ڤاليت اراهن.",
+      "tui": "ݢاسڠ دڠن curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh، اتاو جالانکن تانڤ مماسڠ دڠن npx wsb-tui."
     },
     "platforms": {
       "extension": {
@@ -235,5 +236,15 @@
   },
   "a11y": {
     "skipToContent": "لڠکاو ک کاندوڠن"
+  },
+  "tui": {
+    "key": {
+      "district": "d  دائره",
+      "language": "l  بهاس",
+      "format": "f  فورمات",
+      "reload": "r  موات سمولا",
+      "quit": "q  کلوار",
+      "hint": "?  ککونچي"
+    }
   }
 }

@@ -124,7 +124,8 @@
     "marketplace": "Dapatkan di Marketplace",
     "installNote": {
       "extension": "Muat turun fail zip, kemudian buka chrome://extensions, hidupkan Mod Pembangun dan pilih \"Load unpacked\" pada folder yang telah diekstrak.",
-      "vscode": "Muat turun fail .vsix, kemudian jalankan \"Extensions: Install from VSIX…\" dari palet arahan."
+      "vscode": "Muat turun fail .vsix, kemudian jalankan \"Extensions: Install from VSIX…\" dari palet arahan.",
+      "tui": "Pasang dengan curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh, atau jalankan tanpa memasang dengan npx wsb-tui."
     },
     "platforms": {
       "extension": {
@@ -235,5 +236,15 @@
   },
   "a11y": {
     "skipToContent": "Langkau ke kandungan"
+  },
+  "tui": {
+    "key": {
+      "district": "d  daerah",
+      "language": "l  bahasa",
+      "format": "f  format",
+      "reload": "r  muat semula",
+      "quit": "q  keluar",
+      "hint": "?  kekunci"
+    }
   }
 }

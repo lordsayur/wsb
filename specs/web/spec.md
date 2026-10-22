@@ -194,8 +194,10 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   and a download action when available.
 - The browser extension and the VS Code extension are available: each action
   downloads the artifact attached to the latest GitHub release (repository
-  `lordsayur/wsb`), with its own install note. CLI, TUI and Raycast are listed
-  as coming soon.
+  `lordsayur/wsb`), with its own install note.
+- The TUI is available: its action opens the latest GitHub release, and its
+  install note gives the `curl … | sh` installer and the `npx wsb-tui`
+  alternative. CLI and Raycast are listed as coming soon.
 - The VS Code card also offers a "Get it on the Marketplace" action that opens
   the extension's VS Code Marketplace listing; the download action stays.
 - The menu panel has a **Other platforms** entry that opens `/download`; it
@@ -438,8 +440,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
       a distinct pattern on each milestone.
 - [ ] The tasbih count and step survive a reload.
 - [ ] Tasbih notifications ring on every multiple of the step (100 by default).
-- [ ] Other platforms opens `/download`; the extension cards link to the latest
-      GitHub release artifacts; other platforms are marked coming soon.
+- [ ] Other platforms opens `/download`; the extension and TUI cards link to
+      the latest GitHub release artifacts; CLI and Raycast are marked coming
+      soon.
 - [ ] The VS Code card links to the Marketplace listing and still offers the
       `.vsix` download.
 - [ ] Settings opens the theme controls, time format, language, notifications,
@@ -572,3 +575,5 @@ None published. Consumes core and the Data port.
 - 2026-10-22 — move the trend chart to its own `/trend` page opened from the
   menu, so the main page does not ship the chart; keep the day and month on one
   cached month, and mirror the view and selection in the address.
+- 2026-10-22 — mark the TUI available on the downloads page with the
+  `curl … | sh` install note and the `npx wsb-tui` alternative.

@@ -14,6 +14,7 @@ jobs:
     env:
       VSCE_PAT: ${{ secrets.VSCE_PAT }}
       OVSX_PAT: ${{ secrets.OVSX_PAT }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -32,6 +33,22 @@ jobs:
         env:
           WSB_SUPABASE_URL: ${{ secrets.WSB_SUPABASE_URL }}
           WSB_SUPABASE_ANON_KEY: ${{ secrets.WSB_SUPABASE_ANON_KEY }}
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+      - run: pnpm --filter wsb-tui build
+        env:
+          WSB_SUPABASE_URL: ${{ secrets.WSB_SUPABASE_URL }}
+          WSB_SUPABASE_ANON_KEY: ${{ secrets.WSB_SUPABASE_ANON_KEY }}
+      - run: pnpm --filter wsb-tui run binaries
+        env:
+          WSB_SUPABASE_URL: ${{ secrets.WSB_SUPABASE_URL }}
+          WSB_SUPABASE_ANON_KEY: ${{ secrets.WSB_SUPABASE_ANON_KEY }}
+      - name: Publish to npm
+        if: env.NPM_TOKEN != ''
+        working-directory: apps/tui/dist
+        run: |
+          printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > .npmrc
+          npm publish --access public
       - name: Publish to VS Code Marketplace
         if: env.VSCE_PAT != ''
         run: pnpm --filter wsb-vscode exec vsce publish --no-dependencies --skip-duplicate --packagePath wsb-vscode.vsix
@@ -47,4 +64,5 @@ jobs:
           files: |
             apps/extension/wsb-extension.zip
             apps/vscode/wsb-vscode.vsix
+            apps/tui/dist/binaries/*
           generate_release_notes: true

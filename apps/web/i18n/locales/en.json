@@ -124,7 +124,8 @@
     "marketplace": "Get it on the Marketplace",
     "installNote": {
       "extension": "Download the zip, then open chrome://extensions, enable Developer mode and choose \"Load unpacked\" on the extracted folder.",
-      "vscode": "Download the .vsix, then run \"Extensions: Install from VSIX…\" from the command palette."
+      "vscode": "Download the .vsix, then run \"Extensions: Install from VSIX…\" from the command palette.",
+      "tui": "Install with curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh, or run it without installing with npx wsb-tui."
     },
     "platforms": {
       "extension": {
@@ -235,5 +236,15 @@
   },
   "a11y": {
     "skipToContent": "Skip to content"
+  },
+  "tui": {
+    "key": {
+      "district": "d  district",
+      "language": "l  language",
+      "format": "f  format",
+      "reload": "r  reload",
+      "quit": "q  quit",
+      "hint": "?  keys"
+    }
   }
 }

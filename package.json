@@ -20,6 +20,8 @@
     "vscode:build": "pnpm --filter wsb-vscode build",
     "vscode:package": "pnpm --filter wsb-vscode package",
     "raycast:build": "pnpm --filter ./apps/raycast build",
-    "raycast:store": "pnpm --filter ./apps/raycast run store:export"
+    "raycast:store": "pnpm --filter ./apps/raycast run store:export",
+    "tui:build": "pnpm --filter wsb-tui build",
+    "tui:binaries": "pnpm --filter wsb-tui run binaries"
   }
 }

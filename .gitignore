@@ -50,6 +50,9 @@ apps/extension/*.zip
 apps/vscode/dist/
 apps/vscode/*.vsix
 
+# TUI build output (regenerable; npm tarball and binaries ship via releases)
+apps/tui/dist/
+
 # Raycast extension build output and generated manifest types
 apps/raycast/dist/
 apps/raycast/raycast-env.d.ts

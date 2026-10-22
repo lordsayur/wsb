@@ -71,6 +71,17 @@ apps/raycast ───┘                           │ implements
 - **Depends on:** Prayer Times (core) and Data.
 - **Spec:** [`raycast/spec.md`](./raycast/spec.md).
 
+## TUI shell — presentation
+
+- **Owns:** the full-screen terminal interface and its plain piped output.
+  Rendering and platform glue only.
+- **Published language:** none. It reads core state and draws it.
+- **Invariant:** no business logic. Offline first, Supabase-only at runtime.
+  Only the public Supabase URL + anon key ship; no service-role key, and no
+  MORA calls at runtime.
+- **Depends on:** Prayer Times (core) and Data.
+- **Spec:** [`tui/spec.md`](./tui/spec.md).
+
 ## Dependency rules
 
 - Shell → core → data-port. Never the reverse.

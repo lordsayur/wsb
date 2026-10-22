@@ -1,0 +1,51 @@
+{
+  "name": "wsb-tui",
+  "version": "0.4.0",
+  "description": "Waktu Sembahyang Brunei in your terminal.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "wsb": "./dist/cli.js",
+    "wsb-tui": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lordsayur/wsb.git",
+    "directory": "apps/tui"
+  },
+  "homepage": "https://github.com/lordsayur/wsb",
+  "keywords": [
+    "prayer",
+    "sembahyang",
+    "brunei",
+    "waktu",
+    "islam",
+    "tui",
+    "cli"
+  ],
+  "scripts": {
+    "build": "node --env-file-if-exists=../../.env scripts/build.mjs",
+    "bundle": "node --env-file-if-exists=../../.env scripts/build.mjs --bundle",
+    "binaries": "node --env-file-if-exists=../../.env scripts/build.mjs --binaries",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "start": "node --env-file-if-exists=../../.env dist/main.js"
+  },
+  "dependencies": {
+    "@wsb/core": "workspace:*",
+    "@wsb/data": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
+  }
+}

@@ -9,7 +9,7 @@ export interface Platform {
   url?: string
   /** Optional install-from-registry URL shown next to the download action. */
   storeUrl?: string
-  installNote?: 'extension' | 'vscode'
+  installNote?: 'extension' | 'vscode' | 'tui'
 }
 
 export const EXTENSION_DOWNLOAD_URL =
@@ -18,6 +18,7 @@ export const VSCODE_DOWNLOAD_URL =
   'https://github.com/lordsayur/wsb/releases/latest/download/wsb-vscode.vsix'
 export const VSCODE_MARKETPLACE_URL =
   'https://marketplace.visualstudio.com/items?itemName=lordsayur.wsb-vscode'
+export const TUI_RELEASES_URL = 'https://github.com/lordsayur/wsb/releases/latest'
 
 export const PLATFORMS: Platform[] = [
   { id: 'extension', status: 'available', url: EXTENSION_DOWNLOAD_URL, installNote: 'extension' },
@@ -29,6 +30,6 @@ export const PLATFORMS: Platform[] = [
     installNote: 'vscode',
   },
   { id: 'cli', status: 'soon' },
-  { id: 'tui', status: 'soon' },
+  { id: 'tui', status: 'available', url: TUI_RELEASES_URL, installNote: 'tui' },
   { id: 'raycast', status: 'soon' },
 ]
