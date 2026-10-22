@@ -78,6 +78,7 @@ const meta: Meta<typeof PrayerTrendChart> = {
     filterLabel: 'Tapis waktu',
     chartLabel: 'Grafik waktu sembahyang',
     dateLabel: 'Tarikh',
+    period: 'Oktober 2026',
     loadingText: 'Memuatkan…',
     unavailableText: 'Waktu sembahyang tidak tersedia.',
     offlineText: '',
@@ -96,6 +97,7 @@ type Story = StoryObj<typeof PrayerTrendChart>
 export const Ready: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await expect(canvas.getByText('Oktober 2026')).toBeVisible()
     await expect(canvas.getByRole('img')).toBeVisible()
     await expect(canvasElement.querySelectorAll('path')).toHaveLength(5)
     await expect(canvas.getByRole('button', { name: /Subuh/ })).toHaveAttribute(
@@ -216,5 +218,21 @@ export const LegendSupportsArrowKeys: Story = {
     await expect(canvas.getByRole('button', { name: /Zuhur/ })).toHaveFocus()
     await userEvent.keyboard('{ArrowLeft}')
     await expect(first).toHaveFocus()
+  },
+}
+
+export const YearPeriod: Story = {
+  args: { period: '2026' },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText('2026')).toBeVisible()
+  },
+}
+
+export const WeekPeriod: Story = {
+  args: { period: '12 Okt – 18 Okt' },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText('12 Okt – 18 Okt'),
+    ).toBeVisible()
   },
 }

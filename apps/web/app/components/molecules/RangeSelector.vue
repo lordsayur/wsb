@@ -22,7 +22,6 @@
       >
         <Icon name="lucide:chevron-left" aria-hidden="true" />
       </button>
-      <span v-if="period" class="period" aria-live="polite">{{ period }}</span>
       <button v-if="!current" type="button" class="today" @click="emit('today')">
         {{ todayLabel }}
       </button>
@@ -47,20 +46,15 @@ export interface RangeOption<T extends string = string> {
   label: string
 }
 
-withDefaults(
-  defineProps<{
-    label: string
-    value: string
-    options: RangeOption[]
-    current: boolean
-    prevLabel: string
-    nextLabel: string
-    todayLabel: string
-    /** The selected period, named: "October 2026", "2026", "Oct 12 – Oct 18". */
-    period?: string
-  }>(),
-  { period: '' },
-)
+defineProps<{
+  label: string
+  value: string
+  options: RangeOption[]
+  current: boolean
+  prevLabel: string
+  nextLabel: string
+  todayLabel: string
+}>()
 
 const emit = defineEmits<{
   'update:range': [value: string]
@@ -135,12 +129,6 @@ const emit = defineEmits<{
 .step:hover,
 .today:hover {
   background: color-mix(in srgb, var(--primary) 14%, transparent);
-}
-.period {
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 0 0.2rem;
-  white-space: nowrap;
 }
 .today {
   font: inherit;

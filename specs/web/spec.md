@@ -125,10 +125,11 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The trend page plots the prayer entries as a line graph: the x axis is the
   date and the y axis is the time of day, with a line per entry.
 - The range defaults to **month**; the page's footer offers **week**,
-  **month** and **year** and steps backwards/forwards through the range. The
-  selected period is always named beside the stepper — the month and year
+  **month** and **year** and steps backwards/forwards through the range.
+- The selected period is named above the chart — the month and year
   (`October 2026`), the year alone (`2026`), or the dates a week spans
-  (`12 Oct – 18 Oct`) — so the reader never has to infer it from the axis.
+  (`12 Oct – 18 Oct`) — so the reader never has to infer it from the axis. It
+  sits outside the stepper so a narrow screen cannot squeeze it.
 - The range and its anchor are reflected in the address (`range`, `date`) as
   described under **Pages**.
 - By default every entry is plotted. While all are shown, tapping a chip shows
@@ -421,7 +422,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The address reflects the view, month, district, trend range and anchor,
       and opening such a link restores it; malformed values fall back.
 - [ ] The menu's Trend chart entry opens `/trend`; the page links back.
-- [ ] The trend controls name the selected period for every range.
+- [ ] The trend names the selected period above the chart for every range.
+- [ ] The trend page does not scroll horizontally at 390px wide.
 - [ ] `/trend` is a separate route bundle; the main page does not ship it.
 - [ ] The trend page plots one line per entry with date on x and time on y.
 - [ ] The trend range defaults to month and offers week and year.
@@ -602,3 +604,6 @@ None published. Consumes core and the Data port.
 - 2026-10-22 — the TUI screenshot opens in a click-to-zoom modal that needs no
   pinch gesture: 1:1 zoom on click, plus scrolling and drag-panning.
 - 2026-10-22 — name the selected period beside the trend stepper.
+- 2026-10-22 — move the trend period caption above the chart so it does not
+  crowd the stepper on a phone, and clip the hidden a11y table so it stops
+  widening the page.

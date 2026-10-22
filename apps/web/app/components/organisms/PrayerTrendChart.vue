@@ -3,6 +3,7 @@
     <p v-if="state === 'loading'" class="state">{{ loadingText }}</p>
     <p v-else-if="state === 'unavailable'" class="state">{{ unavailableText }}</p>
     <template v-else>
+      <p v-if="period" class="period" aria-live="polite">{{ period }}</p>
       <p v-if="refreshing" class="state refreshing" role="status">
         <span class="spinner" aria-hidden="true" />
         {{ refreshingText }}
@@ -181,6 +182,8 @@ const props = withDefaults(
     visible?: PrayerName[]
     filterLabel?: string
     chartLabel?: string
+    /** The selected period, named: "October 2026", "2026", "Oct 12 – Oct 18". */
+    period?: string
     dateLabel?: string
     loadingText?: string
     unavailableText?: string
@@ -202,6 +205,7 @@ const props = withDefaults(
     visible: () => [],
     filterLabel: 'Entries',
     chartLabel: 'Prayer times',
+    period: '',
     dateLabel: 'Date',
     loadingText: 'Loading…',
     unavailableText: 'Prayer times are unavailable.',
@@ -271,6 +275,11 @@ const points = computed(() =>
   width: 100%;
   min-height: 0;
   flex: 1;
+}
+.period {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 .legend {
   display: flex;
@@ -421,12 +430,20 @@ const points = computed(() =>
     transform: rotate(360deg);
   }
 }
+/* The hidden table holds the same values for assistive tech. A table ignores
+   width:1px when its columns demand more, so it is clipped in place instead of
+   widening the page on a narrow screen. */
 .visually-hidden {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
+  max-width: 1px;
   overflow: hidden;
+  clip: rect(0 0 0 0);
   clip-path: inset(50%);
   white-space: nowrap;
+  table-layout: fixed;
 }
 </style>
