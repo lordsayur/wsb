@@ -132,10 +132,6 @@
         "name": "Browser extension",
         "description": "Prayer times in the toolbar and on every page, with notifications."
       },
-      "cli": {
-        "name": "CLI",
-        "description": "Prayer times in your terminal."
-      },
       "tui": {
         "name": "TUI",
         "description": "A full terminal interface for prayer times."
@@ -151,7 +147,14 @@
     },
     "terminal": "Terminal",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "screenshots": {
+      "tui": "TUI screenshot: day, month and trend views with prayer times in colour"
+    },
+    "zoom": "Open full size",
+    "close": "Close",
+    "zoomIn": "Click to zoom in",
+    "zoomOut": "Click to zoom out"
   },
   "admin": {
     "title": "Data admin",
@@ -247,7 +250,22 @@
       "format": "f  format",
       "reload": "r  reload",
       "quit": "q  quit",
-      "hint": "?  keys"
-    }
+      "hint": "?  keys",
+      "views": "v  views"
+    },
+    "now": "{prayer} {time} · {next}",
+    "update": {
+      "unknown": "Could not check the latest version (you have {version}).",
+      "current": "You are on the latest version ({version}).",
+      "available": "Version {latest} is available (you have {version}).",
+      "command": "Update with:",
+      "apply": "Or rerun with --apply."
+    },
+    "tab": {
+      "day": "Day",
+      "month": "Month",
+      "trend": "Trend"
+    },
+    "hidden": "+{count} hidden"
   }
 }

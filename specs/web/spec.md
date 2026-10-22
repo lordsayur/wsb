@@ -198,7 +198,14 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The TUI is available: its card shows the `curl … | sh` install command in a
   terminal block with a copy button, its action opens the latest GitHub
   release, and its install note offers `npx wsb-tui` as the no-install
-  alternative. CLI and Raycast are listed as coming soon.
+  alternative, plus a screenshot of the real day/month/trend interfaces
+  (`apps/web/public/tui-screenshot.png`). The screenshot opens full size on
+  click in a modal dialog: Esc, the close button or a click on the backdrop
+  dismiss it, and clicking the image toggles a 1:1 zoom at that point. Because a
+  wide panorama cannot be pinched on every device, the enlarged view is also
+  scrollable and drag-pannable, so a phone can read the whole image. The CLI is not a separate card —
+  `wsb now`, `--json`, `--month` and piped output are part of the TUI shell.
+  Raycast is listed as coming soon.
 - The VS Code card also offers a "Get it on the Marketplace" action that opens
   the extension's VS Code Marketplace listing; the download action stays.
 - The menu panel has a **Other platforms** entry that opens `/download`; it
@@ -442,9 +449,13 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The tasbih count and step survive a reload.
 - [ ] Tasbih notifications ring on every multiple of the step (100 by default).
 - [ ] Other platforms opens `/download`; the extension and TUI cards link to
-      the latest GitHub release artifacts; CLI and Raycast are marked coming
-      soon.
-- [ ] The TUI card shows the terminal install command and copies it on demand.
+      the latest GitHub release artifacts; Raycast is marked coming soon.
+- [ ] The TUI card shows the terminal install command and copies it on demand,
+      and shows the interface screenshot.
+- [ ] Clicking the screenshot opens it in a modal; Esc, close and a backdrop
+      click dismiss it.
+- [ ] Clicking the enlarged image toggles 1:1 zoom; the enlarged view scrolls
+      and pans by drag, so it is readable on a narrow screen and needs no pinch.
 - [ ] The VS Code card links to the Marketplace listing and still offers the
       `.vsix` download.
 - [ ] Settings opens the theme controls, time format, language, notifications,
@@ -508,7 +519,7 @@ None published. Consumes core and the Data port.
 
 - Business logic — core.
 - Backend access — Data adapter.
-- Additional shells (extension, CLI, TUI) — their own specs when built.
+- Additional shells (extension, TUI/CLI) — their own specs when built.
 
 ## Changelog
 
@@ -580,3 +591,9 @@ None published. Consumes core and the Data port.
 - 2026-10-22 — mark the TUI available on the downloads page with the
   `curl … | sh` install note and the `npx wsb-tui` alternative.
 - 2026-10-22 — show the TUI install command in its card with a copy button.
+- 2026-10-22 — drop the separate CLI card; `wsb now` and the piped/JSON modes
+  belong to the TUI shell.
+- 2026-10-22 — the TUI card shows a screenshot of the day, month and trend
+  views, generated from the TUI renderer.
+- 2026-10-22 — the TUI screenshot opens in a click-to-zoom modal that needs no
+  pinch gesture: 1:1 zoom on click, plus scrolling and drag-panning.

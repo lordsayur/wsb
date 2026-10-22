@@ -33,6 +33,29 @@ export function repository(stores: Stores = {}): PrayerRepository {
   })
 }
 
+export interface LoadedMonth {
+  month: string
+  days: { date: string; entries: PrayerEntry[]; hijriDate: string }[]
+  stale: boolean
+  /** True when at least one day of the month is missing. */
+  partial: boolean
+}
+
+/** Reads a whole month (Brunei & Muara base times); never throws. */
+export async function loadMonth(
+  repo: PrayerRepository,
+  month: string,
+): Promise<LoadedMonth | null> {
+  const result = await repo.readMonth(month, 'bruneiMuara')
+  if (result.status === 'unavailable') return null
+  return {
+    month,
+    days: result.days,
+    stale: result.stale,
+    partial: result.days.length < 28,
+  }
+}
+
 /** Reads one day's base entries (Brunei & Muara); never throws. */
 export async function loadDay(
   repo: PrayerRepository,

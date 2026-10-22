@@ -3,7 +3,7 @@
 export type PlatformStatus = 'available' | 'soon'
 
 export interface Platform {
-  id: 'extension' | 'cli' | 'tui' | 'vscode' | 'raycast'
+  id: 'extension' | 'tui' | 'vscode' | 'raycast'
   status: PlatformStatus
   /** Absolute URL for an available platform. */
   url?: string
@@ -12,6 +12,9 @@ export interface Platform {
   installNote?: 'extension' | 'vscode' | 'tui'
   /** Terminal one-liner shown in the card with a copy button. */
   command?: string
+  /** Preview image served from /public. */
+  screenshot?: string
+  screenshotAlt?: string
 }
 
 export const EXTENSION_DOWNLOAD_URL =
@@ -33,7 +36,13 @@ export const PLATFORMS: Platform[] = [
     storeUrl: VSCODE_MARKETPLACE_URL,
     installNote: 'vscode',
   },
-  { id: 'cli', status: 'soon' },
-  { id: 'tui', status: 'available', url: TUI_RELEASES_URL, command: TUI_INSTALL_COMMAND, installNote: 'tui' },
+  {
+    id: 'tui',
+    status: 'available',
+    url: TUI_RELEASES_URL,
+    command: TUI_INSTALL_COMMAND,
+    installNote: 'tui',
+    screenshot: '/tui-screenshot.png',
+  },
   { id: 'raycast', status: 'soon' },
 ]

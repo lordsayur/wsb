@@ -58,9 +58,15 @@ useSeoMeta({
             :store-href="platform.storeUrl"
             :store-label="platform.storeLabel"
             :command="platform.command"
+            :screenshot="platform.screenshot"
+            :screenshot-alt="platform.screenshot ? t('downloads.screenshots.tui') : undefined"
             :command-label="t('downloads.terminal')"
             :copy-label="t('downloads.copy')"
             :copied-label="t('downloads.copied')"
+            :zoom-label="t('downloads.zoom')"
+            :close-label="t('downloads.close')"
+            :zoom-in-label="t('downloads.zoomIn')"
+            :zoom-out-label="t('downloads.zoomOut')"
             @copy="onCopy"
           />
           <p v-if="platform.installNote" class="note">

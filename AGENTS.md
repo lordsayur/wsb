@@ -175,6 +175,25 @@ Public URLs: https://wsb.try.routeup.dev and
 https://wsb-storyboook.try.routeup.dev. Agents start this stack when development
 begins and leave it running unless asked.
 
+### Where the routes live
+
+The routes and the servers belong to the **devcontainer**, not the host shell.
+A shell can look like the host and still share the container's PID namespace, so
+`localhost:5173` may be the container's port and `ps` may show container
+processes. Before diagnosing or touching routes:
+
+```bash
+docker ps --format '{{.Names}}' | grep wsb   # find the vsc-*wsb* container
+docker exec <container> sh -lc 'cd /workspaces/wsb && routeup routes'
+```
+
+`routeup routes` on the host is a *different* agent with a different route set.
+Killing a "duplicate" dev server from the host can kill the container's only
+one, which leaves the public route answering 502 (`upstream 127.0.0.1:5173
+failed`). Restart it in the container with `./dev.sh app`; never start a second
+server for the same port in the other namespace — both write the same mounted
+`.nuxt` and corrupt the build output.
+
 ## Netlify
 
 Deploy on demand only, to project `wsb-next`. Netlify CLI is installed inside

@@ -19,7 +19,7 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 
 ### Offline first
 
-- Every shell (web PWA, browser extension, future CLI/TUI/editor shells) reads
+- Every shell (web PWA, browser extension, TUI/CLI, editor shells) reads
   through the same port and is **offline first**: the device cache is the source
   of truth for rendering and is consulted before any network call.
 - Supabase is the **only runtime remote source**. MORA is never contacted by a

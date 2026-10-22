@@ -69,10 +69,16 @@ esac
 cat <<EOF
 
 Run it:
-  wsb            full-screen prayer times
-  wsb doctor     check the version, state file and data source
+  wsb                 full-screen prayer times
+  wsb now             current entry and time until the next
+  wsb --month         the month table (or --month 2026-10)
+  wsb --json          today's times as one JSON object
+  wsb --date DATE     another day (YYYY-MM-DD)
+  wsb doctor          check the version, state file and data source
+  wsb update          check for a newer release (--apply installs it)
 
-Keys: q quit, d district, l language, f 12/24h, r reload, ? keys.
+Views: 1 day, 2 month, 3 trend (or Tab).
+Keys: q quit, d district, l language, f 12/24h, j/k scroll, [ ] month, r reload, ? keys.
 
 EOF
 

@@ -5,6 +5,15 @@
       <span class="status">{{ statusLabel }}</span>
     </header>
     <p class="description">{{ description }}</p>
+    <ScreenshotZoom
+      v-if="screenshot"
+      :src="screenshot"
+      :alt="screenshotAlt ?? name"
+      :zoom-label="zoomLabel"
+      :close-label="closeLabel"
+      :zoom-in-label="zoomInLabel"
+      :zoom-out-label="zoomOutLabel"
+    />
     <div v-if="command" class="command-block">
       <span class="command-label">{{ commandLabel }}</span>
       <div class="command-row">
@@ -38,6 +47,7 @@
 // specs/web/spec.md — molecule: one platform on the downloads page. A terminal
 // install command is shown with a copy button; the shell owns the clipboard.
 import { ref } from 'vue'
+import ScreenshotZoom from './ScreenshotZoom.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -50,18 +60,30 @@ const props = withDefaults(
     storeLabel?: string
     storeHref?: string
     command?: string
+    screenshot?: string
+    screenshotAlt?: string
     commandLabel?: string
     copyLabel?: string
     copiedLabel?: string
+    zoomLabel?: string
+    closeLabel?: string
+    zoomInLabel?: string
+    zoomOutLabel?: string
   }>(),
   {
     href: undefined,
     storeLabel: undefined,
     storeHref: undefined,
     command: undefined,
+    screenshot: undefined,
+    screenshotAlt: undefined,
     commandLabel: 'Terminal',
     copyLabel: 'Copy',
     copiedLabel: 'Copied',
+    zoomLabel: 'Open full size',
+    closeLabel: 'Close',
+    zoomInLabel: 'Click to zoom in',
+    zoomOutLabel: 'Click to zoom out',
   },
 )
 

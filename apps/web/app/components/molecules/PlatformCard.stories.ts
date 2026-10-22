@@ -52,8 +52,8 @@ export const WithMarketplace: Story = {
 
 export const ComingSoon: Story = {
   args: {
-    name: 'CLI',
-    description: 'Waktu sembahyang di terminal anda.',
+    name: 'Raycast',
+    description: 'Waktu sembahyang dari pelancar anda.',
     status: 'soon',
     statusLabel: 'Akan datang',
   },
@@ -75,6 +75,12 @@ export const WithTerminalCommand: Story = {
     href: 'https://github.com/lordsayur/wsb/releases/latest',
     command:
       'curl -fsSL https://raw.githubusercontent.com/lordsayur/wsb/main/scripts/install.sh | sh',
+    screenshot: '/tui-screenshot.png',
+    screenshotAlt: 'Tangkapan skrin TUI',
+    zoomLabel: 'Buka saiz penuh',
+    closeLabel: 'Tutup',
+    zoomInLabel: 'Klik untuk zum masuk',
+    zoomOutLabel: 'Klik untuk zum keluar',
     commandLabel: 'Terminal',
     copyLabel: 'Salin',
     copiedLabel: 'Disalin',
@@ -83,6 +89,9 @@ export const WithTerminalCommand: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('Terminal')).toBeVisible()
     await expect(canvas.getByText(args.command!)).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Buka saiz penuh' }),
+    ).toBeVisible()
     const copy = canvas.getByRole('button', { name: 'Salin' })
     await expect(copy).toBeVisible()
     await copy.click()

@@ -132,10 +132,6 @@
         "name": "Sambungan pelayar",
         "description": "Waktu sembahyang di bar alat dan pada setiap halaman, dengan notifikasi."
       },
-      "cli": {
-        "name": "CLI",
-        "description": "Waktu sembahyang di terminal anda."
-      },
       "tui": {
         "name": "TUI",
         "description": "Paparan terminal penuh untuk waktu sembahyang."
@@ -151,7 +147,14 @@
     },
     "terminal": "Terminal",
     "copy": "Salin",
-    "copied": "Disalin"
+    "copied": "Disalin",
+    "screenshots": {
+      "tui": "Tangkapan skrin TUI: paparan hari, bulan dan trend dengan waktu sembahyang berwarna"
+    },
+    "zoom": "Buka saiz penuh",
+    "close": "Tutup",
+    "zoomIn": "Klik untuk zum masuk",
+    "zoomOut": "Klik untuk zum keluar"
   },
   "admin": {
     "title": "Pentadbir data",
@@ -247,7 +250,22 @@
       "format": "f  format",
       "reload": "r  muat semula",
       "quit": "q  keluar",
-      "hint": "?  kekunci"
-    }
+      "hint": "?  kekunci",
+      "views": "v  paparan"
+    },
+    "now": "{prayer} {time} · {next}",
+    "update": {
+      "unknown": "Tidak dapat menyemak versi terkini (anda guna {version}).",
+      "current": "Anda menggunakan versi terkini ({version}).",
+      "available": "Versi {latest} tersedia (anda guna {version}).",
+      "command": "Kemas kini dengan:",
+      "apply": "Atau jalankan semula dengan --apply."
+    },
+    "tab": {
+      "day": "Hari",
+      "month": "Bulan",
+      "trend": "Trend"
+    },
+    "hidden": "+{count} tersembunyi"
   }
 }

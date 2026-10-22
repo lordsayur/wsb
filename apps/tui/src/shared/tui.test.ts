@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { PrayerEntry } from '@wsb/core'
 import { buildDayView, formatDuration } from './view.js'
 import { resolveSettings, nextLocale, toggleTimeFormat } from './settings.js'
-import { helpLine, jsonReport, plainReport, renderFrame, visibleWidth } from './render.js'
+import { helpLine, jsonReport, nowReport, plainReport, renderFrame, visibleWidth } from './render.js'
 import { splitKeys } from '../terminal.js'
 import { cycleDistrict, parseArgs } from '../main.js'
 import { fileStorage } from './state.js'
@@ -119,6 +119,21 @@ describe('render', () => {
     expect(payload.entries).toHaveLength(8)
   })
 
+  it('prints the current entry and countdown for `now`', () => {
+    const view = buildDayView(day, resolveSettings(undefined), 12 * 60 * 60 + 10 * 60)
+    const line = nowReport(view, resolveSettings(undefined))
+    expect(line).toContain('Zuhur')
+    expect(line).toContain('12:05')
+    expect(line).toContain('Asar')
+  })
+
+  it('prints only the countdown before the first entry', () => {
+    const view = buildDayView(day, resolveSettings(undefined), 0)
+    const line = nowReport(view, resolveSettings(undefined))
+    expect(line).not.toContain('·')
+    expect(line).toContain('Imsak')
+  })
+
   it('renders the full frame uncoloured and marks the current row', () => {
     const view = buildDayView(day, resolveSettings(undefined), 12 * 60 * 60 + 10 * 60)
     const lines = renderFrame(view, resolveSettings(undefined), {
@@ -154,7 +169,18 @@ describe('render', () => {
 
 describe('arguments', () => {
   it('parses date, json, help and doctor', () => {
-    expect(parseArgs([])).toEqual({ json: false, helpVersion: null })
+    expect(parseArgs([])).toEqual({
+      json: false,
+      now: false,
+      update: false,
+      apply: false,
+      month: false,
+      helpVersion: null,
+    })
+    expect(parseArgs(['now']).now).toBe(true)
+    expect(parseArgs(['update']).update).toBe(true)
+    expect(parseArgs(['update', '--apply']).apply).toBe(true)
+    expect(parseArgs(['--month']).month).toBe(true)
     expect(parseArgs(['--json']).json).toBe(true)
     expect(parseArgs(['--date', '2026-01-02']).date).toBe('2026-01-02')
     expect(parseArgs(['--date=2026-01-03']).date).toBe('2026-01-03')
