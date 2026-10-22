@@ -23,6 +23,16 @@ fi
 cd "$(dirname "$0")"
 ROOT="$(pwd)"
 
+# Build output is only releasable by its owner. Running the dev servers as root
+# leaves .nuxt, dist and .netlify unreadable to the normal user, and the next
+# build fails with EACCES. specs/web/spec.md — the devcontainer user owns them.
+if [ "$(id -u)" = "0" ]; then
+  echo "dev.sh must not run as root; that leaves root-owned build output." >&2
+  echo "Run it as the devcontainer user (vscode), then fix any leftovers with:" >&2
+  echo "  sudo chown -R \"\$(id -un)\":\"\$(id -gn)\" $(pwd)" >&2
+  exit 1
+fi
+
 APP_PORT="${APP_PORT:-5173}"
 STORYBOOK_PORT="${STORYBOOK_PORT:-6006}"
 APP_ROUTE="${APP_ROUTE:-wsb}"
@@ -30,6 +40,14 @@ STORYBOOK_ROUTE="${STORYBOOK_ROUTE:-wsb-storyboook}"
 LOG_DIR="${LOG_DIR:-/tmp}"
 APP_LOG="$LOG_DIR/wsb-dev.log"
 STORYBOOK_LOG="$LOG_DIR/wsb-storybook.log"
+
+# A log left behind by a root-run server blocks the rewrite; take it back.
+claim_log() {
+  local file="$1"
+  [ -e "$file" ] || return 0
+  [ -w "$file" ] && return 0
+  sudo -n rm -f "$file" 2>/dev/null || true
+}
 
 routeup_bin() {
   if command -v routeup >/dev/null 2>&1; then
@@ -45,6 +63,11 @@ stop_port() {
   local port="$1"
   if command -v fuser >/dev/null 2>&1; then
     fuser -k "${port}/tcp" >/dev/null 2>&1 || true
+    # A server started by the container entrypoint runs as root; the normal
+    # user cannot signal it, so retry with sudo when available.
+    if fuser "${port}/tcp" >/dev/null 2>&1; then
+      sudo -n fuser -k "${port}/tcp" >/dev/null 2>&1 || true
+    fi
   fi
 }
 
@@ -66,6 +89,7 @@ wait_for_http() {
 start_app() {
   stop_port "$APP_PORT"
   sleep 1
+  claim_log "$APP_LOG"
   echo "app: nuxt dev on :${APP_PORT} (log: $APP_LOG)"
   setsid nohup pnpm --filter web exec nuxt dev \
     --host 0.0.0.0 --port "$APP_PORT" --dotenv=../../.env \
@@ -77,6 +101,7 @@ start_app() {
 start_storybook() {
   stop_port "$STORYBOOK_PORT"
   sleep 1
+  claim_log "$STORYBOOK_LOG"
   echo "storybook: dev on :${STORYBOOK_PORT} (log: $STORYBOOK_LOG)"
   setsid nohup pnpm --filter web exec storybook dev \
     -p "$STORYBOOK_PORT" --host 0.0.0.0 --ci --no-open \

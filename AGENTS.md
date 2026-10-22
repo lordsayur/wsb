@@ -151,6 +151,19 @@ After a `git pull`/merge, run `graphify update .` to resync the graph.
 - Stories must not need the Nuxt runtime: inject dependencies, provide fakes.
 - Playwright Chromium is installed in the devcontainer and CI.
 
+## Devcontainer user
+
+The container runs as `vscode` (uid 1000), never root. A command started by the
+container entrypoint as root leaves `.nuxt`, `dist`, `.netlify` and `/tmp`
+logs owned by root, and the next normal build fails with `EACCES`. If you see
+that, take ownership back inside the container:
+
+```bash
+sudo chown -R vscode:vscode /workspaces/wsb
+```
+
+`dev.sh` refuses to run as root and reclaims root-owned logs.
+
 ## Always-on dev + routeup
 
 ```bash
