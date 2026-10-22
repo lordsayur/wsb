@@ -251,7 +251,9 @@
       "reload": "r  reload",
       "quit": "q  quit",
       "hint": "?  keys",
-      "views": "v  views"
+      "views": "v  views",
+      "range": "w/m/y  range",
+      "today": "t  today"
     },
     "now": "{prayer} {time} · {next}",
     "update": {

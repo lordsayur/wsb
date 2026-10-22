@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { PrayerEntry } from '@wsb/core'
 import { buildMonthView, chooseMonthColumns } from './month.js'
-import { buildTrendView, sample, sparkline } from './trend.js'
+import {
+  buildTrendView,
+  minuteAxis,
+  plotTrend,
+  sampleIndices,
+  trendDates,
+} from './trend.js'
 import { resolveSettings } from './settings.js'
 import {
   fitParts,
@@ -176,36 +182,75 @@ describe('month view', () => {
 })
 
 describe('trend view', () => {
-  it('samples and draws a sparkline', () => {
-    expect(sample([1, 2, 3, 4], 2)).toEqual([2, 4])
-    expect(sparkline([1, 2, 3], 3)).toHaveLength(3)
-    expect(sparkline([], 4)).toBe('')
-    expect(sparkline([5, 5, 5], 3)).toBe('▄▄▄')
+  it('uses the same axis rounding as the web chart', () => {
+    expect(minuteAxis([])).toEqual({ min: 0, max: 1440, step: 240 })
+    const axis = minuteAxis([4 * 60 + 41, 19 * 60 + 20])
+    expect(axis.min % 30).toBe(0)
+    expect(axis.max % 30).toBe(0)
+    expect(axis.max).toBeGreaterThan(19 * 60 + 20)
   })
 
-  it('reports the low and high bounds per entry', () => {
-    const view = buildTrendView(days, '2026-10', settings, 30)
-    const subuh = view.rows.find((row) => row.prayer === 'subuh')!
-    expect(subuh.low).toBe('04:50')
-    expect(subuh.high).toBe('05:20')
-    expect(subuh.spark).toHaveLength(30)
+  it('samples x ticks and always includes both ends', () => {
+    expect(sampleIndices(5, 6)).toEqual([0, 1, 2, 3, 4])
+    const ticks = sampleIndices(365, 6)
+    expect(ticks[0]).toBe(0)
+    expect(ticks.at(-1)).toBe(364)
+    expect(ticks).toHaveLength(6)
   })
 
-  it('sheds optional rows on a short terminal and says so', () => {
-    const view = buildTrendView(days, '2026-10', settings, 20)
-    const lines = renderTrendFrame(view, settings, { ...baseOptions, rows: 15 })
-    const text = lines.join('\n')
-    expect(text).toContain('+3')
-    expect(text).toContain('Isyak')
-    expect(text).not.toContain('Imsak')
-    expect(lines).toHaveLength(15)
+  it('builds one series per entry over the requested range', () => {
+    const view = buildTrendView(days, settings, 'month', '2026-10-15')
+    expect(view.series.map((line) => line.prayer)).toEqual([
+      'imsak',
+      'subuh',
+      'syuruk',
+      'doha',
+      'zuhur',
+      'asar',
+      'maghrib',
+      'isyak',
+    ])
+    expect(view.days).toBe(31)
+    expect(view.yTicks.length).toBeGreaterThan(1)
+    expect(view.xTicks).toHaveLength(6)
+  })
+
+  it('titles week, month and year ranges', () => {
+    expect(buildTrendView(days, settings, 'month', '2026-10-15').title).toBe('Oktober 2026')
+    expect(buildTrendView(days, settings, 'year', '2026-10-15').title).toBe('2026')
+    expect(buildTrendView(days, settings, 'week', '2026-10-15').title).toContain('–')
+  })
+
+  it('covers every date the range spans', () => {
+    expect(trendDates('2026-10-15', 'month')).toHaveLength(31)
+    expect(trendDates('2026-10-15', 'year')).toHaveLength(365)
+    expect(trendDates('2026-10-15', 'week')).toHaveLength(7)
+  })
+
+  it('plots overlapping braille lines inside the grid', () => {
+    const view = buildTrendView(days, settings, 'month', '2026-10-15')
+    const cells = plotTrend(view, 40, 10)
+    expect(cells).toHaveLength(10)
+    expect(cells.every((row) => row.length === 40)).toBe(true)
+    expect(cells.flat().some((cell) => cell.bits > 0)).toBe(true)
+    const painted = new Set(cells.flat().map((cell) => cell.prayer).filter(Boolean))
+    expect(painted.size).toBeGreaterThan(1)
   })
 
   it('renders a full frame with the trend tab active', () => {
-    const view = buildTrendView(days, '2026-10', settings, 40)
+    const view = buildTrendView(days, settings, 'month', '2026-10-15')
     const lines = renderTrendFrame(view, settings, baseOptions)
     expect(lines).toHaveLength(24)
     expect(lines.every((line) => visibleWidth(line) === 80)).toBe(true)
     expect(lines.join('\n')).toContain('3 Trend')
+  })
+
+  it('keeps the frame size for week and year ranges', () => {
+    for (const range of ['week', 'month', 'year'] as const) {
+      const view = buildTrendView(days, settings, range, '2026-10-15')
+      const lines = renderTrendFrame(view, settings, baseOptions)
+      expect(lines).toHaveLength(24)
+      expect(lines.every((line) => visibleWidth(line) === 80)).toBe(true)
+    }
   })
 })

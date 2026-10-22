@@ -28,8 +28,8 @@ const days = drift.map((offset, index) => ({
 
 const settings = resolveSettings(undefined)
 const options = {
-  columns: 76,
-  rows: 18,
+  columns: 84,
+  rows: 24,
   showHelp: false,
   unavailable: false,
   loading: false,
@@ -43,7 +43,7 @@ const month = buildMonthView(days, '2026-10', {
   today: days[21]!.date,
   nowSeconds: 12 * 60 * 60 + 10 * 60,
 })
-const trend = buildTrendView(days, '2026-10', settings, 30)
+const trend = buildTrendView(days, settings, 'month', days[21]!.date)
 
 process.stdout.write(
   JSON.stringify({

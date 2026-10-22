@@ -3,9 +3,13 @@
 import {
   DISTRICTS,
   bruneiNow,
+  isChartRange,
   monthOf,
+  shiftChartDate,
   shiftMonth,
+  type ChartRange,
   type District,
+  type PrayerEntry,
 } from '@wsb/core'
 import { VERSION, supabaseConfig } from './shared/config.js'
 import { loadDay, loadMonth, repository, type LoadedDay } from './shared/day.js'
@@ -21,7 +25,7 @@ import {
   type ShellView,
 } from './shared/render.js'
 import { buildMonthView, type MonthView } from './shared/month.js'
-import { buildTrendView, type TrendView } from './shared/trend.js'
+import { buildTrendView, trendDates, type TrendView } from './shared/trend.js'
 import {
   DEFAULT_SETTINGS,
   SETTINGS_KEY,
@@ -175,8 +179,13 @@ async function runInteractive(
   let active: ShellView = 'day'
   let day: LoadedDay | null = null
   let monthData = null as Awaited<ReturnType<typeof loadMonth>> | null
+  let trendData: { date: string; entries: PrayerEntry[] }[] | null = null
+  let trendStale = false
+  let trendLoadedFor = ''
   let monthCursor = monthOf(today)
   let monthScroll = 0
+  let trendRange: ChartRange = 'month'
+  let trendAnchor = today
   let view: DayView | null = null
   let monthView: MonthView | null = null
   let trendView: TrendView | null = null
@@ -196,16 +205,8 @@ async function runInteractive(
           partial: monthData.partial,
         }
       : null
-    trendView = monthData
-      ? {
-          ...buildTrendView(
-            monthData.days,
-            monthData.month,
-            settings,
-            Math.max(8, terminal.columns() - 30),
-          ),
-          stale: monthData.stale,
-        }
+    trendView = trendData
+      ? { ...buildTrendView(trendData, settings, trendRange, trendAnchor), stale: trendStale }
       : null
   }
 
@@ -245,14 +246,40 @@ async function runInteractive(
     monthData = await loadMonth(repo, monthCursor)
   }
 
+  /** Reads every month the trend range touches; cached days come first. */
+  const loadTrendData = async () => {
+    const key = `${trendRange}:${trendAnchor}`
+    if (trendLoadedFor === key) return
+    const dates = trendDates(trendAnchor, trendRange)
+    const months = [...new Set(dates.map(monthOf))]
+    const found = new Map<string, PrayerEntry[]>()
+    let stale = false
+    // A year touches twelve months; read them together so the view is not
+    // gated on twelve round trips.
+    const loaded = await Promise.all(months.map((month) => loadMonth(repo, month)))
+    for (const result of loaded) {
+      if (!result) continue
+      stale ||= result.stale
+      for (const day of result.days) found.set(day.date, day.entries)
+    }
+    trendData = dates
+      .filter((date) => found.has(date))
+      .map((date) => ({ date, entries: found.get(date)! }))
+    trendStale = stale || trendData.length < dates.length
+    trendLoadedFor = key
+  }
+
   const load = async (force: boolean) => {
     loading = true
     paint()
     if (active === 'day') {
       day = await loadDay(repo, undefined, force)
       if (!monthData) await loadMonthData(force)
-    } else if (force || monthData?.month !== monthCursor) {
-      await loadMonthData(force)
+    } else if (active === 'month') {
+      if (force || monthData?.month !== monthCursor) await loadMonthData(force)
+    } else {
+      if (force) trendLoadedFor = ''
+      await loadTrendData()
     }
     rebuild()
     loading = false
@@ -334,12 +361,28 @@ async function runInteractive(
         return
       }
       if (key === ']' || key === 'n') {
-        monthCursor = shiftMonth(monthCursor, 1)
+        if (active === 'month') monthCursor = shiftMonth(monthCursor, 1)
+        else trendAnchor = shiftChartDate(trendAnchor, trendRange, 1)
         void load(false)
         return
       }
       if (key === '[' || key === 'p') {
-        monthCursor = shiftMonth(monthCursor, -1)
+        if (active === 'month') monthCursor = shiftMonth(monthCursor, -1)
+        else trendAnchor = shiftChartDate(trendAnchor, trendRange, -1)
+        void load(false)
+        return
+      }
+      if (active === 'trend' && (key === 'w' || key === 'm' || key === 'y')) {
+        const next = key === 'w' ? 'week' : key === 'm' ? 'month' : 'year'
+        if (isChartRange(next)) {
+          trendRange = next
+          trendLoadedFor = ''
+          void load(false)
+        }
+        return
+      }
+      if (active === 'trend' && key === 't') {
+        trendAnchor = today
         void load(false)
         return
       }

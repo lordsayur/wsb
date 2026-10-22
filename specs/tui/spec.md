@@ -31,12 +31,17 @@ platform glue only; no domain rules.
   the terminal is too narrow for all eight columns, the five fard entries are
   kept and Imsak/Syuruk/Dhuha go first; the title reports how many are hidden
   (`+3 hidden`). Columns always stay in calendar order.
-- **Trend** shows one sparkline row per entry across the selected month, each
-  scaled to that entry's own range and printed with its earliest and latest
-  time, so drift is readable at a glance. On a short terminal it sheds optional
-  rows with the same fard-first rule and the same hidden count.
+- **Trend** mirrors the web chart: the eight entries drawn as overlapping
+  coloured lines on one shared minute-of-day axis, over a **week**, **month** or
+  **year**. The y axis is labelled at the same rounded ticks the web chart uses
+  and the x axis places its date labels under the columns they belong to. A
+  legend names the colours. `w`/`m`/`y` switch the range, `[`/`]` (or `p`/`n`)
+  move by one period, `t` returns to the current period. A missing day leaves a
+  gap in the line rather than a false point.
 - The frame redraws once a second so the duration and the current highlight
   track the clock without user input.
+- The content block is centred horizontally and vertically inside the frame, so
+  a wide or tall terminal gets a centred view instead of a top-left corner.
 - Colour: the current entry, each prayer's time and each trend line use the same
   per-prayer palette as the web chart, in 24-bit ANSI. The active tab, today's
   row and the countdown use the accent colour. Colour is used only when stdout
@@ -124,7 +129,10 @@ platform glue only; no domain rules.
 - [ ] The month table scrolls and moves by month.
 - [ ] On a narrow terminal the month keeps the fard columns, drops optional ones
       in calendar order, and reports the hidden count.
-- [ ] The trend sparkline scales each entry to its own range.
+- [ ] The trend draws all eight entries on one shared axis, like the web chart.
+- [ ] Trend ranges week/month/year via `w`/`m`/`y`, periods step with `[`/`]`,
+      and `t` returns to the current period.
+- [ ] Content is centred in both axes at any terminal size.
 - [ ] The current entry, times and trend rows are coloured on a terminal and
       plain when piped.
 - [ ] Selecting Tutong/Belait shifts the entries by +1/+3 minutes.
@@ -167,3 +175,5 @@ platform glue only; no domain rules.
   downloads-page screenshot generated from the renderer.
 - 2026-10-22 — keep the fard columns (and rows) first when space runs out and
   report how many are hidden; drop whole footer parts instead of clipping.
+- 2026-10-22 — make the trend a real overlapped line chart on a shared axis
+  with week/month/year ranges, centre the content, and align x labels.

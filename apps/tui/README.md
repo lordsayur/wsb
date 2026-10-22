@@ -30,7 +30,8 @@ wsb update          # check for a newer release (--apply installs it)
 Views: `1` day, `2` month, `3` trend (or `Tab`).
 
 Keys: `q`/`Esc` quit, `d` district, `l` language, `f` 12/24-hour clock,
-`j`/`k` scroll, `[`/`]` month, `r` refetch, `?` key help.
+`j`/`k` scroll, `[`/`]` step period, `w`/`m`/`y` trend range, `t` today,
+`r` refetch, `?` key help.
 
 The source is Jabatan Hal Ehwal Ugama (KHEU), Brunei. This project is not
 affiliated with them.

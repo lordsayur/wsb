@@ -251,7 +251,9 @@
       "reload": "r  موات سمولا",
       "quit": "q  کلوار",
       "hint": "?  ککونچي",
-      "views": "v  ڤاڤرن"
+      "views": "v  ڤاڤرن",
+      "range": "w/m/y  تمڤوه",
+      "today": "t  هاري اين"
     },
     "now": "{prayer} {time} · {next}",
     "update": {

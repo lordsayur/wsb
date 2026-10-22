@@ -78,7 +78,8 @@ Run it:
   wsb update          check for a newer release (--apply installs it)
 
 Views: 1 day, 2 month, 3 trend (or Tab).
-Keys: q quit, d district, l language, f 12/24h, j/k scroll, [ ] month, r reload, ? keys.
+Keys: q quit, d district, l language, f 12/24h, j/k scroll, [ ] step,
+      w/m/y trend range, t today, r reload, ? keys.
 
 EOF
 

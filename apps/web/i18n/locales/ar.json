@@ -251,7 +251,9 @@
       "reload": "r  تحديث",
       "quit": "q  خروج",
       "hint": "?  المفاتيح",
-      "views": "v  العروض"
+      "views": "v  العروض",
+      "range": "w/m/y  المدى",
+      "today": "t  اليوم"
     },
     "now": "{prayer} {time} · {next}",
     "update": {

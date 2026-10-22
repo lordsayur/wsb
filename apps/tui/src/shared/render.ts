@@ -1,6 +1,7 @@
 // specs/tui/spec.md — presentation only: turns views into lines of text.
 // No terminal I/O here, so frames are testable without a tty. Every frame is
 // exactly `rows` lines of `columns` cells, so the shell always fills the screen.
+import { DEFAULT_TIME_FORMAT, formatTime, type TimeFormat } from '@wsb/core'
 import { LOCALE_LABELS, t, type Locale } from './i18n.js'
 import {
   ACCENT,
@@ -12,7 +13,7 @@ import {
 import type { TuiSettings } from './settings.js'
 import type { DayView } from './view.js'
 import { chooseMonthColumns, type MonthView } from './month.js'
-import type { TrendView } from './trend.js'
+import { braille, plotTrend, type TrendView } from './trend.js'
 
 export type ShellView = 'day' | 'month' | 'trend'
 
@@ -30,6 +31,8 @@ export interface FrameOptions {
   monthScroll?: number
   /** Active locale, so a view can format without the settings object. */
   locale?: Locale
+  /** Clock preference for axis labels. */
+  timeFormat?: TimeFormat
 }
 
 const ANSI = /\u001b\[[0-9;]*m/g
@@ -87,16 +90,20 @@ export function fitParts(parts: readonly string[], width: number): string {
 }
 
 /** One-line status for the footer keys. */
-export function helpLine(settings: TuiSettings, showHelp: boolean): string {
+export function helpLine(
+  settings: TuiSettings,
+  showHelp: boolean,
+  view: ShellView = 'day',
+): string {
   const locale = settings.locale
   const parts = [
     `${t(locale, 'tui.key.district')}`,
     `${t(locale, 'tui.key.language')}`,
     `${t(locale, 'tui.key.format')}`,
     `${t(locale, 'tui.key.views')}`,
-    `${t(locale, 'tui.key.reload')}`,
-    `${t(locale, 'tui.key.quit')}`,
   ]
+  if (view !== 'day') parts.push(t(locale, 'tui.key.range'), t(locale, 'tui.key.today'))
+  parts.push(t(locale, 'tui.key.reload'), t(locale, 'tui.key.quit'))
   return showHelp ? parts.join('  ·  ') : t(locale, 'tui.key.hint')
 }
 
@@ -153,15 +160,22 @@ function compose(
     ' ' + rule(inner, color),
     ' ' + colorize(meta, { color, rgb: MUTED }),
     ' ' + colorize(`${t(locale, 'source.label')}: ${options.source}`, { color, rgb: MUTED, dim: true }),
-    ' ' + colorize(helpLine(settings, options.showHelp), { color, rgb: MUTED }),
+    ' ' + colorize(helpLine(settings, options.showHelp, active), { color, rgb: MUTED }),
   ]
 
   const room = Math.max(1, options.rows - header.length - footer.length)
-  const head = body.slice(0, room)
-  const fitted = head.map((line) => ' ' + line)
-  const before = Math.max(0, Math.floor((room - head.length) / 2))
-  for (let index = 0; index < before; index += 1) fitted.splice(index, 0, '')
-  while (fitted.length < room) fitted.push('')
+  const shown = body.slice(0, room)
+
+  // Centre the content block both ways; the frame itself always fills the
+  // terminal, so a wide window gets a centred block rather than a left margin.
+  const natural = Math.max(0, ...shown.map((line) => visibleWidth(line)))
+  const left = Math.max(0, Math.floor((width - natural) / 2))
+  const top = Math.floor((room - shown.length) / 2)
+
+  const fitted: string[] = Array.from({ length: room }, () => '')
+  shown.forEach((line, index) => {
+    fitted[top + index] = ' '.repeat(left) + line
+  })
 
   return [...header, ...fitted, ...footer].map((line) => pad(line, width))
 }
@@ -259,36 +273,82 @@ function monthBody(view: MonthView | null, options: FrameOptions): string[] {
 }
 
 /** The trend body: one coloured sparkline per entry plus its bounds. */
+/** The trend body: overlapped braille lines on a shared time axis. */
 function trendBody(view: TrendView | null, options: FrameOptions): string[] {
   const color = options.color === true
   const locale = options.locale ?? 'ms'
+  const format = options.timeFormat ?? DEFAULT_TIME_FORMAT
   if (!view) {
     return ['', colorize(t(locale, options.loading ? 'state.loading' : 'state.unavailable'), { color, rgb: MUTED })]
   }
 
-  const rows = chooseMonthColumns(view.rows, Math.max(1, options.rows - 10))
-  const hidden = view.rows.length - rows.length
-  const labelWidth = Math.max(6, ...rows.map((row) => visibleWidth(row.label)))
-  const tailWidth = 16
-  const sparkWidth = Math.max(8, options.columns - 2 - labelWidth - 1 - tailWidth)
+  const axisWidth = Math.max(
+    ...view.yTicks.map((tick) => visibleWidth(formatTime(tick, locale, format))),
+  )
+  // Room for the axis, the plot and a little breathing space on the right.
+  const plotWidth = Math.max(10, options.columns - 2 - axisWidth - 2)
+  // Header and footer are 8 rows; the body spends 5 on title, blanks and the
+  // two axis lines, so the plot gets what is left and the legend always fits.
+  const plotHeight = Math.max(3, options.rows - 13)
+  const cells = plotTrend(view, plotWidth, plotHeight)
+
   const lines: string[] = [
-    colorize(`${view.title}  ·  ${view.days}`, { color, rgb: ACCENT, bold: true }) +
-      (view.stale ? colorize(`  ·  ${t(locale, 'state.offline')}`, { color, rgb: MUTED }) : '') +
-      (hidden > 0
-        ? colorize(`  ·  ${t(locale, 'tui.hidden', { count: hidden })}`, { color, rgb: MUTED })
-        : ''),
+    colorize(view.title, { color, rgb: ACCENT, bold: true }) +
+      colorize(`  ${t(locale, 'chart.range.label')}: ${t(locale, `chart.range.${view.range}`)}`, {
+        color,
+        rgb: MUTED,
+      }) +
+      (view.stale ? colorize(`  ·  ${t(locale, 'state.offline')}`, { color, rgb: MUTED }) : ''),
     '',
   ]
-  for (const row of rows) {
-    lines.push(
-      colorize(pad(row.label, labelWidth), { color, rgb: prayerRgb(row.prayer) }) +
-        ' ' +
-        colorize(row.spark, { color, rgb: prayerRgb(row.prayer) }) +
-        ' '.repeat(Math.max(0, sparkWidth - visibleWidth(row.spark))) +
-        ' ' +
-        colorize(pad(`${row.low} ${row.high}`, tailWidth), { color, rgb: MUTED, dim: true }),
+
+  // Y axis on the left, top label first; rows map evenly onto the tick range.
+  const tickAt = new Map<number, string>()
+  view.yTicks.forEach((tick) => {
+    const row = Math.round(
+      (1 - (tick - view.min) / Math.max(1, view.max - view.min)) * (plotHeight - 1),
     )
+    tickAt.set(row, formatTime(tick, locale, format))
+  })
+
+  const legend = view.series
+    .map((line) => colorize(line.label, { color, rgb: prayerRgb(line.prayer) }))
+    .join(' ')
+
+  for (let row = 0; row < plotHeight; row += 1) {
+    const label = pad(tickAt.get(row) ?? '', axisWidth)
+    const plot = cells[row]!
+    const line = plot
+      .map((cell) =>
+        braille(cell) === ' '
+          ? ' '
+          : colorize(braille(cell), { color, rgb: prayerRgb(cell.prayer ?? 'imsak') }),
+      )
+      .join('')
+    lines.push(`${colorize(label, { color, rgb: MUTED })}  ${line}`)
   }
+
+  lines.push('')
+
+  // Place each label at the column its date falls on, so the axis lines up
+  // with the plot instead of just listing the ticks.
+  const axisLine = new Array<string>(plotWidth).fill(' ')
+  const last = Math.max(1, view.dates.length - 1)
+  for (const tick of view.xTicks) {
+    const column = Math.min(
+      plotWidth - visibleWidth(tick.label),
+      Math.round((tick.index / last) * (plotWidth - 1)),
+    )
+    for (let offset = 0; offset < tick.label.length; offset += 1) {
+      axisLine[Math.max(0, column) + offset] = tick.label[offset]!
+    }
+  }
+  lines.push(
+    ' '.repeat(axisWidth) +
+      '  ' +
+      colorize(axisLine.join('').trimEnd(), { color, rgb: MUTED, dim: true }),
+  )
+  lines.push(' '.repeat(axisWidth) + '  ' + legend)
   return lines
 }
 
@@ -299,7 +359,7 @@ export function renderFrame(
   options: FrameOptions,
 ): string[] {
   return compose(
-    dayBody(view, { ...options, locale: settings.locale }),
+    dayBody(view, { ...options, locale: settings.locale, timeFormat: settings.timeFormat }),
     settings,
     { ...options, view: 'day' },
     Math.max(20, options.columns),
@@ -312,7 +372,7 @@ export function renderMonthFrame(
   options: FrameOptions,
 ): string[] {
   return compose(
-    monthBody(view, { ...options, locale: settings.locale }),
+    monthBody(view, { ...options, locale: settings.locale, timeFormat: settings.timeFormat }),
     settings,
     { ...options, view: 'month' },
     Math.max(20, options.columns),
@@ -325,7 +385,7 @@ export function renderTrendFrame(
   options: FrameOptions,
 ): string[] {
   return compose(
-    trendBody(view, { ...options, locale: settings.locale }),
+    trendBody(view, { ...options, locale: settings.locale, timeFormat: settings.timeFormat }),
     settings,
     { ...options, view: 'trend' },
     Math.max(20, options.columns),

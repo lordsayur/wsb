@@ -251,7 +251,9 @@
       "reload": "r  muat semula",
       "quit": "q  keluar",
       "hint": "?  kekunci",
-      "views": "v  paparan"
+      "views": "v  paparan",
+      "range": "w/m/y  tempoh",
+      "today": "t  hari ini"
     },
     "now": "{prayer} {time} · {next}",
     "update": {

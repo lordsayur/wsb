@@ -39,7 +39,7 @@ execFileSync('chromium', [
   '--disable-gpu',
   '--hide-scrollbars',
   '--force-device-scale-factor=2',
-  '--window-size=1930,470',
+  '--window-size=2200,700',
   `--screenshot=${png}`,
   `file://${join(work, 'shot.html')}`,
 ], { stdio: 'inherit' })
