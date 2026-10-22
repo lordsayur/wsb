@@ -227,14 +227,20 @@ describe('trend view', () => {
     expect(trendDates('2026-10-15', 'week')).toHaveLength(7)
   })
 
-  it('plots overlapping braille lines inside the grid', () => {
+  it('plots overlapping lines inside the grid', () => {
     const view = buildTrendView(days, settings, 'month', '2026-10-15')
     const cells = plotTrend(view, 40, 10)
     expect(cells).toHaveLength(10)
     expect(cells.every((row) => row.length === 40)).toBe(true)
-    expect(cells.flat().some((cell) => cell.bits > 0)).toBe(true)
+    expect(cells.flat().some((cell) => cell.glyph !== ' ')).toBe(true)
     const painted = new Set(cells.flat().map((cell) => cell.prayer).filter(Boolean))
     expect(painted.size).toBeGreaterThan(1)
+    // Line glyphs only: a filled cell would read as a bar chart.
+    const glyphs = new Set(cells.flat().map((cell) => cell.glyph))
+    for (const glyph of glyphs) {
+      expect([' ', '─', '│', '╱', '╲', '┼', '╳']).toContain(glyph)
+    }
+    expect(glyphs.has('─')).toBe(true)
   })
 
   it('renders a full frame with the trend tab active', () => {

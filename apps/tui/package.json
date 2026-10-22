@@ -1,6 +1,6 @@
 {
   "name": "wsb-tui",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Waktu Sembahyang Brunei in your terminal.",
   "license": "MIT",
   "type": "module",

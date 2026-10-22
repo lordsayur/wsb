@@ -1,6 +1,6 @@
 // specs/tui/spec.md — trend view model. Mirrors the web chart: one overlapped
 // line per entry on a shared minute-of-day axis, over a week, month or year.
-// Pure model + braille plotting; no terminal I/O and no ANSI here.
+// Pure model + line plotting; no terminal I/O and no ANSI here.
 import {
   PRAYER_ORDER,
   adjustForDistrict,
@@ -137,46 +137,99 @@ export function buildTrendView(
   }
 }
 
-/** One terminal cell of the plot: braille dots plus the entry that drew last. */
+/** One terminal cell of the plot: a line glyph plus the series that drew it. */
 export interface PlotCell {
-  bits: number
+  glyph: string
   prayer: PrayerName | null
 }
 
-const BRAILLE_BASE = 0x2800
-const DOT_BITS = [
-  [0x01, 0x08],
-  [0x02, 0x10],
-  [0x04, 0x20],
-  [0x40, 0x80],
-] as const
+// Line glyphs, not blocks: a filled cell would read as a bar chart. Crossing
+// glyphs appear where two entries pass through the same cell.
+const HORIZONTAL = '─'
+const VERTICAL = '│'
+const UP = '╱'
+const DOWN = '╲'
 
-/** Renders the series into a braille dot grid, `height` rows by `width` cells. */
+/** Merges two glyphs that land on the same cell. */
+function merge(existing: string, incoming: string): string {
+  if (existing === ' ') return incoming
+  if (existing === incoming) return existing
+  const orthogonal =
+    (existing === HORIZONTAL && incoming === VERTICAL) ||
+    (existing === VERTICAL && incoming === HORIZONTAL)
+  if (orthogonal) return '┼'
+  if (
+    (existing === UP && incoming === DOWN) ||
+    (existing === DOWN && incoming === UP)
+  ) {
+    return '╳'
+  }
+  return existing
+}
+
+/** The glyph for one Bresenham step, oriented by the direction of travel. */
+function stepGlyph(dx: number, dy: number): string {
+  if (dy === 0) return HORIZONTAL
+  if (dx === 0) return VERTICAL
+  return dx * dy < 0 ? UP : DOWN
+}
+
+/** Walks a straight line in cell coordinates, yielding each cell it crosses. */
+function traceLine(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  visit: (x: number, y: number, glyph: string) => void,
+): void {
+  let x = x0
+  let y = y0
+  const dx = Math.abs(x1 - x0)
+  const dy = Math.abs(y1 - y0)
+  const sx = x0 < x1 ? 1 : -1
+  const sy = y0 < y1 ? 1 : -1
+  let error = dx - dy
+
+  for (;;) {
+    // The glyph is the direction of the step leaving this cell.
+    const stepX = x === x1 ? 0 : sx
+    const stepY = y === y1 ? 0 : sy
+    visit(x, y, stepGlyph(stepX, stepY))
+    if (x === x1 && y === y1) break
+    const doubled = error * 2
+    if (doubled > -dy) {
+      error -= dy
+      x += sx
+    }
+    if (doubled < dx) {
+      error += dx
+      y += sy
+    }
+  }
+}
+
+/** Renders the series into a `height` x `width` cell grid of line glyphs. */
 export function plotTrend(
   view: TrendView,
   width: number,
   height: number,
 ): PlotCell[][] {
   const cells: PlotCell[][] = Array.from({ length: Math.max(0, height) }, () =>
-    Array.from({ length: Math.max(0, width) }, () => ({ bits: 0, prayer: null })),
+    Array.from({ length: Math.max(0, width) }, () => ({ glyph: ' ', prayer: null })),
   )
   if (width <= 0 || height <= 0 || view.dates.length === 0) return cells
 
-  const dotW = width * 2
-  const dotH = height * 4
   const span = Math.max(1, view.max - view.min)
   const count = view.dates.length
   const xAt = (index: number) =>
-    count <= 1 ? (dotW - 1) / 2 : (index / (count - 1)) * (dotW - 1)
+    count <= 1 ? (width - 1) / 2 : (index / (count - 1)) * (width - 1)
   const yAt = (minutes: number) =>
-    (1 - (minutes - view.min) / span) * (dotH - 1)
+    (1 - (minutes - view.min) / span) * (height - 1)
 
-  const plot = (prayer: PrayerName, x: number, y: number) => {
-    const cx = Math.round(x)
-    const cy = Math.round(y)
-    if (cx < 0 || cy < 0 || cx >= dotW || cy >= dotH) return
-    const cell = cells[Math.floor(cy / 4)]![Math.floor(cx / 2)]!
-    cell.bits |= DOT_BITS[cy % 4]![cx % 2]!
+  const paint = (prayer: PrayerName, x: number, y: number, glyph: string) => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return
+    const cell = cells[y]![x]!
+    cell.glyph = merge(cell.glyph, glyph)
     cell.prayer = prayer
   }
 
@@ -187,36 +240,21 @@ export function plotTrend(
         previous = null
         return
       }
-      const point = { x: xAt(index), y: yAt(value) }
-      if (!previous) {
-        plot(line.prayer, point.x, point.y)
-      } else {
-        const steps = Math.max(
-          1,
-          Math.ceil(
-            Math.max(
-              Math.abs(point.x - previous.x),
-              Math.abs(point.y - previous.y),
-            ),
-          ),
+      const point = {
+        x: Math.round(xAt(index)),
+        y: Math.round(yAt(value)),
+      }
+      if (previous) {
+        traceLine(previous.x, previous.y, point.x, point.y, (x, y, glyph) =>
+          paint(line.prayer, x, y, glyph),
         )
-        for (let step = 1; step <= steps; step += 1) {
-          plot(
-            line.prayer,
-            previous.x + ((point.x - previous.x) * step) / steps,
-            previous.y + ((point.y - previous.y) * step) / steps,
-          )
-        }
+      } else {
+        paint(line.prayer, point.x, point.y, HORIZONTAL)
       }
       previous = point
     })
   }
   return cells
-}
-
-/** The braille character for a cell, or a space when it has no dots. */
-export function braille(cell: PlotCell): string {
-  return cell.bits === 0 ? ' ' : String.fromCodePoint(BRAILLE_BASE + cell.bits)
 }
 
 /** Dates covered by a range anchor, for the loader. */

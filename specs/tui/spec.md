@@ -32,8 +32,9 @@ platform glue only; no domain rules.
   kept and Imsak/Syuruk/Dhuha go first; the title reports how many are hidden
   (`+3 hidden`). Columns always stay in calendar order.
 - **Trend** mirrors the web chart: the eight entries drawn as overlapping
-  coloured lines on one shared minute-of-day axis, over a **week**, **month** or
-  **year**. The y axis is labelled at the same rounded ticks the web chart uses
+  coloured **line** segments (`─`, `│`, `╱`, `╲`, crossing at `┼`/`╳`) on one
+  shared minute-of-day axis, over a **week**, **month** or **year**. Filled
+  cells are never used, so the plot cannot read as a bar chart. The y axis is labelled at the same rounded ticks the web chart uses
   and the x axis places its date labels under the columns they belong to. A
   legend names the colours. `w`/`m`/`y` switch the range, `[`/`]` (or `p`/`n`)
   move by one period, `t` returns to the current period. A missing day leaves a
@@ -177,3 +178,5 @@ platform glue only; no domain rules.
   report how many are hidden; drop whole footer parts instead of clipping.
 - 2026-10-22 — make the trend a real overlapped line chart on a shared axis
   with week/month/year ranges, centre the content, and align x labels.
+- 2026-10-22 — draw the trend with line glyphs instead of braille dots, which
+  read as filled bars.

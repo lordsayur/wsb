@@ -13,7 +13,7 @@ import {
 import type { TuiSettings } from './settings.js'
 import type { DayView } from './view.js'
 import { chooseMonthColumns, type MonthView } from './month.js'
-import { braille, plotTrend, type TrendView } from './trend.js'
+import { plotTrend, type TrendView } from './trend.js'
 
 export type ShellView = 'day' | 'month' | 'trend'
 
@@ -273,7 +273,7 @@ function monthBody(view: MonthView | null, options: FrameOptions): string[] {
 }
 
 /** The trend body: one coloured sparkline per entry plus its bounds. */
-/** The trend body: overlapped braille lines on a shared time axis. */
+/** The trend body: overlapped lines on a shared time axis. */
 function trendBody(view: TrendView | null, options: FrameOptions): string[] {
   const color = options.color === true
   const locale = options.locale ?? 'ms'
@@ -320,9 +320,9 @@ function trendBody(view: TrendView | null, options: FrameOptions): string[] {
     const plot = cells[row]!
     const line = plot
       .map((cell) =>
-        braille(cell) === ' '
+        cell.glyph === ' '
           ? ' '
-          : colorize(braille(cell), { color, rgb: prayerRgb(cell.prayer ?? 'imsak') }),
+          : colorize(cell.glyph, { color, rgb: prayerRgb(cell.prayer ?? 'imsak') }),
       )
       .join('')
     lines.push(`${colorize(label, { color, rgb: MUTED })}  ${line}`)
