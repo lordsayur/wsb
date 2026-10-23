@@ -269,7 +269,12 @@
     "revealedAyah": "ايت {ayah}",
     "attribution": "تيكس القرءان اوليه Tanzil.net (عثماني، حفص)",
     "scope": "ڤيليه سكوڤ",
-    "whole": "سلوروه القرءان"
+    "whole": "سلوروه القرءان",
+    "play": "ماينکن باچاءن",
+    "pause": "هنتيکن باچاءن",
+    "revealText": "تونجوق ايت",
+    "audioError": "باچاءن تيدق داڤت دمواتکن.",
+    "recitation": "باچاءن اوليه {reciter}"
   },
   "a11y": {
     "skipToContent": "لڠکاو ک کاندوڠن"

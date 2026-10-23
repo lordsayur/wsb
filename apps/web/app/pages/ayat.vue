@@ -3,9 +3,14 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { JUZ_COUNT, QURAN_TOTAL, formatNumber } from '@wsb/core'
 import { QURAN_ATTRIBUTION } from '@wsb/data/quran'
+import {
+  AYAH_AUDIO_ATTRIBUTION,
+  ayahAudioUrl,
+} from '@wsb/data/quran/audio'
 import AyahReader from '~/components/organisms/AyahReader.vue'
 import AyahSetup from '~/components/organisms/AyahSetup.vue'
 import RevealChip from '~/components/molecules/RevealChip.vue'
+import { useAyahAudio } from '~/composables/useAyahAudio'
 import { useQuran } from '~/composables/useQuran'
 import { surahDisplay } from '~/utils/quran'
 
@@ -19,7 +24,9 @@ const {
   draft,
   current,
   hints,
+  refs,
   texts,
+  shown,
   loading,
   failed,
   count,
@@ -28,10 +35,41 @@ const {
   start,
   next,
   reveal,
+  revealText,
   changeFilter,
   retry,
   newAyah,
 } = useQuran()
+
+const {
+  status: audioStatus,
+  active: audioActive,
+  toggle: toggleAudio,
+  stop: stopAudio,
+} = useAyahAudio()
+
+const audioUrls = computed(() =>
+  refs.value.map((ref) => ayahAudioUrl(index, ref)),
+)
+
+function playRow(row: number) {
+  toggleAudio(row, audioUrls.value[row] ?? null)
+}
+
+function startReading() {
+  stopAudio()
+  start()
+}
+
+function newVerse() {
+  stopAudio()
+  newAyah()
+}
+
+function openFilter() {
+  stopAudio()
+  changeFilter()
+}
 
 const atEnd = computed(() => {
   const ref = current.value
@@ -94,13 +132,20 @@ useSeoMeta({
         :scope="draft"
         :juz-max-value="JUZ_COUNT"
         @select-scope="draft = $event"
-        @start="start"
+        @start="startReading"
       />
 
       <template v-else>
         <AyahReader
           :texts="texts"
+          :shown="shown"
           :revealed="hints"
+          :audio-index="audioActive"
+          :audio-status="audioStatus"
+          :play-label="t('ayat.play')"
+          :pause-label="t('ayat.pause')"
+          :reveal-text-label="t('ayat.revealText')"
+          :audio-error-label="t('ayat.audioError')"
           :juz-label="t('ayat.revealedJuz', { juz: revealedJuz })"
           :surah-label="t('ayat.revealedSurah', { surah: revealedSurah })"
           :ayah-number-label="t('ayat.revealedAyah', { ayah: revealedAyah })"
@@ -116,9 +161,11 @@ useSeoMeta({
           :unavailable="failed"
           :at-end="atEnd"
           @next="next"
-          @new-ayah="newAyah"
-          @change-filter="changeFilter"
+          @new-ayah="newVerse"
+          @change-filter="openFilter"
           @retry="retry"
+          @toggle-audio="playRow"
+          @reveal-text="revealText"
         />
 
         <div class="reveals" role="group" :aria-label="t('ayat.reveals')">
@@ -152,6 +199,11 @@ useSeoMeta({
           {{ t('ayat.attribution') }}:
           <a :href="QURAN_ATTRIBUTION.url" target="_blank" rel="noopener noreferrer">
             {{ QURAN_ATTRIBUTION.source }}
+          </a>
+          ·
+          {{ t('ayat.recitation', { reciter: AYAH_AUDIO_ATTRIBUTION.reciter }) }}:
+          <a :href="AYAH_AUDIO_ATTRIBUTION.url" target="_blank" rel="noopener noreferrer">
+            {{ AYAH_AUDIO_ATTRIBUTION.source }}
           </a>
         </p>
       </template>

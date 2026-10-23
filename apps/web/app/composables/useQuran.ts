@@ -8,6 +8,7 @@ import {
   pickAyah,
   rangeCount,
   reveal as latch,
+  revealTextAt,
   scopeRange,
   type AyahRef,
   type Reveal,
@@ -40,6 +41,7 @@ export function useQuran() {
   const hints = ref<Reveal>(initialReveal())
   const refs = shallowRef<AyahRef[]>([])
   const texts = shallowRef<(string | null)[]>([])
+  const shown = ref<boolean[]>([])
   const loading = ref(false)
   const failed = ref(false)
 
@@ -67,10 +69,12 @@ export function useQuran() {
       if (token !== request) return
       refs.value = nextRefs
       texts.value = loaded
+      shown.value = nextRefs.map((_, i) => shown.value[i] ?? false)
     } catch {
       if (token !== request) return
       refs.value = nextRefs
       texts.value = []
+      shown.value = nextRefs.map((_, i) => shown.value[i] ?? false)
       failed.value = true
     } finally {
       if (token === request) loading.value = false
@@ -83,6 +87,7 @@ export function useQuran() {
     hints.value = initialReveal()
     refs.value = []
     texts.value = []
+    shown.value = []
     failed.value = false
     if (picked) void load(picked, 0)
   }
@@ -114,6 +119,11 @@ export function useQuran() {
     hints.value = latch(hints.value, kind)
   }
 
+  /** Reveal the Arabic text of one row in the passage. */
+  function revealText(index: number) {
+    shown.value = [...revealTextAt(shown.value, index)]
+  }
+
   function retry() {
     const picked = current.value
     if (picked) void load(picked, hints.value.next)
@@ -131,6 +141,7 @@ export function useQuran() {
     hints,
     refs,
     texts,
+    shown,
     loading,
     failed,
     count,
@@ -141,6 +152,7 @@ export function useQuran() {
     roll,
     next,
     reveal,
+    revealText,
     changeFilter,
     retry,
     newAyah: roll,

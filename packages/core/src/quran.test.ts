@@ -19,6 +19,7 @@ import {
   reveal,
   revealAll,
   revealNext,
+  revealTextAt,
   searchSurah,
   type AyahRange,
   type QuranIndex,
@@ -202,6 +203,22 @@ describe('reveal', () => {
     expect(state).toEqual({ juz: true, surah: true, ayah: false, next: 0 })
     expect(revealAll(state)).toEqual({ juz: true, surah: true, ayah: true, next: 0 })
     expect(revealNext(revealNext(state)).next).toBe(2)
+  })
+})
+
+describe('text reveal', () => {
+  it('reveals one row and leaves the rest hidden', () => {
+    const shown = [false, false, false]
+    expect(revealTextAt(shown, 1)).toEqual([false, true, false])
+    expect(shown).toEqual([false, false, false])
+  })
+
+  it('is a latch and ignores out-of-range indices', () => {
+    const shown = [true, false]
+    expect(revealTextAt(shown, 0)).toBe(shown)
+    expect(revealTextAt(shown, -1)).toBe(shown)
+    expect(revealTextAt(shown, 2)).toBe(shown)
+    expect(revealTextAt(shown, 1.5)).toBe(shown)
   })
 })
 

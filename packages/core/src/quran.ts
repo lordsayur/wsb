@@ -245,6 +245,21 @@ export function revealAll(state: Reveal): Reveal {
   return { ...state, juz: true, surah: true, ayah: true }
 }
 
+/**
+ * Reveal the Arabic text of one row in the passage; already-shown rows and
+ * out-of-range indices are unchanged. Index 0 is the first ayah.
+ */
+export function revealTextAt(
+  shown: readonly boolean[],
+  index: number,
+): readonly boolean[] {
+  if (!Number.isInteger(index) || index < 0 || index >= shown.length) return shown
+  if (shown[index]) return shown
+  const next = shown.slice()
+  next[index] = true
+  return next
+}
+
 const DIACRITICS = /[\u064b-\u065f\u0670\u06d6-\u06ed\u0640]/g
 
 /** Lowercase, strip diacritics and punctuation, collapse spaces. */

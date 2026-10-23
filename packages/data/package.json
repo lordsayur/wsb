@@ -12,7 +12,8 @@
     "./admin": "./src/admin.ts",
     "./local": "./src/local.ts",
     "./quran": "./src/quran/loader.ts",
-    "./quran/index": "./src/quran/index.ts"
+    "./quran/index": "./src/quran/index.ts",
+    "./quran/audio": "./src/quran/audio.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

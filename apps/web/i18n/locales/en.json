@@ -269,7 +269,12 @@
     "revealedAyah": "Verse {ayah}",
     "attribution": "Quran text by Tanzil.net (Uthmani, Hafs)",
     "scope": "Choose a scope",
-    "whole": "The whole Quran"
+    "whole": "The whole Quran",
+    "play": "Play recitation",
+    "pause": "Stop recitation",
+    "revealText": "Reveal verse",
+    "audioError": "Could not load the recitation.",
+    "recitation": "Recitation by {reciter}"
   },
   "a11y": {
     "skipToContent": "Skip to content"

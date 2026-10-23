@@ -159,3 +159,10 @@ surah in that juz, and a surah scope spans every juz of that surah.
 One on-demand disclosure of an ayah's identifying information — its juz, its
 surah, its ayah number, or the next ayah's text. Reveals are independent and
 latch until the ayah changes.
+
+## Recitation
+
+The audio of one ayah, in Arabic, played on request from its own row. One
+recitation plays at a time and it never reveals the ayah's text by itself. A
+recitation is not a **Reveal**: playing it and revealing the text are
+independent choices.

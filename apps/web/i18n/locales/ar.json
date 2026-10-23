@@ -269,7 +269,12 @@
     "revealedAyah": "الآية {ayah}",
     "attribution": "نص القرآن من Tanzil.net (العثماني، حفص)",
     "scope": "اختر النطاق",
-    "whole": "القرآن كاملًا"
+    "whole": "القرآن كاملًا",
+    "play": "تشغيل التلاوة",
+    "pause": "إيقاف التلاوة",
+    "revealText": "إظهار الآية",
+    "audioError": "تعذّر تحميل التلاوة.",
+    "recitation": "التلاوة بصوت {reciter}"
   },
   "a11y": {
     "skipToContent": "تخطَّ إلى المحتوى"

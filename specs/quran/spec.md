@@ -40,26 +40,51 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 
 ### Reading state
 
-- Shows exactly one ayah in Arabic. No surah, juz or ayah number is shown.
+- Shows exactly one ayah. Its Arabic text is **hidden until revealed**: no
+  surah, juz or ayah number is shown either, and the text is not in the DOM
+  (hidden with `v-if`, never merely styled invisible).
+- While the text is hidden, the ayah is represented by a skeleton placeholder,
+  so the reader sees that an ayah exists without seeing it.
 - The revealed surah name is always shown in Arabic, with the localized name
   beside it when the locale is not Arabic-script.
 - The basmalah is never rendered: it is not a numbered ayah and would reveal
   that the ayah opens a surah.
+- Each ayah row has a small circular **play** control and a **reveal text**
+  control. Playing the recitation does not reveal the text; revealing the text
+  does not play the recitation. The reader may do either first, or both.
 - Controls are separate and independent: **Reveal juz**, **Reveal surah**,
   **Reveal ayah number**, **Next ayah**, **New ayah**, **Change filter**.
 - A reveal is a latch: once used, that hint stays visible and its button is
-  disabled until **New ayah** or a filter change.
+  disabled until **New ayah** or a filter change. Revealed text stays visible
+  for that ayah.
 - The ayah area is a bounded, scrollable pane of fixed height: a long ayah or
   passage scrolls inside it, so the reveal chips and actions below never move.
-  Appending an ayah scrolls the pane to the newest text. Consecutive ayahs are
+  Appending an ayah scrolls the pane to the newest row. Consecutive ayahs are
   separated by a hairline rule.
 - **Next ayah** appends the next ayah of the scope, repeatable, building the
-  passage gradually. In a juz scope it continues into the following surah past
-  a surah's last ayah; in a surah scope it stops at that surah's last ayah.
-- **New ayah** picks again inside the active range and resets every reveal.
+  passage gradually. The appended ayah starts hidden with its own play control.
+  In a juz scope it continues into the following surah past a surah's last
+  ayah; in a surah scope it stops at that surah's last ayah.
+- **New ayah** picks again inside the active range, resets every reveal and
+  stops playback.
 - **Change filter** opens the setup state pre-filled with the active selection.
   **Start** applies it, re-rolls immediately and returns to the reading state
-  (option a), resetting every reveal.
+  (option a), resetting every reveal and stopping playback.
+
+### Recitation
+
+- Every ayah has one recitation: a per-ayah audio file fetched on demand from
+  the EveryAyah CDN (Hudhaify, 128 kbps). Audio is never bundled with the app
+  and never fetched by juz.
+- The file for `(surah, ayah)` is `SSSAAA.mp3`, e.g. `2:255` →
+  `https://everyayah.com/data/Hudhaify_128kbps/002255.mp3`.
+- One recitation plays at a time. Pressing an ayah's play control fetches and
+  plays that ayah; pressing it again stops it, and pressing it after the file
+  ends plays it again.
+- Starting another ayah's recitation stops the previous one. **New ayah** and a
+  filter change also stop playback.
+- A loading, playing and failed state are shown on the control. Failure is
+  inline and retryable; it never blocks revealing the text.
 
 ### Picking
 
@@ -91,6 +116,8 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 - A revealed value never changes while the same ayah is shown.
 - Juz and surah scopes are mutually exclusive; exactly one may be active.
 - No identifying information is rendered without its reveal.
+- No ayah text is in the DOM before its own reveal.
+- At most one ayah recitation plays at a time.
 
 ## Acceptance criteria
 
@@ -107,6 +134,18 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
       Malay and English names equally, and lists the Arabic name.
 - [x] The corpus integrity check passes: 114 surahs, 30 juz, 6,236 ayahs.
 - [x] `/ayat` does not pull the corpus into the main page bundle.
+- [x] Starting shows a skeleton per ayah, not Arabic text; text appears only
+      after **Reveal text**.
+- [x] A newly appended ayah starts hidden with its own play control.
+- [x] Pressing play fetches and plays the ayah audio with the text still
+      hidden.
+- [x] Pressing the same play control again stops it; after the file ends the
+      control plays it again.
+- [x] Starting another ayah's recitation stops the first; new ayah and a filter
+      change stop playback.
+- [x] Audio failure shows an inline retry and still allows revealing the text.
+- [x] `1:1` and `114:6` map to the first and last recitation files; an invalid
+      reference maps to none.
 
 ## Interfaces
 
@@ -121,13 +160,16 @@ pickAyah(index, range, rng): AyahRef | null
 nextAyah(index, ref, range): AyahRef | null
 searchSurah(query, index): SurahInfo[]
 reveal(state, kind): Reveal
+revealTextAt(shown, index): readonly boolean[]   latch one reveal
+ayahAudioUrl(index, ref, base?): string | null   EveryAyah file for a ref
 ```
 
 The types live in core and are dataset-injected; core performs no I/O.
 
 ## Out of scope
 
-- Translations, tafsir, recitation audio, memorisation, scoring and streaks.
+- Translations, tafsir, memorisation, scoring and streaks.
+- Reciter selection and offline audio caching: one fixed reciter, streamed.
 - Non-web shells (the corpus packaging may be revisited for them later).
 - Free-text entry of the ayah, surah or juz; reveals are button-driven.
 
@@ -139,3 +181,7 @@ The types live in core and are dataset-injected; core performs no I/O.
 - 2026-10-23 — one scope per session (juz or surah, never both); juz range from
   two drop-downs, single surah from search; Arabic surah name always shown;
   fixed-height scrollable ayah pane with rules between ayahs.
+
+- 2026-10-23 — ayah text hidden behind a skeleton until **Reveal text**; each
+  ayah row carries a circular play control; per-ayah Hudhaify recitation from
+  EveryAyah, one at a time, never bundled; audio failure is inline.

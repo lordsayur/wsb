@@ -269,7 +269,12 @@
     "revealedAyah": "Ayat {ayah}",
     "attribution": "Teks Al-Quran oleh Tanzil.net (Uthmani, Hafs)",
     "scope": "Pilih skop",
-    "whole": "Seluruh Al-Quran"
+    "whole": "Seluruh Al-Quran",
+    "play": "Mainkan bacaan",
+    "pause": "Hentikan bacaan",
+    "revealText": "Tunjuk ayat",
+    "audioError": "Bacaan tidak dapat dimuatkan.",
+    "recitation": "Bacaan oleh {reciter}"
   },
   "a11y": {
     "skipToContent": "Langkau ke kandungan"

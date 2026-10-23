@@ -17,11 +17,20 @@
         </button>
       </template>
       <template v-else>
-        <AyahText
+        <AyahRow
           v-for="(text, i) in texts"
           :key="i"
-          :text="text ?? ''"
+          :text="text"
+          :shown="shown[i] ?? false"
+          :status="audioIndex === i ? audioStatus : 'idle'"
           :label="i === 0 ? ayahLabel : undefined"
+          :play-label="playLabel"
+          :pause-label="pauseLabel"
+          :reveal-label="revealTextLabel"
+          :error-label="audioErrorLabel"
+          :retry-label="retryLabel"
+          @toggle-audio="emit('toggleAudio', i)"
+          @reveal-text="emit('revealText', i)"
         />
       </template>
     </div>
@@ -51,12 +60,15 @@
 // reader reveals a hint; the host owns all state and text loading.
 import { nextTick, ref, watch } from 'vue'
 import type { Reveal } from '@wsb/core'
-import AyahText from '../atoms/AyahText.vue'
+import AyahRow from '../molecules/AyahRow.vue'
 
 const props = withDefaults(
   defineProps<{
     texts: readonly (string | null)[]
+    shown: readonly boolean[]
     revealed: Reveal
+    audioIndex: number | null
+    audioStatus: 'idle' | 'loading' | 'playing' | 'error'
     juzLabel: string
     surahLabel: string
     ayahNumberLabel: string
@@ -68,6 +80,10 @@ const props = withDefaults(
     endLabel: string
     unavailableLabel: string
     retryLabel: string
+    playLabel: string
+    pauseLabel: string
+    revealTextLabel: string
+    audioErrorLabel: string
     loading?: boolean
     unavailable?: boolean
     atEnd?: boolean
@@ -76,16 +92,16 @@ const props = withDefaults(
 )
 
 const pane = ref<HTMLElement | null>(null)
-let shown = 0
+let rendered = 0
 
 watch(
   () => props.texts.length,
   async (length) => {
-    if (length <= shown) {
-      shown = length
+    if (length <= rendered) {
+      rendered = length
       return
     }
-    shown = length
+    rendered = length
     await nextTick()
     pane.value?.scrollTo({ top: pane.value.scrollHeight, behavior: 'smooth' })
   },
@@ -97,6 +113,8 @@ const emit = defineEmits<{
   newAyah: []
   changeFilter: []
   retry: []
+  toggleAudio: [index: number]
+  revealText: [index: number]
 }>()
 </script>
 
@@ -121,7 +139,7 @@ const emit = defineEmits<{
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
-.texts > .ayah-text + .ayah-text {
+.texts > .ayah-row + .ayah-row {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
