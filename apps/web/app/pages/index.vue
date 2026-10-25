@@ -274,6 +274,10 @@ function openAyat() {
   navigateTo('/ayat')
 }
 
+function openPrivacy() {
+  navigateTo('/privacy')
+}
+
 function openTrend() {
   // The trend page reads the same district, so carry it across.
   navigateTo(
@@ -398,6 +402,7 @@ onMounted(async () => {
       :ayat-label="t('action.ayat')"
       :reload-data-label="t('action.reloadData')"
       :reload-app-label="t('action.reloadApp')"
+      :privacy-label="t('action.privacy')"
       :share-label="t('action.share')"
       :share-formatted-label="t('share.formatted')"
       :share-raw-label="t('share.raw')"
@@ -421,6 +426,7 @@ onMounted(async () => {
       @ayat="openAyat"
       @reload-data="reloadCurrent"
       @reload-app="reloadApp"
+      @privacy="openPrivacy"
       @toggle-notifications="toggleNotifications"
     />
 

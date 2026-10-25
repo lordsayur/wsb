@@ -8,3 +8,12 @@
 [build.environment]
   NODE_VERSION = "20"
   NITRO_PRESET = "netlify"
+  # specs/analytics/spec.md — only real deploys count; previews are tagged below.
+  NUXT_PUBLIC_ANALYTICS_ENV = "production"
+
+# Netlify deploy previews must never inflate the production numbers.
+[context.deploy-preview.environment]
+  NUXT_PUBLIC_ANALYTICS_ENV = "preview"
+
+[context.branch-deploy.environment]
+  NUXT_PUBLIC_ANALYTICS_ENV = "preview"

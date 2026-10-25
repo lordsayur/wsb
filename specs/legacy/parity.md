@@ -96,7 +96,7 @@ Legend: **A** = adopt (same behavior), **O** = override (deliberate change),
 | 9.2 | Vue 2 / Vuex / Vuetify / Vue CLI | **D** | Nuxt 4 + core |
 | 9.3 | PWA manifest name/short/theme `#455A64`, portrait standalone | **A** | web shell manifest |
 | 9.4 | Router history mode; Netlify fallback | **A** | Nuxt history + host fallback |
-| 9.5 | GA only in production, id `C2E9CKWZCC` | **A** | confirm id still valid — OPEN-4 |
+| 9.5 | GA only in production, id `C2E9CKWZCC` | **D** | dropped — Supabase-native cookieless analytics ([`../analytics/spec.md`](../analytics/spec.md)); resolved OPEN-4 |
 | 9.6 | Firebase config public; service accounts out of repo | **O** | Supabase anon key public; service-role key never ships |
 | 9.7 | Dev boot seeds/reset data + admin user, emulator ports | **O** | Supabase local stack (`supabase start`) + seed SQL; no emulator port contract |
 
@@ -128,7 +128,9 @@ Adopt all seven, mapped: 11.1→core time model, 11.2→core offsets,
 - **OPEN-3** — **Resolved 2026-10-18:** adopt the legacy three-value model;
   Temburong is folded into Brunei & Muara and the old value resolves as an
   alias.
-- **OPEN-4** — Analytics: keep Google Analytics, or drop it (privacy/size)?
+- **OPEN-4** — **Resolved 2026-10-24:** drop Google Analytics. Analytics is
+  first-party and cookieless in Supabase
+  ([`../analytics/spec.md`](../analytics/spec.md)); no third-party script ships.
 - **OPEN-5** — Naming: legacy uses "Isya"; current glossary uses "isyak".
   Pick one canonical domain identifier.
 

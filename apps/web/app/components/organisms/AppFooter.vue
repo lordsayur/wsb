@@ -147,6 +147,11 @@
               <Icon name="lucide:rotate-ccw" aria-hidden="true" />
               {{ reloadAppLabel }}
             </button>
+            <hr class="divider" />
+            <button type="button" role="menuitem" @click="openPrivacy">
+              <Icon name="lucide:shield-check" aria-hidden="true" />
+              {{ privacyLabel }}
+            </button>
           </template>
         </div>
       </div>
@@ -212,6 +217,7 @@ const props = defineProps<{
   ayatLabel: string
   reloadDataLabel: string
   reloadAppLabel: string
+  privacyLabel: string
   shareLabel: string
   shareFormattedLabel: string
   shareRawLabel: string
@@ -238,6 +244,7 @@ const emit = defineEmits<{
   ayat: []
   reloadData: []
   reloadApp: []
+  privacy: []
   toggleNotifications: []
 }>()
 
@@ -290,6 +297,11 @@ function openTasbih() {
 
 function openAyat() {
   emit('ayat')
+  close()
+}
+
+function openPrivacy() {
+  emit('privacy')
   close()
 }
 

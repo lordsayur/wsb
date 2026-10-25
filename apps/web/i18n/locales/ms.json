@@ -32,7 +32,8 @@
     "downloads": "Platform lain",
     "trend": "Grafik trend",
     "tasbih": "Tasbih",
-    "ayat": "Ayat Al-Quran"
+    "ayat": "Ayat Al-Quran",
+    "privacy": "Privasi"
   },
   "source": {
     "label": "Sumber data",
@@ -188,7 +189,36 @@
     "imported": "{count} rekod diimport.",
     "saved": "Disimpan.",
     "failed": "Tidak berjaya. Cuba lagi.",
-    "unauthorized": "Sesi tamat. Sila masuk semula."
+    "unauthorized": "Sesi tamat. Sila masuk semula.",
+    "analytics": {
+      "title": "Analitik",
+      "range": "Tempoh",
+      "includeOther": "Termasuk pratonton dan pembangunan",
+      "views": "Paparan",
+      "sessions": "Sesi",
+      "daily": "Paparan harian",
+      "days": {
+        "7": "7 hari",
+        "30": "30 hari",
+        "90": "90 hari"
+      },
+      "topPages": "Halaman teratas",
+      "events": "Peristiwa",
+      "locales": "Bahasa",
+      "devices": "Peranti",
+      "referrers": "Rujukan",
+      "direct": "Terus",
+      "empty": "Tiada lawatan direkodkan untuk tempoh ini.",
+      "failed": "Analitik tidak dapat dimuatkan.",
+      "event": {
+        "pageview": "Paparan halaman"
+      },
+      "device": {
+        "mobile": "Mudah alih",
+        "tablet": "Tablet",
+        "desktop": "Desktop"
+      }
+    }
   },
   "month": {
     "prev": "Bulan sebelumnya",
@@ -305,5 +335,22 @@
       "trend": "Trend"
     },
     "hidden": "+{count} tersembunyi"
+  },
+  "privacy": {
+    "title": "Privasi",
+    "intro": "Aplikasi ini merekod bilangan lawatan tanpa menjejaki anda. Tiada kuki iklan, tiada penjejak pihak ketiga.",
+    "collected": "Apa yang direkodkan",
+    "collectedPage": "Halaman yang dibuka, dan bila.",
+    "collectedEvent": "Peristiwa seperti menukar paparan atau tempoh.",
+    "collectedDevice": "Jenis peranti (mudah alih, tablet, desktop) dan bahasa.",
+    "collectedReferrer": "Hos laman web yang merujuk anda, jika ada.",
+    "notCollected": "Apa yang tidak direkodkan",
+    "notIdentity": "Tiada nama, e-mel, akaun atau pengecam pengguna.",
+    "notCookies": "Tiada kuki iklan dan tiada penjejak pihak ketiga.",
+    "notAddress": "Tiada alamat IP dan tiada URL penuh.",
+    "retention": "Tempoh simpanan",
+    "retentionBody": "Peristiwa mentah disimpan 90 hari. Selepas itu hanya jumlah harian kekal.",
+    "session": "Sesi dikira dengan pengecam sementara dalam tab; ia hilang apabila tab ditutup.",
+    "back": "Kembali ke aplikasi"
   }
 }

@@ -25,6 +25,7 @@ language; see [`CONTEXT-MAP.md`](./CONTEXT-MAP.md) for how they relate.
 | Raycast shell | `apps/raycast` | [`raycast/spec.md`](./raycast/spec.md) |
 | TUI shell | `apps/tui` | [`tui/spec.md`](./tui/spec.md) |
 | Quran Ayat (core domain) | `packages/core` + `packages/data` | [`quran/spec.md`](./quran/spec.md) |
+| Analytics (supporting domain) | `supabase/migrations` + `packages/data` + `apps/web` | [`analytics/spec.md`](./analytics/spec.md) |
 | Testing (cross-cutting) | all | [`testing/spec.md`](./testing/spec.md) |
 
 `packages/shared` is not a context. It is a placeholder being split into `core`

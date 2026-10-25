@@ -291,6 +291,35 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   never writes to Supabase directly and never holds a service-role key.
 - All strings are translation keys, including result messages and all entry
   names.
+- An authorized admin also sees an **Analytics** panel above the records panel:
+  totals and previous-period change, a daily views series, top pages and event
+  counts, and locale/device/referrer splits, over 7, 30 or 90 days.
+- The panel reads production rows by default through the `analytics_stats` RPC;
+  a toggle includes preview and development rows. A signed-in non-allowlisted
+  account gets no data even if it calls the RPC directly.
+- With no rows the panel shows an empty state, not an error.
+
+### Analytics
+
+- The web shell records one `pageview` per route change, client-side only; SSR
+  records nothing and the server never sees a visitor.
+- A dev build always tags its events `development`, whatever the configured
+  environment says, so a test build can never pass for production traffic.
+- The plugin is a no-op when the environment is `development` (which a dev
+  build always is) or when the Supabase URL or anon key is missing.
+- A deliberate local test opts in with `NUXT_PUBLIC_ANALYTICS_DEV=1`.
+- Only allowlisted `props` are sent: `view` and `month` for `/`, `range` for
+  `/trend`, `district` when it is not the default. Unknown query keys are
+  dropped and the path is sent without its query string.
+- `/admin` is never recorded: the client skips it and the database rejects it.
+- No cookie, IP address, account id, user agent or full URL is collected. The
+  session id lives in `sessionStorage` and dies with the tab.
+- A failed send is dropped; nothing is queued or retried. The request uses
+  `keepalive` so a page unload does not lose it.
+- `/privacy` is a localized page linked from the footer menu (Settings) that
+  states what is collected, what is not, and the 90-day retention.
+- The footer's Settings panel ends with the privacy entry, after the reload
+  actions, behind a divider.
 
 ### Share
 
@@ -516,6 +545,16 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Editing one row's time saves it and the changed value comes back on the
       next list.
 - [ ] `/admin` carries a `noindex` robots meta tag.
+- [ ] A route change records one `pageview` with the route path and no query
+      string.
+- [ ] With `import.meta.dev`, environment `development`, or missing Supabase
+      config, no pageview is sent.
+- [ ] Only allowlisted `props` are sent; unknown query keys are dropped.
+- [ ] A `/admin` visit records nothing.
+- [ ] The admin analytics panel renders totals, a daily series and the splits
+      for production, and an empty state with no rows.
+- [ ] The analytics panel's toggle includes preview and development rows.
+- [ ] `/privacy` is reachable from the footer menu and fully localized.
 
 ## Interfaces
 
@@ -607,3 +646,5 @@ None published. Consumes core and the Data port.
 - 2026-10-22 — move the trend period caption above the chart so it does not
   crowd the stepper on a phone, and clip the hidden a11y table so it stops
   widening the page.
+- 2026-10-24 — record cookieless pageviews client-side, gate them to
+  production, and surface the aggregates in an `/admin` panel; add `/privacy`.

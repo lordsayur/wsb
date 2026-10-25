@@ -56,6 +56,7 @@ const meta: Meta<typeof AppFooter> = {
     ayatLabel: 'Ayat Al-Quran',
     reloadDataLabel: 'Muat semula data',
     reloadAppLabel: 'Muat semula aplikasi',
+    privacyLabel: 'Privasi',
     shareLabel: 'Kongsi waktu sembahyang',
     shareFormattedLabel: 'Teks berformat',
     shareRawLabel: 'Teks mentah',
@@ -76,6 +77,7 @@ const meta: Meta<typeof AppFooter> = {
     onAyat: fn(),
     onReloadData: fn(),
     onReloadApp: fn(),
+    onPrivacy: fn(),
     onToggleNotifications: fn(),
     onShiftMonth: fn(),
     onTodayMonth: fn(),
@@ -134,6 +136,9 @@ export const SettingsOpen: Story = {
     await expect(
       canvas.getByRole('menuitem', { name: 'Muat semula aplikasi' }),
     ).toBeVisible()
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Privasi' }),
+    ).toBeVisible()
   },
 }
 
@@ -180,6 +185,16 @@ export const ReloadApp: Story = {
       canvas.getByRole('menuitem', { name: 'Muat semula aplikasi' }),
     )
     await expect(args.onReloadApp).toHaveBeenCalledTimes(1)
+  },
+}
+
+export const OpenPrivacy: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Tetapan' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Privasi' }))
+    await expect(args.onPrivacy).toHaveBeenCalledTimes(1)
   },
 }
 

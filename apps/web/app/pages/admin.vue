@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import AnalyticsPanel from '~/components/organisms/AnalyticsPanel.vue'
 import { useAdmin } from '~/composables/useAdmin'
+import { ANALYTICS_RANGES, useAnalytics } from '~/composables/useAnalytics'
 
 // specs/data/spec.md — admin import/edit page. Only the shell comes from here;
 // the Edge Function decides authorization and writes.
@@ -18,6 +20,32 @@ const {
   importMonth,
   saveRecord,
 } = useAdmin()
+
+const {
+  days,
+  includeOther,
+  stats,
+  state: analyticsState,
+  load: loadAnalytics,
+  setDays,
+  setIncludeOther,
+} = useAnalytics()
+
+// specs/web/spec.md — the analytics panel only exists for an allowlisted admin.
+watch(
+  () => state.value,
+  (value) => {
+    if (value === 'ready') void loadAnalytics()
+  },
+  { immediate: true },
+)
+
+const analyticsRanges = computed(() =>
+  ANALYTICS_RANGES.map((value) => ({
+    value,
+    label: t(`admin.analytics.days.${value}`),
+  })),
+)
 
 const drafts = ref<Record<string, string>>({})
 
@@ -92,6 +120,40 @@ useSeoMeta({ title: () => t('admin.title'), robots: 'noindex' })
         >
           {{ message }}
         </p>
+
+        <section class="panel">
+          <AnalyticsPanel
+            :title="t('admin.analytics.title')"
+            :state="analyticsState"
+            :stats="stats"
+            :days="days"
+            :include-other="includeOther"
+            :ranges="analyticsRanges"
+            :range-label="t('admin.analytics.range')"
+            :include-other-label="t('admin.analytics.includeOther')"
+            :views-label="t('admin.analytics.views')"
+            :sessions-label="t('admin.analytics.sessions')"
+            :daily-label="t('admin.analytics.daily')"
+            :top-pages-label="t('admin.analytics.topPages')"
+            :events-label="t('admin.analytics.events')"
+            :locales-label="t('admin.analytics.locales')"
+            :devices-label="t('admin.analytics.devices')"
+            :referrers-label="t('admin.analytics.referrers')"
+            :direct-label="t('admin.analytics.direct')"
+            :loading-text="t('state.loading')"
+            :empty-text="t('admin.analytics.empty')"
+            :error-text="t('admin.analytics.failed')"
+            :device-labels="{
+              mobile: t('admin.analytics.device.mobile'),
+              tablet: t('admin.analytics.device.tablet'),
+              desktop: t('admin.analytics.device.desktop'),
+            }"
+            :event-labels="{ pageview: t('admin.analytics.event.pageview') }"
+            :busy="analyticsState === 'loading'"
+            @update:days="setDays"
+            @update:include-other="setIncludeOther"
+          />
+        </section>
 
         <section class="panel">
           <h2 class="subtitle">{{ t('admin.records') }}</h2>

@@ -94,6 +94,18 @@ apps/web ──▶ Quran Ayat (core) ──▶ Quran corpus (static, bundled)
 - **Depends on:** nothing; the corpus is static and bundled with the app.
 - **Spec:** [`quran/spec.md`](./quran/spec.md).
 
+## Analytics — supporting domain
+
+- **Owns:** the event vocabulary, the write path (`analytics_events`), the daily
+  rollup (`analytics_daily`) and the aggregate read (`analytics_stats`).
+- **Published language:** `AnalyticsEvent`, `AnalyticsEnvironment`,
+  `deviceClass(width)`, `buildPageview(input)`. See
+  [`analytics/spec.md`](./analytics/spec.md).
+- **Invariant:** the browser can only write; only an allowlisted admin can read,
+  and authorization is decided in the database, never in the shell.
+- **Depends on:** Data (same Supabase project, same allowlist).
+- **Spec:** [`analytics/spec.md`](./analytics/spec.md).
+
 ## Dependency rules
 
 - Shell → core → data-port. Never the reverse.

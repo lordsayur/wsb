@@ -141,6 +141,27 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 - After a successful import or edit the shells' next refresh picks up the change;
   no runtime shell is notified directly.
 
+### Analytics storage
+
+- The `analytics_events` table holds one row per recorded event; the browser
+  inserts through PostgREST with the anon key and never reads it back.
+- RLS: an `insert` policy for `anon` only. No select/update/delete policy and no
+  grant exists for `anon` or `authenticated`; reads go through
+  `analytics_stats`.
+- Validation is in the database: `check` constraints accept only known event
+  names and environments, a bounded path that is not `/admin`, a bounded
+  `session_id`, a bounded `props` and known devices. A hostile client cannot
+  poison the table.
+- `analytics_daily` is the per-day rollup (`day`, `environment`, `path`,
+  `event`, `views`, `sessions`), service-role only.
+- `analytics_stats(days int, environment text)` is a `security definer` read
+  function. Its first statement raises `insufficient_privilege` unless
+  `auth.jwt() ->> 'email'` is in `admin_allowlist`; only then does it aggregate
+  `analytics_events`. Authorization is never decided in the browser.
+- Raw events are pruned manually after 90 days
+  (`delete from analytics_events where day < current_date - 90`), with `pg_cron`
+  as the named upgrade path.
+
 ## Invariants
 
 - Core and shells never import an adapter directly; they import the port.
@@ -179,6 +200,12 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
       row and leaves the others untouched.
 - [ ] An edit with an invalid date, district, prayer or time is rejected without
       writing.
+- [ ] An anonymous client can insert a valid analytics event.
+- [ ] An anonymous client cannot select, update or delete an analytics event.
+- [ ] An analytics insert with path `/admin`, an unknown event, an unknown
+      environment or oversized `props` is rejected by the database.
+- [ ] `analytics_stats` raises for a caller with no session and for a
+      non-allowlisted caller, and returns aggregates for an allowlisted one.
 
 ## Interfaces
 
@@ -191,6 +218,9 @@ Names only.
   `POST` with `action` of `import`, `update` or `list`.
 - Allowlist table `public.admin_allowlist(email)`; writable by the service role
   only.
+- `analytics_events` (insert-only for `anon`), `analytics_daily` (service role)
+  and `analytics_stats(days int, environment text)` — see
+  [`../analytics/spec.md`](../analytics/spec.md).
 
 ## Out of scope
 
@@ -220,3 +250,5 @@ Names only.
   cached without Imsak are refetched.
 - 2026-10-20 — add a synchronous cache peek so shells can paint cached times
   before the async read.
+- 2026-10-24 — add analytics storage: insert-only `analytics_events`, the
+  `analytics_daily` rollup, and the allowlisted `analytics_stats` read function.

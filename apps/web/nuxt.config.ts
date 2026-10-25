@@ -65,6 +65,10 @@ export default defineNuxtConfig({
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL ?? "",
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
+      // specs/analytics/spec.md — a build-time tag, never the hostname.
+      analyticsEnv: process.env.NUXT_PUBLIC_ANALYTICS_ENV ?? "development",
+      // Opt-in for a deliberate local ingestion test; off everywhere by default.
+      analyticsEnabled: process.env.NUXT_PUBLIC_ANALYTICS_DEV === "1",
     },
   },
   vite: {
