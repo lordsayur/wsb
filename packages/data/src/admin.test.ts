@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  adminEditKey,
+  adminMonthDays,
+  adminPendingRecords,
+  applyAdminEdits,
   isIsoDate,
   isMonth,
   normalizeTimeInput,
@@ -48,7 +52,6 @@ describe('normalizeTimeInput', () => {
 describe('validateRecordEdit', () => {
   const valid = {
     prayerDate: '2026-10-18',
-    district: 'belait',
     prayer: 'asar',
     time: '15:23',
     hijriDate: '7 Jamadilawal 1448 H',
@@ -68,9 +71,65 @@ describe('validateRecordEdit', () => {
 
   it('rejects every invalid field without throwing', () => {
     expect(validateRecordEdit({ ...valid, prayerDate: 'x' }).ok).toBe(false)
-    expect(validateRecordEdit({ ...valid, district: 'mars' }).ok).toBe(false)
     expect(validateRecordEdit({ ...valid, prayer: 'lunch' }).ok).toBe(false)
     expect(validateRecordEdit({ ...valid, time: '99:99' }).ok).toBe(false)
     expect(validateRecordEdit(null).ok).toBe(false)
+  })
+})
+
+describe('adminEditKey', () => {
+  it('keys a cell by date and prayer', () => {
+    expect(adminEditKey('2026-10-18', 'asar')).toBe('2026-10-18:asar')
+  })
+})
+
+describe('applyAdminEdits', () => {
+  const days = adminMonthDays([
+    { prayerDate: '2026-10-18', prayer: 'asar', time: '15:31:00', hijriDate: '7 H' },
+    { prayerDate: '2026-10-18', prayer: 'zuhur', time: '12:16:00', hijriDate: '7 H' },
+  ])
+
+  it('overlays staged times without touching stored rows', () => {
+    const next = applyAdminEdits(days, { '2026-10-18:asar': '15:35:00' })
+    expect(next[0]!.times.asar).toBe('15:35:00')
+    expect(next[0]!.times.zuhur).toBe('12:16:00')
+    expect(days[0]!.times.asar).toBe('15:31:00')
+  })
+
+  it('ignores edits for days not in the month', () => {
+    const next = applyAdminEdits(days, { '2026-11-01:asar': '15:35:00' })
+    expect(next).toEqual(days)
+  })
+})
+
+describe('adminPendingRecords', () => {
+  const days = adminMonthDays([
+    { prayerDate: '2026-10-18', prayer: 'asar', time: '15:31:00', hijriDate: '7 H' },
+    { prayerDate: '2026-10-19', prayer: 'zuhur', time: '12:17:00', hijriDate: '8 H' },
+  ])
+
+  it('emits one upsert record per staged cell with the day Hijri date', () => {
+    const records = adminPendingRecords(days, {
+      '2026-10-18:asar': '15:35:00',
+      '2026-10-19:zuhur': '12:20:00',
+    })
+    expect(records).toEqual([
+      {
+        prayerDate: '2026-10-18',
+        prayer: 'asar',
+        time: '15:35:00',
+        hijriDate: '7 H',
+      },
+      {
+        prayerDate: '2026-10-19',
+        prayer: 'zuhur',
+        time: '12:20:00',
+        hijriDate: '8 H',
+      },
+    ])
+  })
+
+  it('returns nothing when no cell is staged', () => {
+    expect(adminPendingRecords(days, {})).toEqual([])
   })
 })

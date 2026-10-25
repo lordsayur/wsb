@@ -1,82 +1,57 @@
-// specs/web/spec.md — admin page glue: Google sign-in + the `admin` function.
-// Authorization is decided server-side; this only reflects the result.
-import type { SupabaseClient } from '@supabase/supabase-js'
+// specs/web/spec.md — admin prayer-times page glue: Google sign-in + the
+// `admin` function. Authorization is decided server-side; this only reflects
+// the result. Cell edits are staged and written by one explicit save.
 import { useI18n } from 'vue-i18n'
-import type { AdminRecord } from '@wsb/data/admin'
+import {
+  adminEditKey,
+  adminMonthDays,
+  adminPendingRecords,
+  applyAdminEdits,
+  type AdminDay,
+  type AdminRecord,
+  type StoredPrayer,
+} from '@wsb/data/admin'
 import { supabaseClient } from '~/utils/supabase'
-
-export type AdminState = 'loading' | 'signed-out' | 'forbidden' | 'ready'
-
-interface AdminResponse {
-  email?: string
-  records?: AdminRecord[]
-  imported?: number
-  month?: string
-  error?: string
-}
-
-async function callAdmin(
-  client: SupabaseClient,
-  body: Record<string, unknown>,
-): Promise<AdminResponse> {
-  const { data, error } = await client.functions.invoke('admin', { body })
-  if (error) {
-    const status = (error as { context?: { status?: number } }).context?.status
-    if (status === 403) return { error: 'forbidden' }
-    if (status === 401) return { error: 'unauthorized' }
-    throw error
-  }
-  return (data ?? {}) as AdminResponse
-}
+import { callAdmin, useAdminAuth } from './useAdminAuth'
 
 export function useAdmin() {
   const { t } = useI18n()
   const client = supabaseClient()
-  const state = ref<AdminState>('loading')
-  const email = ref('')
+  const auth = useAdminAuth()
   const month = ref(new Date().toISOString().slice(0, 7))
   const records = ref<AdminRecord[]>([])
+  const edits = ref<Record<string, string>>({})
   const busy = ref(false)
   const message = ref('')
   const failed = ref(false)
 
-  async function refreshSession() {
-    if (!client) {
-      state.value = 'signed-out'
-      return
-    }
-    const { data } = await client.auth.getSession()
-    if (!data.session) {
-      state.value = 'signed-out'
-      return
-    }
-    const result = await callAdmin(client, { action: 'me' })
-    if (result.error === 'forbidden') {
-      state.value = 'forbidden'
-      email.value = data.session.user.email ?? ''
-      return
-    }
-    email.value = result.email ?? data.session.user.email ?? ''
-    state.value = 'ready'
-  }
-
-  async function signIn() {
-    if (!client) return
-    await client.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/admin` },
-    })
-  }
-
-  async function signOut() {
-    await client?.auth.signOut()
-    state.value = 'signed-out'
-    records.value = []
-  }
+  const stored = computed<AdminDay[]>(() => adminMonthDays(records.value))
+  const days = computed<AdminDay[]>(() => applyAdminEdits(stored.value, edits.value))
+  const dirty = computed(() => Object.keys(edits.value).length)
 
   function report(text: string, ok: boolean) {
     message.value = text
     failed.value = !ok
+  }
+
+  function edit(value: {
+    prayerDate: string
+    prayer: StoredPrayer
+    time: string
+  }) {
+    const key = adminEditKey(value.prayerDate, value.prayer)
+    if (!value.time) {
+      const next = { ...edits.value }
+      delete next[key]
+      edits.value = next
+      return
+    }
+    edits.value = { ...edits.value, [key]: value.time }
+  }
+
+  function discard() {
+    edits.value = {}
+    report('', true)
   }
 
   async function importMonth() {
@@ -89,6 +64,7 @@ export function useAdmin() {
       })
       if (result.error) report(t('admin.failed'), false)
       else report(t('admin.imported', { count: result.imported ?? 0 }), true)
+      edits.value = {}
       await listMonth()
     } catch (error) {
       report(error instanceof Error ? error.message : t('admin.failed'), false)
@@ -107,19 +83,25 @@ export function useAdmin() {
       report(t('admin.failed'), false)
       return
     }
-    records.value = result.records ?? []
+    records.value = (result.records ?? []) as AdminRecord[]
   }
 
-  async function saveRecord(record: AdminRecord) {
-    if (!client) return
+  async function saveEdits() {
+    if (!client || dirty.value === 0) return
     busy.value = true
     try {
+      const pending = adminPendingRecords(days.value, edits.value)
       const result = await callAdmin(client, {
         action: 'update',
-        record,
+        records: pending,
       })
-      report(result.error ? t('admin.failed') : t('admin.saved'), !result.error)
-      if (!result.error) await listMonth()
+      if (result.error) {
+        report(t('admin.failed'), false)
+        return
+      }
+      edits.value = {}
+      report(t('admin.saved', { count: pending.length }), true)
+      await listMonth()
     } catch (error) {
       report(error instanceof Error ? error.message : t('admin.failed'), false)
     } finally {
@@ -127,32 +109,38 @@ export function useAdmin() {
     }
   }
 
-  onMounted(async () => {
-    if (!client) {
-      state.value = 'signed-out'
-      return
-    }
-    await refreshSession()
-    client.auth.onAuthStateChange(() => void refreshSession())
-    if (state.value === 'ready') await listMonth()
-  })
+  // The auth state is shared across pages, so it may already be ready when
+  // this page mounts (returning from another admin page).
+  watch(
+    auth.state,
+    (value) => {
+      if (value === 'ready') void listMonth()
+    },
+    { immediate: true },
+  )
 
   watch(month, () => {
-    if (state.value === 'ready') void listMonth()
+    edits.value = {}
+    if (auth.state.value === 'ready') void listMonth()
   })
 
   return {
-    state,
-    email,
+    state: auth.state,
+    email: auth.email,
+    signIn: auth.signIn,
+    signOut: auth.signOut,
     month,
     records,
+    days,
+    edits,
+    dirty,
     busy,
     message,
     failed,
-    signIn,
-    signOut,
+    edit,
+    discard,
+    saveEdits,
     importMonth,
     listMonth,
-    saveRecord,
   }
 }

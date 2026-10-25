@@ -67,7 +67,7 @@ describe('SupabasePrayerSource', () => {
     expect(receiver).not.toBeInstanceOf(SupabasePrayerSource)
   })
 
-  it('requests Brunei & Muara base rows for the date', async () => {
+  it('requests base rows for the date', async () => {
     let requested = ''
     const source = new SupabasePrayerSource(
       { url: 'https://example.supabase.co', anonKey: 'anon' },
@@ -85,7 +85,7 @@ describe('SupabasePrayerSource', () => {
     expect(day.hijriDate).toBe('')
     expect(requested).toContain('/rest/v1/prayer_times?')
     expect(requested).toContain('prayer_date=eq.2026-10-18')
-    expect(requested).toContain('district=eq.bruneiMuara')
+    expect(requested).not.toContain('district=')
   })
 })
 

@@ -45,7 +45,6 @@ async function upsert(
     body: JSON.stringify(
       records.map((record) => ({
         prayer_date: record.prayerDate,
-        district: record.district,
         prayer: record.prayer,
         time: record.time,
         hijri_date: record.hijriDate,

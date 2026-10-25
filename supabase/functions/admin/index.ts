@@ -9,7 +9,6 @@ import { isMonth, validateRecordEdit, type AdminRecord } from '@wsb/data/admin.t
 
 interface AdminRow {
   prayer_date: string
-  district: string
   prayer: string
   time: string
   hijri_date: string
@@ -53,7 +52,6 @@ async function importMonth(month: string): Promise<number> {
   const items = await fetchMoraItems(moraMonthRange(year, mon))
   const records = normalizeMoraItems(items).map((record) => ({
     prayer_date: record.prayerDate,
-    district: record.district,
     prayer: record.prayer,
     time: record.time,
     hijri_date: record.hijriDate,
@@ -62,7 +60,7 @@ async function importMonth(month: string): Promise<number> {
   if (records.length === 0) throw new Error('MORA returned no records')
   const { error } = await adminClient()
     .from('prayer_times')
-    .upsert(records, { onConflict: 'prayer_date,district,prayer' })
+    .upsert(records, { onConflict: 'prayer_date,prayer' })
   if (error) throw new Error(error.message)
   return records.length
 }
@@ -73,7 +71,7 @@ async function listMonth(month: string): Promise<AdminRecord[]> {
   const to = new Date(Date.UTC(year, mon, 1)).toISOString().slice(0, 10)
   const { data, error } = await adminClient()
     .from('prayer_times')
-    .select('prayer_date,district,prayer,time,hijri_date')
+    .select('prayer_date,prayer,time,hijri_date')
     .gte('prayer_date', from)
     .lt('prayer_date', to)
     .order('prayer_date')
@@ -81,27 +79,26 @@ async function listMonth(month: string): Promise<AdminRecord[]> {
   if (error) throw new Error(error.message)
   return ((data ?? []) as AdminRow[]).map((row) => ({
     prayerDate: row.prayer_date,
-    district: row.district as AdminRecord['district'],
     prayer: row.prayer as AdminRecord['prayer'],
     time: row.time,
     hijriDate: row.hijri_date,
   }))
 }
 
-async function updateRecord(record: AdminRecord): Promise<void> {
+async function updateRecords(records: readonly AdminRecord[]): Promise<void> {
+  const now = new Date().toISOString()
   const { error } = await adminClient()
     .from('prayer_times')
     .upsert(
-      {
+      records.map((record) => ({
         prayer_date: record.prayerDate,
-        district: record.district,
         prayer: record.prayer,
         time: record.time,
         hijri_date: record.hijriDate,
         source_url: MORA_PAGE_URL,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'prayer_date,district,prayer' },
+        updated_at: now,
+      })),
+      { onConflict: 'prayer_date,prayer' },
     )
   if (error) throw new Error(error.message)
 }
@@ -123,6 +120,7 @@ export default {
       const body = (await req.json().catch(() => ({}))) as {
         action?: unknown
         month?: unknown
+        records?: unknown
         record?: unknown
       }
 
@@ -146,10 +144,20 @@ export default {
       }
 
       if (body.action === 'update') {
-        const validated = validateRecordEdit(body.record)
-        if (!validated.ok) return json({ error: validated.error }, 400)
-        await updateRecord(validated.value)
-        return json({ record: validated.value })
+        const input = Array.isArray(body.records)
+          ? body.records
+          : body.record === undefined
+            ? []
+            : [body.record]
+        if (input.length === 0) return json({ error: 'No records' }, 400)
+        const validated = input.map(validateRecordEdit)
+        const invalid = validated.find((result) => !result.ok)
+        if (invalid && !invalid.ok) return json({ error: invalid.error }, 400)
+        const records = validated.flatMap((result) =>
+          result.ok ? [result.value] : [],
+        )
+        await updateRecords(records)
+        return json({ records })
       }
 
       return json({ error: 'Unknown action' }, 400)

@@ -45,7 +45,6 @@ export class SupabasePrayerSource implements RemotePrayerSource {
   ): Promise<PrayerDay> {
     const rows = await this.request({
       prayer_date: `eq.${date}`,
-      district: 'eq.bruneiMuara',
       select: 'prayer,time,hijri_date',
     })
     return {
@@ -64,7 +63,6 @@ export class SupabasePrayerSource implements RemotePrayerSource {
     if (!from || !to) throw new Error('Invalid month')
     const rows = await this.request({
       and: `(prayer_date.gte.${from},prayer_date.lte.${to})`,
-      district: 'eq.bruneiMuara',
       select: 'prayer_date,prayer,time,hijri_date',
       order: 'prayer_date.asc',
     })

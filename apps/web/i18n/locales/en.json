@@ -160,6 +160,15 @@
   },
   "admin": {
     "title": "Data admin",
+    "times": {
+      "title": "Prayer times"
+    },
+    "hijri": "Hijri",
+    "nav": {
+      "label": "Admin navigation",
+      "times": "Prayer times",
+      "analytics": "Analytics"
+    },
     "signIn": "Sign in with Google",
     "signInHint": "Sign in with an authorized Google account to manage prayer times.",
     "forbidden": "This account is not allowed to manage data.",
@@ -171,10 +180,6 @@
     "records": "Records this month",
     "empty": "No records for this month.",
     "date": "Date",
-    "district": "District",
-    "prayer": "Entry",
-    "time": "Time",
-    "save": "Save",
     "back": "Back to the app",
     "prayers": {
       "imsak": "Imsak",
@@ -187,7 +192,7 @@
       "isyak": "Isyak"
     },
     "imported": "Imported {count} records.",
-    "saved": "Saved.",
+    "saved": "{count} changes saved.",
     "failed": "Failed. Try again.",
     "unauthorized": "Session expired. Sign in again.",
     "analytics": {
@@ -218,7 +223,10 @@
         "tablet": "Tablet",
         "desktop": "Desktop"
       }
-    }
+    },
+    "save": "Save",
+    "discard": "Discard",
+    "pending": "{count} unsaved changes."
   },
   "month": {
     "prev": "Previous month",

@@ -160,6 +160,15 @@
   },
   "admin": {
     "title": "Pentadbir data",
+    "times": {
+      "title": "Waktu sembahyang"
+    },
+    "hijri": "Hijrah",
+    "nav": {
+      "label": "Navigasi pentadbir",
+      "times": "Waktu sembahyang",
+      "analytics": "Analitik"
+    },
     "signIn": "Masuk dengan Google",
     "signInHint": "Masuk dengan akaun Google yang dibenarkan untuk mengurus waktu sembahyang.",
     "forbidden": "Akaun ini tidak dibenarkan mengurus data.",
@@ -171,10 +180,6 @@
     "records": "Rekod bulan ini",
     "empty": "Tiada rekod untuk bulan ini.",
     "date": "Tarikh",
-    "district": "Daerah",
-    "prayer": "Waktu",
-    "time": "Masa",
-    "save": "Simpan",
     "back": "Kembali ke aplikasi",
     "prayers": {
       "imsak": "Imsak",
@@ -187,7 +192,7 @@
       "isyak": "Isyak"
     },
     "imported": "{count} rekod diimport.",
-    "saved": "Disimpan.",
+    "saved": "{count} perubahan disimpan.",
     "failed": "Tidak berjaya. Cuba lagi.",
     "unauthorized": "Sesi tamat. Sila masuk semula.",
     "analytics": {
@@ -218,7 +223,10 @@
         "tablet": "Tablet",
         "desktop": "Desktop"
       }
-    }
+    },
+    "save": "Simpan",
+    "discard": "Batal",
+    "pending": "{count} perubahan belum disimpan."
   },
   "month": {
     "prev": "Bulan sebelumnya",

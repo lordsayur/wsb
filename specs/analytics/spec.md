@@ -2,14 +2,14 @@
 
 - **Status:** active
 - **Context:** supporting domain
-- **Code:** `supabase/migrations`, `packages/data`, `apps/web` (plugin + `/admin`)
+- **Code:** `supabase/migrations`, `packages/data`, `apps/web` (plugin + `/admin/analytics`)
 - **Depends on:** Data (same Supabase project)
 
 ## Purpose
 
 Measure how the web app is used without a third-party tracker: which pages are
 visited, in which locale and on what kind of device, and from where readers
-arrive. The numbers are read back inside `/admin` so the maintainer never leaves
+arrive. The numbers are read back inside `/admin/analytics` so the maintainer never leaves
 the app for a vendor dashboard.
 
 ## Ubiquitous language
@@ -41,8 +41,8 @@ Terms this context owns.
   no user-agent string is stored.
 - `referrer_host` is the referring host only (no path, no query). A same-origin
   or empty referrer records no value.
-- `/admin` is never recorded: the insert constraint rejects it and the client
-  never sends it.
+- Every `/admin` route is never recorded: the insert constraint rejects it and
+  the client never sends it.
 - Nothing else is collected. No cookie, no IP address, no account id, no
   fingerprint, no full URL with query, no mouse or scroll data.
 
@@ -76,13 +76,13 @@ Terms this context owns.
 
 ### Dashboard
 
-- `/admin` shows an analytics panel to an allowlisted admin: totals and
-  previous-period change, a daily views series, top pages, and locale/device/
-  referrer splits, over 7, 30 or 90 days.
-- The panel reads through one Postgres function, `analytics_stats`, which
+- `/admin/analytics` shows the analytics dashboard to an allowlisted admin:
+  totals and previous-period change, a daily views series, top pages, and
+  locale/device/referrer splits, over 7, 30 or 90 days.
+- The page reads through one Postgres function, `analytics_stats`, which
   re-checks the caller's email against `admin_allowlist` before returning
   anything. Authorization is never decided in the browser.
-- With no rows the panel shows an empty state, not an error.
+- With no rows the page shows an empty state, not an error.
 
 ## Invariants
 
@@ -91,7 +91,7 @@ Terms this context owns.
 - An anonymous client can write an event and can never read one.
 - A non-allowlisted caller gets no analytics data, whatever the client asks for.
 - Development traffic never pollutes production numbers.
-- `/admin` traffic is never recorded.
+- `/admin` and `/admin/analytics` traffic is never recorded.
 - The dashboard's default view is reproduced exactly by
   `analytics_stats(days, 'production')`.
 
@@ -107,7 +107,8 @@ Terms this context owns.
 - [ ] A same-origin referrer records no `referrer_host`.
 - [ ] Viewport widths map to `mobile`, `tablet` and `desktop` at the
       documented breakpoints.
-- [ ] A row with path `/admin` is rejected by the insert constraint.
+- [ ] A row with path `/admin` or `/admin/analytics` is rejected by the insert
+      constraint.
 - [ ] A row with an unknown event name or oversized `props` is rejected by the
       database.
 - [ ] An anonymous client can insert a valid row.

@@ -160,6 +160,15 @@
   },
   "admin": {
     "title": "ڤنتدبير داتا",
+    "times": {
+      "title": "وقت سمبهيڠ"
+    },
+    "hijri": "هجره",
+    "nav": {
+      "label": "ناۏيکاسي ڤنتدبير",
+      "times": "وقت سمبهيڠ",
+      "analytics": "اناليتيک"
+    },
     "signIn": "ماسوق دڠن Google",
     "signInHint": "ماسوق دڠن اكون Google يڠ دبنرکن اونتوق مڠوروس وقت سمبهيڠ.",
     "forbidden": "اكون اين تيدق دبنرکن مڠوروس داتا.",
@@ -171,10 +180,6 @@
     "records": "ريکود بولن اين",
     "empty": "تياد ريکود اونتوق بولن اين.",
     "date": "تاريخ",
-    "district": "دائره",
-    "prayer": "وقت",
-    "time": "ماس",
-    "save": "سيمڤن",
     "back": "کمبالي کأڤليکاسي",
     "prayers": {
       "imsak": "ايمساق",
@@ -187,7 +192,7 @@
       "isyak": "عشاء"
     },
     "imported": "{count} ريکود دأيمڤورت.",
-    "saved": "دسيمڤن.",
+    "saved": "{count} perubahan دسيمڤن.",
     "failed": "تيدق برجاي. چوبا لاݢي.",
     "unauthorized": "سيسي تامت. سيلا ماسوق سمولا.",
     "analytics": {
@@ -218,7 +223,10 @@
         "tablet": "Tablet",
         "desktop": "Desktop"
       }
-    }
+    },
+    "save": "سيمڤن",
+    "discard": "باتل",
+    "pending": "{count} perubahan بلوم دسيمڤن."
   },
   "month": {
     "prev": "بولن سبلوم",

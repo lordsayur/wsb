@@ -276,28 +276,52 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - A small, muted link to the MORA/KHEU Brunei `WaktuSembahyang` page sits at the
   top of the page, centred, labelled via translation keys.
 
-### Admin page
+### Admin pages
 
-- `/admin` is a separate, non-indexed page for maintaining the stored prayer
-  data. It is not linked from the app UI.
-- Signed out, it offers **Sign in with Google** (Supabase Auth) and nothing
-  else. The OAuth redirect returns to `/admin`.
+- The admin surface is split into two separate, non-indexed pages, neither
+  linked from the app UI:
+  - `/admin` — prayer times, the default page.
+  - `/admin/analytics` — the analytics dashboard.
+- Both pages share one shell (`layouts/admin.vue`): a left menu listing every
+  admin page (prayer times, analytics) plus a link back to the app, and the
+  signed-in account's email with **Sign out** at the top right. The menu marks
+  the current page and gains an entry per new admin page without touching the
+  pages themselves.
+- The shell is the only scrolling container: the document itself does not
+  scroll, so long tables scroll inside the content area rather than moving the
+  menu and account. At narrow widths the left menu becomes a horizontal bar.
+- Signed out, either page offers **Sign in with Google** (Supabase Auth) and
+  nothing else. The OAuth redirect returns to the page that started it.
 - Authorization belongs to the `admin` Edge Function (Data context): a
   signed-in account whose email is not in `admin_allowlist` sees a
   "not authorized" state and no data.
-- An authorized admin picks a month, imports that Brunei month from MORA, and
-  sees the month's stored records; each row's time can be edited and saved.
-- Every import, list and update goes through the `admin` function; the shell
-  never writes to Supabase directly and never holds a service-role key.
 - All strings are translation keys, including result messages and all entry
   names.
-- An authorized admin also sees an **Analytics** panel above the records panel:
-  totals and previous-period change, a daily views series, top pages and event
-  counts, and locale/device/referrer splits, over 7, 30 or 90 days.
-- The panel reads production rows by default through the `analytics_stats` RPC;
+
+### Admin prayer times
+
+- An authorized admin picks a month, imports that Brunei month from MORA, and
+  sees the month as a table with **one row per day**: the date, the Hijri date,
+  and one editable time cell per stored entry (Imsak, Subuh, Syuruk, Dhuha,
+  Zuhur, Asar, Maghrib, Isyak).
+- Stored data is the Brunei & Muara base times; the district is not shown and
+  not editable. Other districts stay a frontend offset in core.
+- Cell edits are staged locally: changing a time marks the cell as pending and
+  shows a count of unsaved changes. Nothing is written until the admin presses
+  **Save**, which upserts every staged entry in one request; **Discard** clears
+  the staged edits without writing. A blank cell drops its staged edit.
+- Every import, list and update goes through the `admin` function; the shell
+  never writes to Supabase directly and never holds a service-role key.
+
+### Admin analytics
+
+- `/admin/analytics` shows totals and previous-period change, a daily views
+  series, top pages and event counts, and locale/device/referrer splits, over
+  7, 30 or 90 days.
+- The page reads production rows by default through the `analytics_stats` RPC;
   a toggle includes preview and development rows. A signed-in non-allowlisted
   account gets no data even if it calls the RPC directly.
-- With no rows the panel shows an empty state, not an error.
+- With no rows the page shows an empty state, not an error.
 
 ### Analytics
 
@@ -538,21 +562,30 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The chosen Arabic-script locale survives a reload.
 - [ ] No visible literal strings exist outside the locale files.
 - [ ] A missing `ms` key fails the check before shipping.
-- [ ] `/admin` signed out shows only the Google sign-in action.
+- [ ] `/admin` signed out shows only the Google sign-in action, with the admin
+      menu and no account panel until signed in.
 - [ ] A signed-in non-allowlisted account sees the not-authorized state with no
       records.
-- [ ] An allowlisted admin imports a month and sees its records.
-- [ ] Editing one row's time saves it and the changed value comes back on the
-      next list.
-- [ ] `/admin` carries a `noindex` robots meta tag.
+- [ ] An allowlisted admin imports a month and sees one row per day, with the
+      eight entries as editable time cells and no district column.
+- [ ] The admin menu switches between `/admin` and `/admin/analytics` without
+      losing the session, and the signed-in email sits at the top right with a
+      working sign out.
+- [ ] A tall month table scrolls inside the content area while the menu and the
+      account stay fixed.
+- [ ] Editing one cell stages it, shows the pending count, writes nothing until
+      **Save**, and then reloads the month with the new value; **Discard**
+      clears staged edits.
+- [ ] `/admin` and `/admin/analytics` carry a `noindex` robots meta tag and are
+      reachable from the shared menu.
 - [ ] A route change records one `pageview` with the route path and no query
       string.
 - [ ] With `import.meta.dev`, environment `development`, or missing Supabase
       config, no pageview is sent.
 - [ ] Only allowlisted `props` are sent; unknown query keys are dropped.
-- [ ] A `/admin` visit records nothing.
-- [ ] The admin analytics panel renders totals, a daily series and the splits
-      for production, and an empty state with no rows.
+- [ ] Visiting either admin page records nothing.
+- [ ] `/admin/analytics` renders totals, a daily series and the splits for
+      production, and an empty state with no rows.
 - [ ] The analytics panel's toggle includes preview and development rows.
 - [ ] `/privacy` is reachable from the footer menu and fully localized.
 
@@ -648,3 +681,5 @@ None published. Consumes core and the Data port.
   widening the page.
 - 2026-10-24 — record cookieless pageviews client-side, gate them to
   production, and surface the aggregates in an `/admin` panel; add `/privacy`.
+- 2026-10-25 — split `/admin` into prayer times (`/admin`, one row per day,
+  district removed) and `/admin/analytics`.

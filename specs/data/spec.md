@@ -108,10 +108,12 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
   (Asar, Maghrib, Isyak are PM; Zohor is 12:xx; morning entries are AM).
 - The SharePoint `Date` field is Brunei local midnight stored as UTC (16:00Z on
   the previous day). The adapter converts it to the Brunei calendar date.
-- **One record = one prayer time**: rows are keyed by
-  (prayer date, district, prayer), so a future data-analysis surface can query
-  individual times. Stored district is the base district (Brunei & Muara);
-  offsets stay in core.
+- **One record = one prayer time**: rows are keyed by (prayer date, prayer), so
+  a future data-analysis surface can query individual times. Rows store the
+  Brunei & Muara base times only; offsets stay in core.
+- MORA sometimes returns two rows for the same date; normalization keeps the
+  last one and drops the duplicate, so an import never sends two rows for the
+  same (prayer date, prayer).
 - The importer fetches exactly one Brunei calendar month and upserts into
   Supabase. Run it monthly.
 - Credentials are environment-only: `SUPABASE_URL` +
@@ -119,8 +121,9 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
   Function (as function secrets); the web shell uses
   `NUXT_PUBLIC_SUPABASE_URL` + `NUXT_PUBLIC_SUPABASE_ANON_KEY`. The service-role
   key never ships to a shell.
-- Supabase migration: `supabase/migrations/20261018000000_prayer_times.sql`.
-  Public read via RLS; writes only through the service role.
+- Supabase migrations: `20261018000000_prayer_times.sql` (initial) and
+  `20261025000000_prayer_times_no_district.sql` (drop `district`, key by date +
+  prayer). Public read via RLS; writes only through the service role.
 
 ### Admin import and correction
 
@@ -133,11 +136,12 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
   shows an "not authorized" state and exposes no data.
 - An allowlisted admin can:
   - import one Brunei month (current or a chosen `YYYY-MM`) from MORA, and
-  - edit an existing record's time for a (date, district, prayer) and upsert it.
-- Edits are upserts keyed by (prayer date, district, prayer) and stamp
-  `updated_at`; importing a month overwrites matching rows.
-- An edit must carry a valid ISO date, a known district, a known prayer and a
-  `HH:mm` or `HH:mm:ss` time; anything else is rejected without writing.
+  - edit one or more existing records' times for a (date, prayer) and upsert
+    them in one call (`records`), or a single record (`record`).
+- Edits are upserts keyed by (prayer date, prayer) and stamp `updated_at`;
+  importing a month overwrites matching rows.
+- An edit must carry a valid ISO date, a known prayer and a `HH:mm` or
+  `HH:mm:ss` time; anything else is rejected without writing.
 - After a successful import or edit the shells' next refresh picks up the change;
   no runtime shell is notified directly.
 
@@ -195,11 +199,13 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 - [ ] A SharePoint UTC date maps to the correct Brunei calendar date.
 - [ ] The `admin` function rejects a caller with no session or a session whose
       email is not in `admin_allowlist`, without reading or writing data.
-- [ ] An allowlisted admin import of one month upserts one row per prayer time.
-- [ ] An allowlisted admin edit updates exactly one (date, district, prayer)
-      row and leaves the others untouched.
-- [ ] An edit with an invalid date, district, prayer or time is rejected without
-      writing.
+- [ ] An allowlisted admin import of one month upserts one row per prayer time,
+      even when MORA returns duplicate dates.
+- [ ] An allowlisted admin edit updates exactly the staged (date, prayer) rows
+      and leaves the others untouched.
+- [ ] A batch edit with one invalid record is rejected as a whole and writes
+      nothing.
+- [ ] An edit with an invalid date, prayer or time is rejected without writing.
 - [ ] An anonymous client can insert a valid analytics event.
 - [ ] An anonymous client cannot select, update or delete an analytics event.
 - [ ] An analytics insert with path `/admin`, an unknown event, an unknown
@@ -252,3 +258,5 @@ Names only.
   before the async read.
 - 2026-10-24 — add analytics storage: insert-only `analytics_events`, the
   `analytics_daily` rollup, and the allowlisted `analytics_stats` read function.
+- 2026-10-25 — drop the stored `district`; key rows by (date, prayer), store
+  Brunei & Muara base times only, and dedupe duplicate MORA dates on import.

@@ -83,7 +83,6 @@ describe('normalizeMoraItems', () => {
     expect(records).toHaveLength(8)
     expect(records[0]).toEqual({
       prayerDate: '2026-10-02',
-      district: 'bruneiMuara',
       prayer: 'imsak',
       time: '04:41:00',
       hijriDate: '20 Rabiulakhir 1448 H',
@@ -100,6 +99,21 @@ describe('normalizeMoraItems', () => {
       'isyak',
     ])
   })
+
+  it('keeps one record per prayer when MORA repeats a date', () => {
+    const records = normalizeMoraItems([
+      item,
+      { ...item, Tarikh: '21 Rabiulakhir 1448 H', Imsak: '4.42' },
+    ])
+    expect(records).toHaveLength(8)
+    expect(records[0]).toEqual({
+      prayerDate: '2026-10-02',
+      prayer: 'imsak',
+      time: '04:42:00',
+      hijriDate: '21 Rabiulakhir 1448 H',
+      sourceUrl: MORA_PAGE_URL,
+    })
+  })
 })
 
 describe('toSql', () => {
@@ -115,8 +129,8 @@ describe('toSql', () => {
       ]),
     )
     expect(sql).toContain(
-      "('2026-10-02', 'bruneiMuara', 'imsak', '04:41:00', '20 Rabiulakhir 1448 H'",
+      "('2026-10-02', 'imsak', '04:41:00', '20 Rabiulakhir 1448 H'",
     )
-    expect(sql).toContain('on conflict (prayer_date, district, prayer)')
+    expect(sql).toContain('on conflict (prayer_date, prayer)')
   })
 })
