@@ -559,4 +559,4 @@ export function createPrayerTimes(
   }
 }
 
-export * from './quran.js'
+export * from './quran.ts'

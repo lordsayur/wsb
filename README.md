@@ -153,18 +153,31 @@ signs in with Google (Supabase Auth) and the `admin` Edge Function re-checks the
 caller's email against the `admin_allowlist` table on every call; the
 service-role key lives in the function's secrets only.
 
+Local Google login (the stack reads `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
+from the root `.env`; `supabase/.env` is **not** read by `config.toml`):
+
 ```bash
-# one-time: apply the allowlist migration, then add the Google provider in
-# the Supabase dashboard (Auth → Providers → Google)
 npx supabase db push
-
-# deploy the function and give it the service role (never in a shell build)
-npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=... \
-  SUPABASE_ANON_KEY=...
-npx supabase functions deploy admin
-
-# allow an account (Supabase dashboard → table editor → admin_allowlist)
+npx supabase functions deploy admin     # hosted; needs `supabase login` once
+npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=...   # function secret only
 ```
+
+Google Cloud console → **APIs & Services → Credentials → OAuth client (Web)**.
+The authorized redirect URI is Auth's callback, never the page URL:
+
+- hosted: `https://camysdcgdygxtpsdurer.supabase.co/auth/v1/callback`
+- local: `http://127.0.0.1:54321/auth/v1/callback`
+
+Supabase dashboard → project `camysdcgdygxtpsdurer` → Authentication → URL
+Configuration:
+
+- Site URL: `https://wsb-next.netlify.app`
+- Redirect URLs: `https://wsb-next.netlify.app/admin`,
+  `https://wsb.try.routeup.dev/admin`, `http://localhost:5173/admin`,
+  `http://127.0.0.1:5173/admin`, `https://**--wsb-next.netlify.app/admin`
+
+Authentication → Providers → Google: enable, paste the client ID + secret from
+the console. Allow an account in table editor → `admin_allowlist`.
 
 The browser extension embeds the public Supabase URL + anon key at build time:
 

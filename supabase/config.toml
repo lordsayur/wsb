@@ -161,10 +161,13 @@ site_url = "http://localhost:5173"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+# The hosted project needs the same list in Dashboard → Authentication → URL
+# Configuration (plus the `https://**--wsb-next.netlify.app/admin` preview glob).
 additional_redirect_urls = [
   "http://localhost:5173/admin",
   "http://127.0.0.1:5173/admin",
   "https://wsb.try.routeup.dev/admin",
+  "https://wsb-next.netlify.app/admin",
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
@@ -329,6 +332,11 @@ max_frequency = "5s"
 # sign-in cannot complete, but the provider stops returning "not enabled".
 [auth.external.google]
 enabled = true
+# Set these in the repo-root .env (gitignored) — `env()` resolves from there,
+# not from supabase/.env. The callback registered in Google Cloud is Auth's
+# own URL (never the page URL):
+#   https://<project-ref>.supabase.co/auth/v1/callback   (hosted)
+#   http://127.0.0.1:54321/auth/v1/callback              (local stack)
 client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_CLIENT_SECRET)"
 # Local OAuth needs the nonce check skipped (see the config reference above).

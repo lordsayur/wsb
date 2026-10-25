@@ -44,6 +44,8 @@ async function vendor(from, to) {
 }
 
 await vendor('packages/core/src/index.ts', 'src/vendor/core.ts')
+// core re-exports the Quran domain; the barrel needs the file beside it.
+await vendor('packages/core/src/quran.ts', 'src/vendor/quran.ts')
 await vendor('packages/data/src/index.ts', 'src/vendor/data.ts')
 await vendor('packages/data/src/supabase.ts', 'src/vendor/supabase.ts')
 await vendor('packages/data/src/mora.ts', 'src/vendor/source.ts')
