@@ -20,5 +20,5 @@
       "extensions": ["dbaeumer.vscode-eslint"]
     }
   },
-  "postStartCommand": "bash -c 'set -a; [ -f .env ] && . ./.env; if [ -n \"${SUPABASE_ACCESS_TOKEN:-}\" ]; then mkdir -p \"$HOME/.supabase\"; printf %s \"$SUPABASE_ACCESS_TOKEN\" > \"$HOME/.supabase/access-token\"; chmod 600 \"$HOME/.supabase/access-token\"; fi'"
+  "postStartCommand": "bash -c 'set -a; [ -f .env ] && . ./.env; if [ -n \"${SUPABASE_ACCESS_TOKEN:-}\" ]; then mkdir -p \"$HOME/.supabase\"; printf %s \"$SUPABASE_ACCESS_TOKEN\" > \"$HOME/.supabase/access-token\"; chmod 600 \"$HOME/.supabase/access-token\"; fi; if [ -n \"${NETLIFY_AUTH_TOKEN:-}\" ]; then node .devcontainer/netlify-token.cjs; fi'"
 }
