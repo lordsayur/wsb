@@ -1,17 +1,20 @@
 // specs/web/spec.md — shell wiring. No business logic: core computes, the shell renders.
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import {
-  PRAYER_ORDER,
   bruneiNow,
   DEFAULT_TIME_FORMAT,
   createPrayerTimes,
+  displayPrayers,
   formatDate,
   formatHijriDate,
   formatTime,
+  passedPrayer,
   prayerProgress,
+  prayerPhase,
   resolveDistrict,
+  shiftDate,
   type District,
-  type PrayerName,
+  type PrayerEntry,
   type TimeFormat,
 } from '@wsb/core'
 import {
@@ -21,6 +24,7 @@ import {
 } from '@wsb/data'
 import { LocalPrayerCacheStore, LocalSelectionStore } from '@wsb/data/local'
 import { SupabasePrayerSource } from '@wsb/data/supabase'
+import { nextLoadDistrict } from '~/utils/districtLoad'
 import { useDelayedFlag } from '~/utils/delayedFlag'
 
 let repository: PrayerRepository | null = null
@@ -91,31 +95,54 @@ export function usePrayerTimes(
   // Keep the initial values identical to SSR; cached data is painted in
   // onMounted before revalidating, so hydration never mismatches.
   const state = ref<LoadState>('loading')
+  // A link's district is only the starting point; once the user picks another
+  // it must not snap back, so it is consumed exactly once (see districtLoad).
+  let linkedDistrict = initialDistrict
   const stored = initialDistrict ?? repo.getSelectionSync?.() ?? null
   const district = ref<District>(resolveDistrict(stored))
   const { flag: refreshing, start: startRefreshing, stop: stopRefreshing } =
     useDelayedFlag()
-  const entries = ref<{ prayer: PrayerName; minutes: number }[]>([])
-  const baseEntries = ref<{ prayer: PrayerName; minutes: number }[]>([])
+  const entries = ref<PrayerEntry[]>([])
+  const baseEntries = ref<PrayerEntry[]>([])
+  const tomorrowEntries = ref<PrayerEntry[]>([])
+  const tomorrowHijriDate = ref('')
   const stale = ref(false)
   const date = ref(today())
   const hijriDate = ref('')
   const nowSeconds = ref(bruneiNow().seconds)
   let clock: ReturnType<typeof setInterval> | undefined
 
-  function apply(next: { prayer: PrayerName; minutes: number }[], hijri: string) {
+  function apply(
+    next: PrayerEntry[],
+    hijri: string,
+    tomorrow: PrayerEntry[] = [],
+    tomorrowHijri = '',
+  ) {
     date.value = today()
     baseEntries.value = next
     entries.value = createPrayerTimes(date.value, district.value, next).entries
     hijriDate.value = hijri
+    tomorrowEntries.value = createPrayerTimes(
+      shiftDate(date.value, 1),
+      district.value,
+      tomorrow,
+    ).entries
+    tomorrowHijriDate.value = tomorrowHijri
   }
 
   /** specs/web/spec.md — paint the cached day before any network work. */
   function paintFromCache(): boolean {
-    if (stored) district.value = resolveDistrict(stored)
     const cached = repo.peek?.(today(), district.value)
     if (cached?.status !== 'ok') return false
-    apply(cached.entries, cached.hijriDate)
+    // A peek for tomorrow only counts when it is that day, not last-known data.
+    const tomorrow = repo.peek?.(shiftDate(today(), 1), district.value)
+    const next = tomorrow?.status === 'ok' && !tomorrow.stale ? tomorrow : null
+    apply(
+      cached.entries,
+      cached.hijriDate,
+      next?.entries ?? [],
+      next?.hijriDate ?? '',
+    )
     stale.value = cached.stale
     state.value = 'ready'
     return true
@@ -123,7 +150,11 @@ export function usePrayerTimes(
 
   onMounted(() => {
     clock = setInterval(() => {
-      nowSeconds.value = bruneiNow().seconds
+      const now = bruneiNow()
+      nowSeconds.value = now.seconds
+      // The day, its entries and its dates are resolved once; when Brunei
+      // midnight passes, reload so the sheet shows the new day, not yesterday's.
+      if (now.date !== date.value) void load()
     }, 1_000)
   })
   onUnmounted(() => clearInterval(clock))
@@ -133,21 +164,38 @@ export function usePrayerTimes(
   if (import.meta.client) paintFromCache()
 
   async function load() {
-    if (initialDistrict) {
-      // A link names the district; keep it as the saved choice too.
-      await repo.setSelection(initialDistrict)
-    } else if (!stored) {
-      district.value = resolveDistrict(await repo.getSelection())
+    const hadLink = linkedDistrict !== null
+    const choice = nextLoadDistrict(
+      linkedDistrict,
+      stored,
+      district.value,
+      stored ? null : await repo.getSelection(),
+    )
+    linkedDistrict = choice.linked
+    if (hadLink || choice.district !== district.value) {
+      district.value = choice.district
+      await repo.setSelection(choice.district)
     }
 
     if (paintFromCache()) {
       // Cached times stay on screen; revalidate quietly against the source and
       // only show a small inline hint. A failed revalidation keeps the cache.
       startRefreshing()
-      await repo.refresh(today(), district.value)
+      await Promise.all([
+        repo.refresh(today(), district.value),
+        repo.refresh(shiftDate(today(), 1), district.value),
+      ])
       const fresh = repo.peek?.(today(), district.value)
       if (fresh?.status === 'ok') {
-        apply(fresh.entries, fresh.hijriDate)
+        const tomorrow = repo.peek?.(shiftDate(today(), 1), district.value)
+        const next =
+          tomorrow?.status === 'ok' && !tomorrow.stale ? tomorrow : null
+        apply(
+          fresh.entries,
+          fresh.hijriDate,
+          next?.entries ?? tomorrowEntries.value,
+          next?.hijriDate ?? tomorrowHijriDate.value,
+        )
         stale.value = fresh.stale
       }
       stopRefreshing()
@@ -157,14 +205,28 @@ export function usePrayerTimes(
     state.value = 'loading'
     entries.value = []
     baseEntries.value = []
+    tomorrowEntries.value = []
     stale.value = false
     stopRefreshing()
-    const result = await repo.read(today(), district.value)
+    // Tomorrow is read alongside today so the evening list can show its early
+    // entries; a failed tomorrow read only hides those two rows.
+    const [result, tomorrow] = await Promise.all([
+      repo.read(today(), district.value),
+      repo.read(shiftDate(today(), 1), district.value),
+    ])
     if (result.status === 'unavailable') {
       state.value = 'unavailable'
       return
     }
-    apply(result.entries, result.hijriDate)
+    // A failed read returns the last known day marked stale; never present it
+    // as tomorrow's times or as tomorrow's Hijri date.
+    const next = tomorrow.status === 'ok' && !tomorrow.stale ? tomorrow : null
+    apply(
+      result.entries,
+      result.hijriDate,
+      next?.entries ?? [],
+      next?.hijriDate ?? '',
+    )
     stale.value = result.stale
     state.value = 'ready'
   }
@@ -176,6 +238,7 @@ export function usePrayerTimes(
     state.value = 'loading'
     entries.value = []
     baseEntries.value = []
+    tomorrowEntries.value = []
     stale.value = false
     await repo.setSelection(district.value)
     await load()
@@ -186,30 +249,42 @@ export function usePrayerTimes(
     await load()
   }
 
-  const rows = computed(() =>
-    PRAYER_ORDER.map((prayer) => ({
-      prayer,
-      minutes: entries.value.find((entry) => entry.prayer === prayer)?.minutes,
-    })),
+  // specs/core/spec.md — the list keeps every entry until the end of Zuhur;
+  // from Asar it drops the morning boundaries and appends tomorrow's Imsak and
+  // Subuh at the bottom.
+  const shown = computed(() =>
+    displayPrayers(entries.value, tomorrowEntries.value, nowSeconds.value),
   )
+
+  const rows = computed(() => shown.value.entries)
 
   const progress = computed(() => prayerProgress(entries.value, nowSeconds.value))
 
-  const displayDates = computed(() => ({
-    masihi: formatDate(date.value, locale()),
-    hijri: formatHijriDate(date.value, locale(), hijriDate.value),
-  }))
+  // Just after an entry, show how long ago it passed instead of the countdown
+  // to the next one; core decides when (and never for Imsak).
+  const passed = computed(() => passedPrayer(entries.value, nowSeconds.value))
 
-  // specs/web/spec.md — the eight rows are always on screen; a missing entry
-  // renders an empty time so the sheet can show a placeholder instead.
+  const displayDates = computed(() => {
+    const nextDay = shiftDate(date.value, 1)
+    const hijri =
+      prayerPhase(entries.value, nowSeconds.value) === 'night'
+        ? formatHijriDate(nextDay, locale(), tomorrowHijriDate.value)
+        : formatHijriDate(date.value, locale(), hijriDate.value)
+    return { masihi: formatDate(date.value, locale()), hijri }
+  })
+
+  // A missing entry renders an empty time so the sheet can show a placeholder.
   const displayRows = computed(() =>
     rows.value.map((row) => ({
-      ...row,
+      prayer: row.prayer,
+      minutes: row.minutes,
+      dayOffset: row.dayOffset,
+      trailing: row.trailing,
       time:
-        row.minutes === undefined
+        row.minutes === null
           ? ''
           : formatTime(row.minutes, locale(), timeFormat()),
-      current: row.prayer === progress.value.current,
+      current: row.dayOffset === 0 && row.prayer === progress.value.current,
     })),
   )
 
@@ -223,6 +298,7 @@ export function usePrayerTimes(
     date,
     dates: displayDates,
     progress,
+    passed,
     stale,
     load,
     paintFromCache,

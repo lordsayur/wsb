@@ -7,7 +7,9 @@
     "zuhur": "الظهر",
     "asar": "العصر",
     "maghrib": "المغرب",
-    "isyak": "العشاء"
+    "isyak": "العشاء",
+    "passed": "بعد {minutes} دقيقة",
+    "passedNow": "بدأ للتو"
   },
   "district": {
     "label": "المنطقة",
@@ -50,7 +52,8 @@
     "seconds": "{seconds} ثانية"
   },
   "next": {
-    "in": "متبقي {duration} حتى {prayer}"
+    "in": "متبقي {duration} حتى {prayer}",
+    "countdown": "متبقي {duration}"
   },
   "share": {
     "title": "أوقات الصلاة في بروناي",

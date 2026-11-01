@@ -17,6 +17,8 @@ import {
   chartBounds,
   chartIsCurrent,
   chartMedian,
+  displayPrayers,
+  passedPrayer,
   isChartOutlier,
   formatShortDate,
   formatChartPeriod,
@@ -98,6 +100,149 @@ describe('prayer order', () => {
     expect(PRAYER_ORDER.indexOf('doha')).toBe(
       PRAYER_ORDER.indexOf('syuruk') + 1,
     )
+  })
+})
+
+// specs/core/spec.md — the daily list rule by phase of the day.
+describe('displayPrayers', () => {
+  const today: PrayerEntry[] = [
+    { prayer: 'imsak', minutes: 4 * 60 + 41 },
+    { prayer: 'subuh', minutes: 4 * 60 + 50 },
+    { prayer: 'syuruk', minutes: 6 * 60 + 5 },
+    { prayer: 'doha', minutes: 6 * 60 + 40 },
+    { prayer: 'zuhur', minutes: 12 * 60 + 5 },
+    { prayer: 'asar', minutes: 15 * 60 + 20 },
+    { prayer: 'maghrib', minutes: 18 * 60 + 10 },
+    { prayer: 'isyak', minutes: 19 * 60 + 20 },
+  ]
+  const tomorrow: PrayerEntry[] = [
+    { prayer: 'imsak', minutes: 4 * 60 + 42 },
+    { prayer: 'subuh', minutes: 4 * 60 + 51 },
+    { prayer: 'syuruk', minutes: 6 * 60 + 6 },
+    { prayer: 'doha', minutes: 6 * 60 + 41 },
+    { prayer: 'zuhur', minutes: 12 * 60 + 6 },
+    { prayer: 'asar', minutes: 15 * 60 + 21 },
+    { prayer: 'maghrib', minutes: 18 * 60 + 11 },
+    { prayer: 'isyak', minutes: 19 * 60 + 21 },
+  ]
+  const names = (entries: { prayer: string }[]) => entries.map((e) => e.prayer)
+
+  it('moves today\'s imsak and subuh to the bottom from midnight until Subuh', () => {
+    for (const seconds of [0, (4 * 60 + 41) * 60, (4 * 60 + 50) * 60 - 1]) {
+      const shown = displayPrayers(today, tomorrow, seconds)
+      expect(shown.phase).toBe('dawn')
+      expect(names(shown.entries)).toEqual([
+        'syuruk',
+        'doha',
+        'zuhur',
+        'asar',
+        'maghrib',
+        'isyak',
+        'imsak',
+        'subuh',
+      ])
+      // The moved rows are today's own, not tomorrow's.
+      expect(shown.entries.slice(-2)).toEqual([
+        { prayer: 'imsak', minutes: 4 * 60 + 41, dayOffset: 0, trailing: true },
+        { prayer: 'subuh', minutes: 4 * 60 + 50, dayOffset: 0, trailing: true },
+      ])
+    }
+  })
+
+  it('shows all eight entries in order from Subuh to the end of Zuhur', () => {
+    for (const seconds of [
+      (4 * 60 + 50) * 60,
+      (12 * 60 + 5) * 60,
+      (15 * 60 + 19) * 60 + 59,
+    ]) {
+      const shown = displayPrayers(today, tomorrow, seconds)
+      expect(shown.phase).toBe('day')
+      expect(names(shown.entries)).toEqual(PRAYER_ORDER)
+      expect(shown.entries.every((entry) => entry.dayOffset === 0)).toBe(true)
+    }
+  })
+
+  it('drops imsak, subuh, syuruk and dhuha from Asar, appending tomorrow', () => {
+    const shown = displayPrayers(today, tomorrow, (15 * 60 + 20) * 60)
+    expect(shown.phase).toBe('evening')
+    expect(names(shown.entries)).toEqual([
+      'zuhur',
+      'asar',
+      'maghrib',
+      'isyak',
+      'imsak',
+      'subuh',
+    ])
+    expect(shown.entries.at(-1)).toEqual({
+      prayer: 'subuh',
+      minutes: 4 * 60 + 51,
+      dayOffset: 1,
+    })
+  })
+
+  it('keeps the same evening list after Maghrib', () => {
+    const shown = displayPrayers(today, tomorrow, (18 * 60 + 10) * 60)
+    expect(shown.phase).toBe('night')
+    expect(names(shown.entries)).toEqual([
+      'zuhur',
+      'asar',
+      'maghrib',
+      'isyak',
+      'imsak',
+      'subuh',
+    ])
+  })
+
+  it('reports null minutes when tomorrow is unknown', () => {
+    const shown = displayPrayers(today, [], (15 * 60 + 20) * 60)
+    expect(shown.entries.slice(-2)).toEqual([
+      { prayer: 'imsak', minutes: null, dayOffset: 1 },
+      { prayer: 'subuh', minutes: null, dayOffset: 1 },
+    ])
+  })
+})
+
+// specs/core/spec.md — the passed-entry window right after a prayer.
+describe('passedPrayer', () => {
+  const entries: PrayerEntry[] = [
+    { prayer: 'imsak', minutes: 4 * 60 + 41 },
+    { prayer: 'subuh', minutes: 4 * 60 + 50 },
+    { prayer: 'syuruk', minutes: 6 * 60 + 5 },
+    { prayer: 'doha', minutes: 6 * 60 + 40 },
+    { prayer: 'zuhur', minutes: 12 * 60 + 5 },
+    { prayer: 'asar', minutes: 15 * 60 + 20 },
+    { prayer: 'maghrib', minutes: 18 * 60 + 10 },
+    { prayer: 'isyak', minutes: 19 * 60 + 20 },
+  ]
+
+  it('reports the entry at its exact minute', () => {
+    expect(passedPrayer(entries, (12 * 60 + 5) * 60)).toEqual({
+      prayer: 'zuhur',
+      minutes: 0,
+    })
+  })
+
+  it('keeps counting up to but not including 20 minutes', () => {
+    expect(
+      passedPrayer(entries, (12 * 60 + 5) * 60 + 19 * 60)?.minutes,
+    ).toBe(19)
+    expect(passedPrayer(entries, (12 * 60 + 5) * 60 + 20 * 60)).toBeNull()
+  })
+
+  it('is null before any entry of the day', () => {
+    expect(passedPrayer(entries, 60)).toBeNull()
+  })
+
+  it('skips imsak so the subuh countdown stays visible', () => {
+    // 5 minutes after Imsak, 5 before Subuh.
+    expect(passedPrayer(entries, (4 * 60 + 46) * 60)).toBeNull()
+  })
+
+  it('reports each later entry in its own window', () => {
+    expect(passedPrayer(entries, (19 * 60 + 25) * 60)).toEqual({
+      prayer: 'isyak',
+      minutes: 5,
+    })
   })
 })
 

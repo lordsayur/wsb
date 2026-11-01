@@ -7,7 +7,9 @@
     "zuhur": "ظهر",
     "asar": "عصر",
     "maghrib": "مغرب",
-    "isyak": "عشاء"
+    "isyak": "عشاء",
+    "passed": "{minutes} مينيت سالڤس",
+    "passedNow": "بارو ماسوق"
   },
   "district": {
     "label": "دايره",
@@ -50,7 +52,8 @@
     "seconds": "{seconds} ساعت"
   },
   "next": {
-    "in": "{duration} لاݢي {prayer}"
+    "in": "{duration} لاݢي {prayer}",
+    "countdown": "{duration} لاݢي"
   },
   "share": {
     "title": "وقت سمبهيڠ بروني",

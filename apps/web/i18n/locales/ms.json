@@ -7,7 +7,9 @@
     "zuhur": "Zuhur",
     "asar": "Asar",
     "maghrib": "Maghrib",
-    "isyak": "Isyak"
+    "isyak": "Isyak",
+    "passed": "{minutes} minit selepas",
+    "passedNow": "Baru masuk"
   },
   "district": {
     "label": "Daerah",
@@ -50,7 +52,8 @@
     "seconds": "{seconds} saat"
   },
   "next": {
-    "in": "{duration} lagi {prayer}"
+    "in": "{duration} lagi {prayer}",
+    "countdown": "{duration} lagi"
   },
   "share": {
     "title": "Waktu Sembahyang Brunei",

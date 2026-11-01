@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import { expect, within } from '@storybook/test'
 import PrayerTimeList from './PrayerTimeList.vue'
 
-// specs/web/spec.md — organism: loading, ready, offline, unavailable states.
+// specs/web/spec.md — organism: the ordered rows, with the countdown note on
+// the current entry's row.
 const rows = [
   { prayer: 'imsak', label: 'Imsak', time: '04:41', current: false },
   { prayer: 'subuh', label: 'Subuh', time: '04:50', current: false },
@@ -14,6 +15,15 @@ const rows = [
   { prayer: 'isyak', label: 'Isyak', time: '19:20', current: false },
 ]
 
+const currentRows = rows.map((row) => ({
+  ...row,
+  current: row.prayer === 'zuhur',
+}))
+const note = {
+  countdownKey: 'asar',
+  countdown: '3 jam 15 minit lagi',
+}
+
 const meta: Meta<typeof PrayerTimeList> = {
   title: 'Organisms/PrayerTimeList',
   component: PrayerTimeList,
@@ -24,21 +34,18 @@ type Story = StoryObj<typeof PrayerTimeList>
 
 export const Loading: Story = {
   args: {
-    state: 'loading',
-    loadingText: 'Memuatkan…',
     rows: rows.map((row) => ({ ...row, time: '' })),
     pendingTime: '--:--',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Memuatkan…')).toBeVisible()
     await expect(canvas.getAllByRole('article')).toHaveLength(8)
     await expect(canvas.getAllByText('--:--')).toHaveLength(8)
   },
 }
 
 export const Ready: Story = {
-  args: { state: 'ready', rows },
+  args: { rows },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getAllByRole('article')).toHaveLength(8)
@@ -47,60 +54,112 @@ export const Ready: Story = {
   },
 }
 
-export const CurrentAndNext: Story = {
-  args: {
-    state: 'ready',
-    rows: rows.map((row) => ({
-      ...row,
-      current: row.prayer === 'zuhur',
-    })),
-    nextText: '3 jam 15 minit lagi Asar',
-  },
+export const CurrentWithCountdown: Story = {
+  args: { rows: currentRows, ...note },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const current = canvasElement.querySelectorAll('article[aria-current="true"]')
     await expect(current).toHaveLength(1)
-    await expect(canvas.getByText('3 jam 15 minit lagi Asar')).toBeVisible()
+    await expect(canvasElement.querySelectorAll('.prayer-row')).toHaveLength(8)
+    // The countdown sits on the next entry's row, not the current one.
+    await expect(current[0]!.querySelector('.note')).toBeNull()
+    const asarRow = [...canvasElement.querySelectorAll('.prayer-row')].find(
+      (row) => row.textContent?.includes('Asar'),
+    )
+    await expect(asarRow?.querySelector('.note')).toHaveTextContent(
+      '3 jam 15 minit lagi',
+    )
+    await expect(canvas.getByText('3 jam 15 minit lagi')).toBeVisible()
   },
 }
 
-export const OfflineWithCache: Story = {
+export const CountdownSoon: Story = {
   args: {
-    state: 'ready',
-    rows,
-    offlineText: 'Anda sedang luar talian. Memaparkan data terakhir.',
+    rows: currentRows,
+    countdownKey: 'asar',
+    countdown: '12 minit lagi',
+    noteSoon: true,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(canvas.getByText(/luar talian/)).toBeVisible()
-    await expect(canvas.getAllByRole('article')).toHaveLength(8)
+    await expect(
+      canvasElement.querySelector('.prayer-row .note'),
+    ).toHaveClass('soon')
   },
 }
 
-export const RefreshingWithCache: Story = {
+const eveningRows = [
+  { prayer: 'zuhur', label: 'Zuhur', time: '12:05' },
+  { prayer: 'asar', label: 'Asar', time: '15:20', current: true },
+  { prayer: 'maghrib', label: 'Maghrib', time: '18:10' },
+  { prayer: 'isyak', label: 'Isyak', time: '19:20' },
+  { prayer: 'imsak.next', label: 'Imsak', time: '04:42' },
+  { prayer: 'subuh.next', label: 'Subuh', time: '04:51' },
+]
+
+export const Evening: Story = {
   args: {
-    state: 'ready',
-    rows,
-    refreshing: true,
-    refreshingText: 'Mengemas kini…',
+    rows: eveningRows,
+    countdownKey: 'maghrib',
+    countdown: '3 jam 10 minit lagi',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Mengemas kini…')).toBeVisible()
-    await expect(canvas.getAllByRole('article')).toHaveLength(8)
+    await expect(canvasElement.querySelectorAll('.prayer-row')).toHaveLength(6)
+    await expect(canvas.queryByText('Syuruk')).not.toBeInTheDocument()
+    await expect(canvas.getByText('3 jam 10 minit lagi')).toBeVisible()
+    const maghrib = [...canvasElement.querySelectorAll('.prayer-row')].find(
+      (row) => row.textContent?.includes('Maghrib'),
+    )
+    await expect(maghrib?.querySelector('.note')).toHaveTextContent(
+      '3 jam 10 minit lagi',
+    )
   },
 }
 
-export const Unavailable: Story = {
+const dawnRows = [
+  { prayer: 'syuruk', label: 'Syuruk', time: '06:05' },
+  { prayer: 'doha', label: 'Dhuha', time: '06:28' },
+  { prayer: 'zuhur', label: 'Zuhur', time: '12:05' },
+  { prayer: 'asar', label: 'Asar', time: '15:25' },
+  { prayer: 'maghrib', label: 'Maghrib', time: '18:02' },
+  { prayer: 'isyak', label: 'Isyak', time: '19:13' },
+  { prayer: 'imsak', label: 'Imsak', time: '04:36', trailing: true },
+  { prayer: 'subuh', label: 'Subuh', time: '04:46', trailing: true },
+]
+
+export const Dawn: Story = {
   args: {
-    state: 'unavailable',
-    unavailableText: 'Tidak tersedia.',
-    rows: rows.map((row) => ({ ...row, time: '' })),
-    pendingTime: '--:--',
+    rows: dawnRows.map((row) => ({
+      ...row,
+      current: row.prayer === 'isyak',
+    })),
+    countdownKey: 'imsak',
+    countdown: '4 jam 40 minit lagi',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Tidak tersedia.')).toBeVisible()
-    await expect(canvas.getAllByRole('article')).toHaveLength(8)
+    await expect(canvasElement.querySelectorAll('.prayer-row')).toHaveLength(8)
+    await expect(canvas.getByText('4 jam 40 minit lagi')).toBeVisible()
+    const rows = canvasElement.querySelectorAll('.prayer-row')
+    await expect(rows[rows.length - 1]).toHaveTextContent('Subuh')
+  },
+}
+
+export const JustPassed: Story = {
+  args: {
+    rows: currentRows,
+    countdownKey: 'asar',
+    countdown: '2 jam 59 minit lagi',
+    passedKey: 'zuhur',
+    passedNote: '3 minit selepas',
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('.prayer-row')).toHaveLength(8)
+    const current = canvasElement.querySelector('article[aria-current="true"]')
+    await expect(current?.querySelector('.note')).toHaveTextContent(
+      '3 minit selepas',
+    )
+    // The passed note replaces the countdown rather than showing both.
+    await expect(canvasElement.querySelectorAll('.note')).toHaveLength(1)
   },
 }

@@ -29,6 +29,43 @@ export const Current: Story = {
   },
 }
 
+export const WithNote: Story = {
+  args: { label: 'Asar', time: '15:20', note: '3 jam 15 minit lagi' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('3 jam 15 minit lagi')).toBeVisible()
+    // The note is inline, beside the time rather than on its own line.
+    await expect(canvasElement.querySelector('.line .note')).not.toBeNull()
+  },
+}
+
+export const PassedInline: Story = {
+  args: {
+    label: 'Zuhur',
+    time: '12:05',
+    current: true,
+    note: '3 minit selepas',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('3 minit selepas')).toBeVisible()
+    await expect(canvasElement.querySelector('.line .note')).not.toBeNull()
+  },
+}
+
+export const NoteSoon: Story = {
+  args: {
+    label: 'Zuhur',
+    time: '12:05',
+    current: true,
+    note: '12 minit lagi',
+    noteSoon: true,
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('.note')).toHaveClass('soon')
+  },
+}
+
 export const EdgeMidnight: Story = {
   args: { label: 'Isyak', time: '00:02' },
   play: async ({ canvasElement }) => {

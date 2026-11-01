@@ -12,6 +12,7 @@ import {
   monthOf,
 } from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
+import DayStatus from '~/components/molecules/DayStatus.vue'
 import PrayerTimeList from '~/components/organisms/PrayerTimeList.vue'
 import MonthPrayerTable from '~/components/organisms/MonthPrayerTable.vue'
 import AppFooter from '~/components/organisms/AppFooter.vue'
@@ -82,6 +83,7 @@ const {
   baseEntries,
   entries,
   progress,
+  passed,
   stale,
   refreshing: dayRefreshing,
   load,
@@ -214,22 +216,37 @@ const languageOptions = computed(() =>
 
 const displayRows = computed(() =>
   rows.value.map((row) => ({
-    prayer: row.prayer,
+    prayer: `${row.prayer}${row.dayOffset ? '.next' : ''}`,
     label: t(`prayer.${row.prayer}`),
     time: row.time,
     current: row.current,
+    dayOffset: row.dayOffset,
+    trailing: row.trailing,
   })),
 )
 
 const weekday = computed(() => formatWeekday(date.value, locale.value))
 
+const dayStatus = computed(() => {
+  if (state.value === 'loading') return t('state.loading')
+  if (state.value === 'unavailable') return t('state.unavailable')
+  if (dayRefreshing.value) return t('state.refreshing')
+  return stale.value ? t('state.offline') : ''
+})
+
+const dayBusy = computed(
+  () => state.value === 'loading' || dayRefreshing.value,
+)
+
+// The note turns primary when the next entry is close.
 const nextSoon = computed(
   () =>
     state.value === 'ready' &&
     progress.value.secondsToNext <= NOTIFICATION_LEAD_MINUTES * 60,
 )
 
-const nextText = computed(() => {
+// The countdown to the next entry, shown beside its time.
+const nextCountdown = computed(() => {
   if (state.value !== 'ready') return ''
   const total = progress.value.secondsToNext
   const { hours, minutes, seconds } = durationParts(total)
@@ -243,11 +260,28 @@ const nextText = computed(() => {
             minutes: n(minutes),
           })
         : t('duration.minutes', { minutes: n(minutes) })
-  return t('next.in', {
-    duration,
-    prayer: t(`prayer.${progress.value.next}`),
+  return t('next.countdown', { duration })
+})
+
+// For the first 20 minutes after an entry (Imsak excepted) the note reports how
+// long ago it passed instead of the countdown to the next one. It sits on the
+// current entry's own row, so the prayer name never repeats.
+const passedNote = computed(() => {
+  const passed_ = passed.value
+  if (state.value !== 'ready' || !passed_) return ''
+  if (passed_.minutes <= 0) return t('prayer.passedNow')
+  return t('prayer.passed', {
+    minutes: formatNumber(passed_.minutes, locale.value),
   })
 })
+
+// A just-passed note sits beside the time of the entry that passed, and hides
+// the countdown while it shows.
+const passedKey = computed(() =>
+  passed.value ? passed.value.prayer : '',
+)
+
+const rowNoteSoon = computed(() => !passedNote.value && nextSoon.value)
 
 function chooseLocale(code: string) {
   setLocale(code as typeof locale.value)
@@ -336,19 +370,16 @@ onMounted(async () => {
         <template v-if="view === 'day'">
           <p class="weekday">{{ weekday }}</p>
           <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
-          <p v-if="nextText" class="next" :class="{ soon: nextSoon }">
-            {{ nextText }}
-          </p>
+          <DayStatus :text="dayStatus" :busy="dayBusy" />
 
           <PrayerTimeList
-            :state="state"
             :rows="displayRows"
-            :refreshing="dayRefreshing"
-            :refreshing-text="t('state.refreshing')"
-            :loading-text="t('state.loading')"
-            :unavailable-text="t('state.unavailable')"
+            :countdown-key="progress.next"
+            :countdown="nextCountdown"
+            :passed-key="passedKey"
+            :passed-note="passedNote"
+            :note-soon="rowNoteSoon"
             :pending-time="t('state.pending')"
-            :offline-text="stale ? t('state.offline') : ''"
           />
         </template>
 
@@ -522,13 +553,6 @@ onMounted(async () => {
   margin: 0;
   font-size: clamp(1.15rem, 4vh, 1.5rem);
   font-weight: 700;
-}
-.next {
-  margin: 0;
-  font-weight: 600;
-}
-.next.soon {
-  color: var(--primary);
 }
 @media (max-height: 480px) {
   .layout {

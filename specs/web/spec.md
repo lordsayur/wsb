@@ -43,15 +43,36 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 - The main section is centered horizontally and vertically.
 - The main section shows, in order: the day name, the Masihi and Hijri dates
-  side by side, the duration to the next entry, then the prayer times.
+  side by side, then the prayer times.
 - There is no title or tagline in the UI.
-- Show all eight entries in order, labelled (Imsak, Subuh, Syuruk, Dhuha,
-  Zuhur, Asar, Maghrib, Isyak). The names and rows are always on screen: while
-  loading or unavailable their times render as a muted placeholder, so opening
-  the app never shows a blank sheet.
+- From Subuh until the end of Zuhur show all eight entries in order, labelled
+  (Imsak, Subuh, Syuruk, Dhuha, Zuhur, Asar, Maghrib, Isyak). From midnight
+  until Subuh show the six later entries in order and put today's Imsak and
+  Subuh at the bottom under the dashed divider. From Asar show Zuhur,
+  Asar, Maghrib and Isyak, then the next day's Imsak and Subuh at the bottom,
+  labelled with their normal names. The rows are always on screen:
+  while loading or unavailable their times render as a muted placeholder, so
+  opening the app never shows a blank sheet.
+- From Maghrib until midnight the Hijri date shown is the next day's; the
+  Masihi date is unchanged.
 - Highlight the current entry (from core's current/next progress) with a visible
   style and an accessible current marker.
-- Show the duration to the next entry, labelled with the next entry's name.
+- The countdown to the next entry ("<duration> left" from the localized
+  `next.countdown` phrase) sits inline in that entry's own row, immediately
+  before its time. No prayer name or time is ever repeated, and there is no
+  separate card or progress bar. Only that note turns primary with 15 minutes or
+  less left.
+- For the first 20 minutes after an entry (Imsak excepted) that entry's row
+  reports how long ago it passed ("<minutes> after", or "just started" in its
+  first minute) inline beside its time; while it shows, the countdown is hidden,
+  so only one note is ever visible. The yellow near-time styling applies only to
+  a real countdown.
+- Every entry renders at the same type size; only the countdown line is
+  secondary in weight and tone.
+- Entries moved to the bottom — the next day's Imsak and Subuh after Asar, or
+  today's own before Subuh — follow the rest of the list without a divider.
+- The day's data state is one status line directly under the dates, with a
+  spinner while loading or revalidating.
 - Durations under one minute render in seconds; otherwise in whole minutes (and
   hours when non-zero).
 - The highlight and duration update while the app is open, without a reload.
@@ -460,6 +481,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 - [ ] Loading renders the eight named entries for the default district with
       placeholder times, Imsak and Dhuha included.
+- [ ] From Asar the list shows the four remaining prayers plus tomorrow's Imsak
+      and Subuh.
+- [ ] From Maghrib the Hijri date is tomorrow's.
 - [ ] The day name is shown above the Masihi and Hijri dates.
 - [ ] The Masihi and Hijri dates render side by side.
 - [ ] The main section is centered and has no title or tagline.
@@ -532,7 +556,24 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The chosen locale survives a reload.
 - [ ] The current entry renders highlighted with a current marker; exactly one
       row is highlighted at a time.
-- [ ] The duration to the next entry renders, labelled with the next entry.
+- [ ] The next entry appears once as a card with a countdown line, its name and
+      time on the next line, and an interval progress bar, placed between the
+      current entry and the following one.
+- [ ] The next entry's name and time use the same type size as every other row.
+- [ ] Choosing a district updates the times and the address even when the page
+      was opened with a different `?district=` link, and the choice survives a
+      reload.
+- [ ] From midnight until Subuh the day's Imsak and Subuh sit at the bottom of
+      the list.
+- [ ] For 20 minutes after an entry that entry's row shows how long ago it
+      passed in place of the countdown, and Imsak is skipped.
+- [ ] The loading / updating / offline status renders under the dates.
+- [ ] Only the countdown line turns primary with 15 minutes or less remaining;
+      the entry's name and time are never highlighted.
+- [ ] The progress bar sits above the countdown line.
+- [ ] Revalidating shows the spinner and updating hint in the separator above
+      the card.
+- [ ] Next day's Imsak and Subuh are separated by a dashed divider.
 - [ ] The duration turns the primary colour with 15 minutes or less remaining.
 - [ ] Enabling notifications requests permission and persists the choice.
 - [ ] Notifications fire at each prayer and 15 minutes before; syuruk never
@@ -683,3 +724,33 @@ None published. Consumes core and the Data port.
   production, and surface the aggregates in an `/admin` panel; add `/privacy`.
 - 2026-10-25 — split `/admin` into prayer times (`/admin`, one row per day,
   district removed) and `/admin/analytics`.
+- 2026-10-31 — move the next-prayer countdown from above the list to directly
+  below the highlighted current entry.
+- 2026-10-31 — phase the daily list (all entries until Zuhur ends, then the
+  remaining prayers plus tomorrow's Imsak and Subuh) and roll the Hijri date to
+  tomorrow from Maghrib.
+- 2026-10-31 — redesign the countdown as a NextPrayer card with an interval
+  progress bar; separate next-day rows with a divider.
+- 2026-10-31 — merge the countdown into the next entry's row: countdown strip
+  above the name/time, no duplicate prayer name or "next" label, and the
+  updating hint moves into the strip.
+- 2026-10-31 — show the next entry as one card ("until <entry>" plus its time)
+  in place of its row, separated from the current entry by a line that carries
+  the refresh spinner.
+- 2026-10-31 — move today's Imsak and Subuh to the bottom from midnight until
+  Subuh; split the next-entry card into a small countdown line above the name
+  and time.
+- 2026-10-31 — one type size for every entry including the next one, larger
+  countdown, no dashed dividers, and the day's status line moved under the
+  dates.
+- 2026-10-31 — stop highlighting the next entry (only the countdown turns
+  yellow), move the progress bar above the countdown, and fix the district
+  selector snapping back to the district named in the link.
+- 2026-10-31 — report the passed entry for 20 minutes after its time (Imsak
+  excepted) in place of the next-entry countdown.
+- 2026-10-31 — merge the countdown into the current entry's row as a second
+  line, drop the separate card, the progress bar and the repeated prayer name.
+- 2026-11-01 — move the countdown line under the next entry's row instead of the
+  current one.
+- 2026-11-01 — put the countdown and passed notes inline beside the time instead
+  of on a second line.

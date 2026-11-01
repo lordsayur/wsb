@@ -107,12 +107,43 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
   order, wrapping from `isyak` back to `imsak`; before `imsak` it is `imsak`.
 - The **duration to next** is the clock difference from now to the next entry,
   wrapping past midnight. It is non-negative and less than 24 hours.
+
 - `imsak`, `syuruk` and `doha` participate as time boundaries even though they
   are not obligatory prayers.
 - Duration is resolved in core as a non-negative second count; the shell renders
   it with translated unit labels (all visible text stays in the locale files).
   Durations under one minute are shown in seconds; a whole minute is the
   smallest minute unit otherwise.
+
+### The passed-entry window
+
+- From an entry's exact time until 20 minutes after it, the day is in that
+  entry's **passed window**: the shell reports how long ago it passed instead of
+  the countdown to the next entry.
+- Imsak never opens a passed window, because it sits only ten minutes before
+  Subuh and would hide the Subuh countdown.
+- At 20 minutes the window closes and the next-entry countdown returns.
+
+### Phase of the day and the daily list
+
+- The day has four phases, resolved from the entries and "now": **dawn**
+  (midnight until Subuh), **day** (Subuh until Asar), **evening** (Asar until
+  Maghrib) and **night** (Maghrib until midnight).
+- From Subuh until the end of Zuhur the daily list shows all eight entries in
+  the documented order.
+- From midnight until Subuh the list shows the day entries in order with
+  today's own Imsak and Subuh moved to the bottom, marked `trailing` so the
+  shell can separate them with a divider.
+- From Asar onwards the list shows Zuhur, Asar, Maghrib and Isyak, and appends
+  the **next day's** Imsak and Subuh at the bottom (`dayOffset` 1). Imsak,
+  Subuh, Syuruk and Dhuha of the current day are not shown.
+- Next day's rows carry that day's times (district-adjusted); they are null when
+  the next day is unknown.
+- The next-day rows are never the current entry; progress still tracks today's
+  entries only.
+- From Maghrib until midnight the Hijri date shown is the **next day's** Hijri
+  date, because the Islamic day has already begun; the Masihi date stays
+  today's.
 
 ### Reminders
 
@@ -147,6 +178,9 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
 - [ ] Before imsak, there is no current entry for today and the next is imsak.
 - [ ] Between entries, the current entry is the last one whose time has passed.
 - [ ] The duration to the next entry wraps past midnight and is under 24h.
+- [ ] An entry opens a passed window at its exact minute, reports whole minutes
+      since, and closes at 20 minutes.
+- [ ] Imsak opens no passed window.
 - [ ] Duration is a non-negative second count under 24 hours.
 - [ ] A duration under 60 seconds is reported in seconds.
 - [ ] Reminders are scheduled 15 minutes before and at each of the five prayers.
@@ -159,6 +193,12 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
 - [ ] A day of the month formats alone, without the month name.
 - [ ] A missing Hijri value falls back to the Umm al-Qura calendar.
 - [ ] A value more than 90 minutes from its entry's median is off-scale.
+- [ ] From midnight until Subuh the daily list moves today's Imsak and Subuh to
+      the bottom (`trailing`), leaving the other six in order.
+- [ ] From Subuh until Asar the daily list is all eight entries in order.
+- [ ] From Asar it drops Imsak, Subuh, Syuruk and Dhuha and appends tomorrow's
+      Imsak and Subuh at the bottom.
+- [ ] From Maghrib the shown Hijri date is tomorrow's.
 
 ## Interfaces
 
@@ -211,3 +251,7 @@ Names only; shapes finalized in code.
 - 2026-10-20 — add trend range helpers (week/month/year bounds, stepping, and
   compact axis labels).
 - 2026-10-20 — detect off-scale chart values against the entry's median.
+- 2026-10-31 — phase the daily list: all entries until Zuhur ends, then the
+  remaining prayers plus tomorrow's Imsak and Subuh; show tomorrow's Hijri date
+  from Maghrib.
+- 2026-10-31 — add the 20-minute passed-entry window (Imsak excepted).
