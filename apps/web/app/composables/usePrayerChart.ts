@@ -3,6 +3,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import {
   CHART_RANGES,
+  adjustForDistrict,
   isChartRange,
   DEFAULT_TIME_FORMAT,
   PRAYER_ORDER,
@@ -96,9 +97,10 @@ export function usePrayerChart(
       any = true
       staleResult ||= result.stale
       for (const day of result.days) {
+        const entries = adjustForDistrict(day.entries, districtValue)
         found.set(
           day.date,
-          Object.fromEntries(day.entries.map((e) => [e.prayer, e.minutes])),
+          Object.fromEntries(entries.map((e) => [e.prayer, e.minutes])),
         )
       }
     }
@@ -241,9 +243,12 @@ export function usePrayerChart(
         if (result.status === 'unavailable') continue
         staleResult ||= result.stale
         for (const day of result.days) {
+          // specs/core/spec.md — stored rows are base times; the district is
+          // a frontend offset, so apply it before charting.
+          const entries = adjustForDistrict(day.entries, district())
           found.set(
             day.date,
-            Object.fromEntries(day.entries.map((e) => [e.prayer, e.minutes])),
+            Object.fromEntries(entries.map((e) => [e.prayer, e.minutes])),
           )
         }
       }

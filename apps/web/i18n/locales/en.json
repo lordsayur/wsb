@@ -362,5 +362,20 @@
       "table": "Table",
       "graph": "Graph"
     }
+  },
+  "home": {
+    "pages": "Home pages",
+    "summaryTitle": "Summary",
+    "todayTitle": "Today",
+    "weekTitle": "Weekly",
+    "nextLabel": "Next",
+    "progressLabel": "Progress to the next entry",
+    "todayGlance": "Today's times",
+    "allTimes": "All prayer times",
+    "entryLabel": "Prayer",
+    "weekTableLabel": "Weekly prayer times for {period}",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "thisWeek": "This week"
   }
 }

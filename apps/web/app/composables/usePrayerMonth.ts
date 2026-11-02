@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import {
   DEFAULT_TIME_FORMAT,
   PRAYER_ORDER,
+  adjustForDistrict,
   bruneiNow,
   formatDayNumber,
   formatMonth,
@@ -69,8 +70,11 @@ export function usePrayerMonth(
   const rows = computed<MonthDayRow[]>(() =>
     days.value.map((day) => {
       const isToday = day.date === bruneiNow().date
+      // specs/core/spec.md — stored rows are Brunei & Muara base times; the
+      // selected district is a frontend offset.
+      const entries = adjustForDistrict(day.entries, district())
       const progress = prayerProgress(
-        day.entries,
+        entries,
         isToday ? bruneiNow().seconds : -1,
       )
       return {
@@ -80,7 +84,7 @@ export function usePrayerMonth(
         hijri: day.hijriDate,
         today: isToday,
         entries: PRAYER_ORDER.map((prayer) => {
-          const entry = day.entries.find((item) => item.prayer === prayer)
+          const entry = entries.find((item) => item.prayer === prayer)
           return {
             prayer,
             label: t(`prayer.${prayer}`),

@@ -6,6 +6,7 @@ export const ICONS = [
   'lucide:chart-line',
   'lucide:clock',
   'lucide:book-open',
+  'lucide:calendar-days',
   'lucide:chevron-left',
   'lucide:chevron-right',
   'lucide:circle-dot-dashed',

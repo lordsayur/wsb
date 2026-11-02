@@ -1,6 +1,12 @@
 // specs/web/spec.md — the address carries the selection of a prayer-times page,
 // so a link opens the same district, month, graph range and anchor.
-import { isChartRange, isDistrict, type ChartRange, type District } from '@wsb/core'
+import {
+  DEFAULT_DISTRICT,
+  isChartRange,
+  isDistrict,
+  type ChartRange,
+  type District,
+} from '@wsb/core'
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
 const DATE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
@@ -39,4 +45,18 @@ export function parseDistrict(value: unknown): District | null {
 export function parseRange(value: unknown): ChartRange | null {
   const text = queryValue(value)
   return isChartRange(text) ? text : null
+}
+
+/**
+ * specs/web/spec.md — the shortcut to every prayer time. One helper so the
+ * summary, the week slide and the footer build the same URL, and the default
+ * district stays out of the address.
+ */
+export function prayerTimesLink(district: District | string): {
+  path: string
+  query?: { district: string }
+} {
+  return district === DEFAULT_DISTRICT
+    ? { path: '/prayer-times' }
+    : { path: '/prayer-times', query: { district } }
 }

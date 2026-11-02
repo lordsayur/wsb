@@ -30,6 +30,11 @@ const ogLocaleAlternate = computed(() =>
 const title = computed(() => t('meta.title'))
 const description = computed(() => t('meta.description'))
 
+// specs/web/spec.md — every route is canonical to itself, so a shared slide
+// previews and canonicalises as that slide rather than as the `/` redirect.
+const route = useRoute()
+const canonical = computed(() => `${origin}${route.path}`)
+
 useSeoMeta({
   title,
   description,
@@ -37,7 +42,7 @@ useSeoMeta({
   ogSiteName: computed(() => t('meta.siteName')),
   ogTitle: title,
   ogDescription: description,
-  ogUrl: origin,
+  ogUrl: canonical,
   ogImage: `${origin}/og-image.png`,
   ogImageAlt: computed(() => t('meta.imageAlt')),
   ogImageWidth: 1200,
@@ -62,7 +67,7 @@ useHead({
     ),
   },
   link: [
-    { rel: 'canonical', href: origin },
+    { rel: 'canonical', href: canonical },
     { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
     {
       rel: 'apple-touch-icon',

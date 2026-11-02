@@ -73,6 +73,13 @@ export interface PrayerProgress {
 /** Minutes before a prayer when a reminder is due. */
 export const NOTIFICATION_LEAD_MINUTES = 15
 
+/**
+ * specs/web/spec.md — the duration to the next entry turns primary when this
+ * many minutes or fewer remain. It is a presentation rule, deliberately kept
+ * apart from the notification lead so changing one never moves the other.
+ */
+export const NEXT_SOON_MINUTES = 15
+
 export type PrayerNotificationKind = 'lead' | 'due'
 
 export interface PrayerNotification {

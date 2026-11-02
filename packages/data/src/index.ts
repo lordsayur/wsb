@@ -58,10 +58,18 @@ export interface PrayerCacheStore {
   getSync?(key: string): string | null
 }
 
-// specs/data/spec.md — v3: entries written before Imsak existed lack `imsak`,
-// so old keys are abandoned rather than rendered with a missing row.
-export const DAY_CACHE_PREFIX = 'wsb.day.v3.'
-export const LAST_DAY_CACHE_PREFIX = 'wsb.day.last.v3.'
+// specs/data/spec.md — v4: days now record when they were fetched, and older
+// caches had no such stamp, so pre-v4 keys are abandoned instead of being
+// served as current forever.
+export const DAY_CACHE_PREFIX = 'wsb.day.v4.'
+export const LAST_DAY_CACHE_PREFIX = 'wsb.day.last.v4.'
+
+/**
+ * specs/data/spec.md — a cached month is revalidated after this long. Months are
+ * only refreshed through this TTL, so without it a complete cache would look
+ * current forever and miss later corrections.
+ */
+export const MONTH_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 
 export function dayCacheKey(date: string, district: District): string {
   return `${DAY_CACHE_PREFIX}${date}:${district}`
@@ -76,6 +84,8 @@ export interface CachedPrayerData {
   district: District
   entries: PrayerEntry[]
   hijriDate: string
+  /** Epoch ms when the day was fetched; absent on pre-v4 payloads. */
+  fetchedAt?: number
 }
 
 /** Remote source behind the port; adapters translate vendor rows to this. */
@@ -202,33 +212,43 @@ export class CachedPrayerRepository implements PrayerRepository {
     const dates = monthDates(month)
     const days = new Map<string, PrayerMonthDay>()
     const missing: string[] = []
+    // Days already shown from cache that are due a refresh.
+    const expired = new Set<string>()
 
     for (const date of dates) {
       const cached =
         this.memory.get(cacheKey(date, district)) ??
         (await this.readCache(date, district))
-      if (cached) days.set(date, toMonthDay(cached))
-      else missing.push(date)
+      if (!cached) {
+        missing.push(date)
+        continue
+      }
+      days.set(date, toMonthDay(cached))
+      // Specs/data/spec.md — an expired day is served but re-fetched; if the
+      // refetch fails it stays in `expired` and the month is marked stale.
+      if (isExpired(cached)) {
+        missing.push(date)
+        expired.add(date)
+      }
     }
 
-    let fetched = false
     if (missing.length > 0) {
       try {
         if (this.source.fetchPrayerMonth) {
           const all = await this.source.fetchPrayerMonth(month, district)
           for (const day of all) {
-            if (days.has(day.date) || !dates.includes(day.date)) continue
+            if (!dates.includes(day.date)) continue
             days.set(day.date, day)
+            expired.delete(day.date)
             await this.store({ ...day, district })
           }
-          fetched = true
         } else {
           for (const date of missing) {
             try {
               const day = await this.source.fetchPrayerEntries(date, district)
               days.set(date, { date, ...day })
+              expired.delete(date)
               await this.store({ date, district, ...day })
-              fetched = true
             } catch {
               // Keep going: a partial month still renders.
             }
@@ -240,7 +260,10 @@ export class CachedPrayerRepository implements PrayerRepository {
     }
 
     if (days.size === 0) return { status: 'unavailable' }
-    const stale = !fetched || days.size < dates.length
+    // specs/data/spec.md — stale means a day is missing or was served from an
+    // expired cache entry that could not be refreshed; a complete, recently
+    // fetched month is current.
+    const stale = days.size < dates.length || expired.size > 0
     return {
       status: 'ok',
       days: dates
@@ -260,10 +283,11 @@ export class CachedPrayerRepository implements PrayerRepository {
   }
 
   private async store(data: CachedPrayerData): Promise<void> {
-    this.memory.set(cacheKey(data.date, data.district), data)
+    const stamped: CachedPrayerData = { ...data, fetchedAt: Date.now() }
+    this.memory.set(cacheKey(data.date, data.district), stamped)
     if (!this.cache) return
     try {
-      const payload = JSON.stringify(data)
+      const payload = JSON.stringify(stamped)
       await this.cache.set(dayCacheKey(data.date, data.district), payload)
       await this.cache.set(lastDayCacheKey(data.district), payload)
     } catch {
@@ -347,10 +371,19 @@ function parseCachedDay(raw: string): CachedPrayerData | undefined {
       district: value.district as District,
       entries: value.entries,
       hijriDate: value.hijriDate,
+      ...(typeof value.fetchedAt === 'number' ? { fetchedAt: value.fetchedAt } : {}),
     }
   } catch {
     return undefined
   }
+}
+
+/** True when a cached day is due a refresh (or predates the stamp). */
+function isExpired(data: CachedPrayerData): boolean {
+  return (
+    typeof data.fetchedAt !== 'number' ||
+    Date.now() - data.fetchedAt >= MONTH_CACHE_TTL_MS
+  )
 }
 
 function cacheKey(date: string, district: District): string {

@@ -35,8 +35,9 @@ Terms this context owns.
   `occurred_at`, and a small `props` object.
 - `props` carries only allowlisted keys. In the first cut: the shown `month`
   for `/prayer-times`, `range` (`month` or `year`) for `/prayer-times/graph`,
-  and the selected `district`. The monthly table and the graph are separate
-  paths, so each is counted as its own page.
+  and the selected `district`. The home's three slides (`/summary`, `/today`,
+  `/week`), the monthly table and the graph are separate paths, so each is
+  counted as its own page.
 - The path is the route path without its query string.
 - `device` is derived from the viewport width (`mobile`, `tablet`, `desktop`);
   no user-agent string is stored.
@@ -107,6 +108,8 @@ Terms this context owns.
 - [ ] `props` contains only allowlisted keys; unknown query keys are dropped.
 - [ ] `/prayer-times` and `/prayer-times/graph` are recorded as separate
       paths, so the table and the graph count apart.
+- [ ] `/summary`, `/today` and `/week` are recorded as three separate home
+      pages, and swiping between them records one pageview each.
 - [ ] A same-origin referrer records no `referrer_host`.
 - [ ] Viewport widths map to `mobile`, `tablet` and `desktop` at the
       documented breakpoints.

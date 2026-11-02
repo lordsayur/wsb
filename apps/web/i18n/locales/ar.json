@@ -362,5 +362,20 @@
       "table": "جدول",
       "graph": "رسم بياني"
     }
+  },
+  "home": {
+    "pages": "صفحات الرئيسية",
+    "summaryTitle": "ملخص",
+    "todayTitle": "اليوم",
+    "weekTitle": "الأسبوع",
+    "nextLabel": "التالي",
+    "progressLabel": "التقدم إلى الوقت التالي",
+    "todayGlance": "أوقات اليوم",
+    "allTimes": "جميع أوقات الصلاة",
+    "entryLabel": "الصلاة",
+    "weekTableLabel": "أوقات الصلاة الأسبوعية لـ {period}",
+    "prevWeek": "الأسبوع السابق",
+    "nextWeek": "الأسبوع التالي",
+    "thisWeek": "هذا الأسبوع"
   }
 }

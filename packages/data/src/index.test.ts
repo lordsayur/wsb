@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { District, PrayerEntry } from '@wsb/core'
 import {
   CachedPrayerRepository,
+  MONTH_CACHE_TTL_MS,
   SELECTION_KEY,
   dayCacheKey,
   type PrayerCacheStore,
@@ -105,6 +106,18 @@ describe('refresh', () => {
     })
   })
 })
+
+/** In-memory cache seeded with explicit payloads, for aging tests. */
+function memoryCache(seed: Record<string, string> = {}): PrayerCacheStore {
+  const values = new Map<string, string>(Object.entries(seed))
+  return {
+    get: async (key) => values.get(key) ?? null,
+    set: async (key, value) => {
+      values.set(key, value)
+    },
+    getSync: (key) => values.get(key) ?? null,
+  }
+}
 
 describe('durable cache', () => {
   function cacheStore(): PrayerCacheStore {
@@ -396,6 +409,125 @@ describe('readMonth', () => {
       entries: monthEntries,
       hijriDate: 'hijri',
     })
+    // One cached day of a 31-day month means the month is incomplete.
     expect(result.stale).toBe(true)
+  })
+
+  it('re-fetches an expired month instead of trusting the cache', async () => {
+    const all = Array.from(
+      { length: 28 },
+      (_, index) => `2026-02-${String(index + 1).padStart(2, '0')}`,
+    )
+    let fetchCount = 0
+    const repo = new CachedPrayerRepository({
+      source: {
+        async fetchPrayerEntries() {
+          throw new Error('should not be used')
+        },
+        async fetchPrayerMonth() {
+          fetchCount++
+          return all.map((date) => ({ date, entries: monthEntries, hijriDate: '' }))
+        },
+      },
+    })
+    await repo.readMonth('2026-02', 'bruneiMuara')
+    expect(fetchCount).toBe(1)
+
+    // A second read of a fresh month stays on the cache.
+    await repo.readMonth('2026-02', 'bruneiMuara')
+    expect(fetchCount).toBe(1)
+
+    // The same month with expired stamps is re-fetched, not trusted.
+    const aged = new CachedPrayerRepository({
+      source: {
+        async fetchPrayerEntries() {
+          throw new Error('should not be used')
+        },
+        async fetchPrayerMonth() {
+          fetchCount++
+          return all.map((date) => ({ date, entries: monthEntries, hijriDate: '' }))
+        },
+      },
+      cache: memoryCache(
+        Object.fromEntries(
+          all.map((date) => [
+            dayCacheKey(date, 'bruneiMuara'),
+            JSON.stringify({
+              date,
+              district: 'bruneiMuara',
+              entries: monthEntries,
+              hijriDate: '',
+              fetchedAt: Date.now() - MONTH_CACHE_TTL_MS - 1,
+            }),
+          ]),
+        ),
+      ),
+    })
+    const refreshed = await aged.readMonth('2026-02', 'bruneiMuara')
+    expect(fetchCount).toBe(2)
+    expect(refreshed.status).toBe('ok')
+    if (refreshed.status !== 'ok') return
+    expect(refreshed.stale).toBe(false)
+  })
+
+  it('marks the month stale when expired days cannot be refreshed', async () => {
+    const all = Array.from(
+      { length: 28 },
+      (_, index) => `2026-03-${String(index + 1).padStart(2, '0')}`,
+    )
+    const aged = new CachedPrayerRepository({
+      source: {
+        async fetchPrayerEntries() {
+          throw new Error('should not be used')
+        },
+        async fetchPrayerMonth() {
+          throw new Error('offline')
+        },
+      },
+      cache: memoryCache(
+        Object.fromEntries(
+          all.map((date) => [
+            dayCacheKey(date, 'bruneiMuara'),
+            JSON.stringify({
+              date,
+              district: 'bruneiMuara',
+              entries: monthEntries,
+              hijriDate: '',
+              fetchedAt: Date.now() - MONTH_CACHE_TTL_MS - 1,
+            }),
+          ]),
+        ),
+      ),
+    })
+    const result = await aged.readMonth('2026-03', 'bruneiMuara')
+    expect(result.status).toBe('ok')
+    if (result.status !== 'ok') return
+    expect(result.days).toHaveLength(all.length)
+    expect(result.stale).toBe(true)
+  })
+
+  it('treats a complete freshly cached month as current, not stale', async () => {
+    // February 2026 has 28 days; the fixture supplies every one.
+    const all = Array.from(
+      { length: 28 },
+      (_, index) => `2026-02-${String(index + 1).padStart(2, '0')}`,
+    )
+    const repo = new CachedPrayerRepository({
+      source: {
+        async fetchPrayerEntries() {
+          throw new Error('should not be used')
+        },
+        async fetchPrayerMonth() {
+          return all.map((date) => ({ date, entries: monthEntries, hijriDate: '' }))
+        },
+      },
+    })
+    await repo.readMonth('2026-02', 'bruneiMuara')
+    // A second read comes entirely from the cache, but the month is whole.
+    const result = await repo.readMonth('2026-02', 'bruneiMuara')
+    expect(result.status).toBe('ok')
+    if (result.status !== 'ok') return
+    expect(result.days.map((day) => day.date)).toEqual(all)
+    expect(result.stale).toBe(false)
   })
 })

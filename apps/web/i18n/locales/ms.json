@@ -362,5 +362,20 @@
       "table": "Jadual",
       "graph": "Grafik"
     }
+  },
+  "home": {
+    "pages": "Halaman utama",
+    "summaryTitle": "Ringkasan",
+    "todayTitle": "Harian",
+    "weekTitle": "Mingguan",
+    "nextLabel": "Seterusnya",
+    "progressLabel": "Kemajuan waktu semasa",
+    "todayGlance": "Waktu hari ini",
+    "allTimes": "Semua waktu",
+    "entryLabel": "Sembahyang",
+    "weekTableLabel": "Jadual waktu sembahyang mingguan bagi {period}",
+    "prevWeek": "Minggu sebelumnya",
+    "nextWeek": "Minggu seterusnya",
+    "thisWeek": "Minggu ini"
   }
 }

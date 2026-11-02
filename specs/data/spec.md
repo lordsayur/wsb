@@ -36,6 +36,11 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
   source cannot supply are omitted; the result is marked *stale* when any day
   in the month is missing. With no cached days and no network the month read is
   *unavailable*.
+- Every stored day records when it was fetched. A cached day older than
+  `MONTH_CACHE_TTL_MS` is still served, but it is re-fetched; if that refresh
+  fails the day is still returned and the month is marked *stale*. A complete
+  month fetched within the TTL is current, not stale: the cache is a source,
+  not a downgrade.
 - When the network fails, return the last known good data; never throw to core.
 - When no data exists at all (first run, offline), signal *unavailable*
   explicitly so the shell can render an empty state.
@@ -258,5 +263,8 @@ Names only.
   before the async read.
 - 2026-10-24 — add analytics storage: insert-only `analytics_events`, the
   `analytics_daily` rollup, and the allowlisted `analytics_stats` read function.
+- 2026-11-02 — stamp each cached day with its fetch time and revalidate a
+  month older than `MONTH_CACHE_TTL_MS`; bump the cache to `v4` so pre-stamp
+  entries are not served as current forever.
 - 2026-10-25 — drop the stored `district`; key rows by (date, prayer), store
   Brunei & Muara base times only, and dedupe duplicate MORA dates on import.

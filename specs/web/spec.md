@@ -90,16 +90,35 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Pages
 
-- `/` is the day page only: today's entries, the district selector, share and
-  menu. It no longer carries a monthly table or a chart.
+- The home is a deck of three slides the reader swipes between: **Summary**,
+  **Today** and **Weekly**, in that order, wrapping at both ends. Each slide is
+  its own route, so analytics counts it as its own page:
+  - `/summary` — the dashboard slide;
+  - `/today` — the daily page (the app's original home);
+  - `/week` — the weekly table.
+- All three slides share one layout (`layouts/home.vue`): the data source note,
+  the page indicator, the slide area, the footer and the update prompt. The
+  layout owns the day's data and the swipe; the slide pages only render it.
+- `/` redirects to the slide the reader last viewed, remembered in a
+  `wsb.homeSlide` cookie; with no cookie it opens `/summary`. Older addresses
+  keep working: `/?view=month` and a bare `/?month=YYYY-MM` open
+  `/prayer-times`, `/?view=day` opens `/today`, and `district` carries over.
+- The page indicator sits above the slide area: one dot per slide, the current
+  one marked and named for assistive tech. Tapping a dot opens that slide.
+- A horizontal swipe moves one slide left or right and wraps at the ends.
+  Swipes that start on a control or a selectable table area do not navigate.
+- Every slide keeps the district in the address (`district=<district>`, only
+  when it is not the default), so the footer, the share button and the weekly
+  table always agree.
 - **Prayer times** is a page with a header nav: **Table** and **Graph**. They
   are two separate routes so analytics counts them apart:
   - `/prayer-times` — the monthly table;
   - `/prayer-times/graph` — the prayer-times graph.
 - Both prayer-times routes load on first visit as their own route bundles; the
-  day page does not ship the table or the chart code.
-- The menu has a **Prayer times** entry that opens `/prayer-times`; both pages
-  link back to the app and to each other through the header nav.
+  home slides do not ship the table or the chart code.
+- The menu has a **Prayer times** entry that opens `/prayer-times`; the weekly
+  slide also links straight to it ("all prayer times"). Both pages link back
+  to the home and to each other through the header nav.
 - Every route path is English. Locale only changes labels, never the address.
 - The address carries each page's selection, and is updated in place
   (`replace`, no history entry) as it changes. Defaults stay out of the
@@ -113,6 +132,31 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The old `/trend` address redirects to `/prayer-times/graph`, and an old
   `/?view=month&month=…` address redirects to `/prayer-times`, keeping the
   query, so existing links keep working.
+
+### Home slides
+
+- **Summary (`/summary`)** is the dashboard: the weekday and both dates, the
+  next entry as a hero card (its name, its time, the countdown and a progress
+  bar for the running interval), the day's eight entries in a compact grid,
+  and a shortcut to every prayer time. The next entry's hero turns primary
+  when it is 15 minutes or less away.
+- **Today (`/today`)** is the daily page exactly as it was: the phase-aware
+  list, the current-entry highlight, the countdown, the passed-entry note and
+  the loading/offline status.
+- **Weekly (`/week`)** is a table of one Monday-first week, transposed: prayer
+  entries down the y axis and the week's days across the x axis, so a whole
+  week reads without scrolling sideways. Today's column is highlighted and the
+  current entry is marked in it.
+- The weekly table steps one week at a time in the slide's footer and returns
+  to this week; a step never leaves the slide.
+- The slide header names the week it shows (for example `2 Nov – 8 Nov`).
+  Weeks read through the Data port (`readMonth`), so a week spanning two
+  months reads both; cached days paint first and missing ones leave `—`.
+- Week highlighting follows the deck's clock: at Brunei midnight the open slide
+  moves to the new week instead of highlighting yesterday, and the current
+  entry is resolved by core so the weekly and daily slides always agree.
+- A slow earlier week read never replaces a newer one; the slide keeps the
+  latest request's data.
 
 ### Monthly table (`/prayer-times`)
 
@@ -397,6 +441,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The preview image is a static 1200×630 PNG (`/og-image.png`) matching the app's
   palette, with localized alt text.
 - `og:locale` follows the active locale (`ms_BN`, else `en_US`).
+- Canonical and `og:url` name the current route, not the site root, so each
+  home slide previews and canonicalises as itself even though `/` redirects.
 
 ### District selection
 
@@ -496,7 +542,22 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Share confirms the copy to the user.
 - [ ] Press-and-hold on share offers formatted (default) and raw text.
 - [ ] Pulling down past the threshold reloads the app.
-- [ ] The day page shows only the day; it has no monthly table and no chart.
+- [ ] The home opens on the last slide viewed, remembered across reloads; with
+      no saved slide it opens the summary.
+- [ ] A horizontal swipe moves to the next/previous slide and wraps at both
+      ends; swiping over the district selector or the table does not navigate.
+- [ ] `/summary`, `/today` and `/week` are separate routes, so analytics
+      records three separate pages.
+- [ ] The summary shows the next entry with its countdown and a progress bar,
+      the day's eight entries in a grid, and a link to every prayer time.
+- [ ] The weekly table puts the eight entries down the y axis and seven days
+      across the x axis, marks today's column, and names its week.
+- [ ] The weekly footer steps one week and returns to this week without
+      leaving the slide.
+- [ ] Rapid week stepping never leaves the table showing a different week's
+      data than its header.
+- [ ] Each route is canonical to itself; `/` is never the canonical target of a
+      slide.
 - [ ] The menu's Prayer times entry opens `/prayer-times`; both page tabs work
       and the old `/trend` address redirects to the graph.
 - [ ] `/prayer-times` and `/prayer-times/graph` are separate routes, so
@@ -766,3 +827,6 @@ None published. Consumes core and the Data port.
   `/prayer-times/graph`, default the graph to the year with month/year ranges,
   give every route an English path, and redirect `/trend` to the graph so each
   view is counted separately in analytics.
+- 2026-11-02 — split the home into three swipeable slides (summary, today,
+  weekly), each its own route so analytics counts them apart; `/` reopens the
+  last viewed slide from a cookie.
