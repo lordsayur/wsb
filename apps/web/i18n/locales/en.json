@@ -32,10 +32,10 @@
     "reloadApp": "Reload app",
     "share": "Share prayer times",
     "downloads": "Other platforms",
-    "trend": "Trend chart",
     "tasbih": "Tasbih",
     "ayat": "Quran verse",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "prayerTimes": "Prayer times"
   },
   "source": {
     "label": "Data source",
@@ -236,17 +236,7 @@
     "next": "Next month",
     "today": "This month",
     "date": "Date",
-    "label": "Month",
-    "hijri": "Hijri",
-    "view": "Monthly view",
-    "dayView": "Daily view",
-    "tableLabel": "Monthly prayer times table"
-  },
-  "page": {
-    "label": "Pages",
-    "day": "Daily view",
-    "month": "Monthly view",
-    "trend": "Trend chart"
+    "label": "Month"
   },
   "chart": {
     "label": "Prayer times chart",
@@ -261,9 +251,6 @@
       "month": "Month",
       "year": "Year"
     }
-  },
-  "trend": {
-    "back": "Back to the app"
   },
   "tasbih": {
     "title": "Tasbih",
@@ -363,5 +350,17 @@
     "retentionBody": "Raw events are kept for 90 days. After that only the daily totals remain.",
     "session": "Sessions are counted with a temporary identifier in the tab; it disappears when the tab closes.",
     "back": "Back to the app"
+  },
+  "prayerTimes": {
+    "title": "Prayer times",
+    "graphTitle": "Prayer times graph",
+    "back": "Back to the app",
+    "tableIntro": "One month of prayer times, one row per day.",
+    "tableLabel": "Prayer times table for {month}",
+    "tabs": {
+      "label": "Prayer times view",
+      "table": "Table",
+      "graph": "Graph"
+    }
   }
 }

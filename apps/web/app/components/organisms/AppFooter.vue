@@ -2,7 +2,6 @@
   <footer class="app-footer">
     <section class="controls">
       <DistrictSelector
-        v-if="view === 'day'"
         :label="districtLabel"
         :model-value="district"
         :options="districtOptions"
@@ -10,25 +9,12 @@
       />
 
       <ShareButton
-        v-if="view === 'day'"
         :label="shareLabel"
         :formatted-label="shareFormattedLabel"
         :raw-label="shareRawLabel"
         :copied-label="shareCopiedLabel"
         :copied="shareCopied"
         @share="emit('share', $event)"
-      />
-
-      <MonthSelector
-        v-if="view === 'month'"
-        :label="monthLabel"
-        :title="monthTitle"
-        :current="monthCurrent"
-        :prev-label="monthPrevLabel"
-        :next-label="monthNextLabel"
-        :today-label="monthTodayLabel"
-        @shift="emit('shiftMonth', $event)"
-        @today="emit('todayMonth')"
       />
 
       <div class="menu">
@@ -64,9 +50,9 @@
               {{ settingsLabel }}
             </button>
             <hr class="divider" />
-            <button type="button" role="menuitem" @click="openTrend">
+            <button type="button" role="menuitem" @click="openPrayerTimes">
               <Icon name="lucide:chart-line" aria-hidden="true" />
-              {{ trendLabel }}
+              {{ prayerTimesLabel }}
             </button>
             <button type="button" role="menuitem" @click="openTasbih">
               <Icon name="lucide:circle-dot-dashed" aria-hidden="true" />
@@ -166,7 +152,6 @@ import DistrictSelector, {
   type DistrictOption,
 } from '../molecules/DistrictSelector.vue'
 import ShareButton from '../molecules/ShareButton.vue'
-import MonthSelector from '../molecules/MonthSelector.vue'
 import ThemeControls, {
   type ModeOption,
   type PaletteOption,
@@ -183,14 +168,7 @@ export interface LanguageOption {
   name: string
 }
 
-const props = defineProps<{
-  view?: 'day' | 'month'
-  monthLabel: string
-  monthTitle: string
-  monthCurrent: boolean
-  monthPrevLabel: string
-  monthNextLabel: string
-  monthTodayLabel: string
+defineProps<{
   districtLabel: string
   district: string
   districtOptions: DistrictOption[]
@@ -212,7 +190,7 @@ const props = defineProps<{
   timeFormat: TimeFormat
   timeFormatOptions: TimeFormatOption[]
   downloadsLabel: string
-  trendLabel: string
+  prayerTimesLabel: string
   tasbihLabel: string
   ayatLabel: string
   reloadDataLabel: string
@@ -229,8 +207,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  shiftMonth: [delta: number]
-  todayMonth: []
   'update:district': [value: string]
   'update:locale': [value: string]
   'update:themeMode': [value: ThemeMode]
@@ -239,7 +215,7 @@ const emit = defineEmits<{
   'update:timeFormat': [value: TimeFormat]
   share: [format: 'formatted' | 'raw']
   downloads: []
-  trend: []
+  prayerTimes: []
   tasbih: []
   ayat: []
   reloadData: []
@@ -285,8 +261,8 @@ function openDownloads() {
   close()
 }
 
-function openTrend() {
-  emit('trend')
+function openPrayerTimes() {
+  emit('prayerTimes')
   close()
 }
 

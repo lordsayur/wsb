@@ -76,9 +76,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - Durations under one minute render in seconds; otherwise in whole minutes (and
   hours when non-zero).
 - The highlight and duration update while the app is open, without a reload.
-- The whole page fits the viewport without scrolling, at any screen size.
-  The monthly view scrolls inside its table, never the page.
-- On non-mobile screens (768px and wider) the monthly view and the trend chart
+- The whole day page fits the viewport without scrolling, at any screen size.
+  The prayer-times table scrolls inside its own area, never the page.
+- On non-mobile screens (768px and wider) the prayer-times table and the graph
   use the full width of the screen; the daily view keeps its compact centred
   column.
 - The daily view maximises the prayer text: the eight entries share the space
@@ -90,46 +90,45 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Pages
 
-- The app has three views: the daily view and the monthly view inside `/`,
-  and the trend chart on its own `/trend` page.
-- `/trend` loads on first visit as a separate route bundle; the main page does
-  not ship the chart code. The menu has a **Trend chart** entry that opens it,
-  and the page links back to the app.
-- In `/`, the daily and monthly views are the two pages: swiping horizontally,
-  or tapping a page indicator, cycles between them in either direction; the
-  cycle wraps around.
-- A row of circular page indicators sits at the top of the page; the current
-  page's circle is highlighted and carries an accessible current marker.
-- The daily and monthly views share one cached month; the monthly view does not
-  load anything extra for data the daily view already holds.
-- The address carries the current view and its selection, and is updated in
-  place (`replace`, no history entry) as they change. Defaults stay out of the
-  address, so `/` and `/trend` stay clean and shareable:
-  - `view=month` when `/` shows the monthly view,
-  - `month=YYYY-MM` while the monthly view shows another month,
-  - `district=<district>` when it is not the default Brunei & Muara,
-  - `/trend` carries `range=week|year` when not the default month range, and
-    `date=YYYY-MM-DD` when the range is not the current one.
-- Opening a link restores the view and selection it names; unknown or malformed
-  values fall back to the defaults instead of erroring.
+- `/` is the day page only: today's entries, the district selector, share and
+  menu. It no longer carries a monthly table or a chart.
+- **Prayer times** is a page with a header nav: **Table** and **Graph**. They
+  are two separate routes so analytics counts them apart:
+  - `/prayer-times` — the monthly table;
+  - `/prayer-times/graph` — the prayer-times graph.
+- Both prayer-times routes load on first visit as their own route bundles; the
+  day page does not ship the table or the chart code.
+- The menu has a **Prayer times** entry that opens `/prayer-times`; both pages
+  link back to the app and to each other through the header nav.
+- Every route path is English. Locale only changes labels, never the address.
+- The address carries each page's selection, and is updated in place
+  (`replace`, no history entry) as it changes. Defaults stay out of the
+  address, so the pages stay clean and shareable:
+  - `district=<district>` when it is not the default Brunei & Muara;
+  - `month=YYYY-MM` on `/prayer-times` while it shows another Brunei month;
+  - `range=month` on `/prayer-times/graph` when the graph is not annual, and
+    `date=YYYY-MM-DD` when its period is not the current one.
+- Opening a link restores the selection it names; unknown or malformed values
+  fall back to the defaults instead of erroring.
+- The old `/trend` address redirects to `/prayer-times/graph`, and an old
+  `/?view=month&month=…` address redirects to `/prayer-times`, keeping the
+  query, so existing links keep working.
 
-### Monthly view
+### Monthly table (`/prayer-times`)
 
-- A horizontal swipe switches between the daily view and a monthly view:
-  swiping right shows the month, swiping left returns to the day. Vertical
-  drags and drags starting on form controls are ignored.
-- The view and the shown month are reflected in the address (`view`, `month`)
-  as described under **Pages**.
+- The page header shows the back link, the title and a **Table / Graph** nav;
+  the current page is marked as current.
+- The table shows one row per day of the selected Brunei month with the eight
+  entry columns, so the whole month is visible at a glance.
+- The month selector lives in the page footer — previous/next arrows around
+  the month name — and is the only way to change the month. Tapping the month
+  name returns to the current month and is only offered when another month is
+  shown.
+- The table has no month header of its own; the selector names the month.
+- Swiping horizontally does not change the month and does not navigate away
+  from the table.
 - Consecutive calendar weeks (Monday-first) alternate a visible row background
   so each week reads as a band; today's highlight still wins.
-- The monthly view shows one row per day of the selected Brunei month with the
-  eight entry columns, so the whole month is visible at a glance.
-- In the monthly view the footer replaces the district selector and share
-  button with a month selector: previous/next arrows around the month name.
-  Tapping the month name returns to the current month and is only offered when
-  another month is shown.
-- The month selector lives only in the footer; the table has no header of its
-  own.
 - Today's row is highlighted and its current entry is marked, matching the
   daily view.
 - The table scrolls vertically inside the viewport; its date column stays
@@ -138,19 +137,20 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   already shows it.
 - The month is read through the Data port (`readMonth`); the shell formats the
   display-ready values with core.
-- With no data the view shows the unavailable state; cached days render
-  offline and mark the view stale.
+- With no data the table shows the unavailable state; cached days render
+  offline and mark the table stale.
 
-### Trend chart
+### Prayer times graph (`/prayer-times/graph`)
 
-- The trend page plots the prayer entries as a line graph: the x axis is the
-  date and the y axis is the time of day, with a line per entry.
-- The range defaults to **month**; the page's footer offers **week**,
-  **month** and **year** and steps backwards/forwards through the range.
+- The graph plots the prayer entries as a line graph: the x axis is the date
+  and the y axis is the time of day, with a line per entry.
+- The range defaults to **year**; the page's footer offers **month** and
+  **year** and steps backwards/forwards through the range. There is no week
+  range on the page.
 - The selected period is named above the chart — the month and year
-  (`October 2026`), the year alone (`2026`), or the dates a week spans
-  (`12 Oct – 18 Oct`) — so the reader never has to infer it from the axis. It
-  sits outside the stepper so a narrow screen cannot squeeze it.
+  (`October 2026`) or the year alone (`2026`) — so the reader never has to
+  infer it from the axis. It sits outside the stepper so a narrow screen cannot
+  squeeze it.
 - The range and its anchor are reflected in the address (`range`, `date`) as
   described under **Pages**.
 - By default every entry is plotted. While all are shown, tapping a chip shows
@@ -242,19 +242,19 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 - The footer shows the district selector on the left, filling the available
   width, a share button, and a menu button on the right. All three are aligned
-  on one row and share the same height. In the monthly view the selector and
-  share button are replaced by the month selector.
+  on one row and share the same height.
 - The district selector is an inline radio group: one segmented button per
   district, with the current district highlighted. Left/Right arrows move
   between the options. It has no visible group label; its accessible name
   carries the "District" label instead.
-- The menu button opens a panel with **Settings**, **Trend chart**, **Tasbih**,
-  and **Other platforms**; it closes on Escape or after choosing an action.
+- The menu button opens a panel with **Settings**, **Prayer times**, **Tasbih**,
+  **Quran verse**, and **Other platforms**; it closes on Escape or after
+  choosing an action.
 - Settings is a second panel reached from the menu, with a back entry. It
   contains the theme controls, the time-format choice, the language selector,
   the notification toggle, and the "reload data" and "reload app" actions.
   Escape returns to the menu, then closes.
-- "Reload data" refetches the current view (day or month) from the source.
+- "Reload data" refetches the day from the source.
 - "Reload app" reloads the page.
 - Icons come from Nuxt Icon (`@nuxt/icon`, Lucide set): the menu, share,
   steppers, theme modes, notifications, downloads, and reload actions all use
@@ -353,9 +353,11 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The plugin is a no-op when the environment is `development` (which a dev
   build always is) or when the Supabase URL or anon key is missing.
 - A deliberate local test opts in with `NUXT_PUBLIC_ANALYTICS_DEV=1`.
-- Only allowlisted `props` are sent: `view` and `month` for `/`, `range` for
-  `/trend`, `district` when it is not the default. Unknown query keys are
-  dropped and the path is sent without its query string.
+- Only allowlisted `props` are sent: `month` for `/prayer-times`, `range` for
+  `/prayer-times/graph` (`month` or `year`), `district` when it is not the
+  default. Unknown query keys are dropped and the path is sent without its
+  query string. The table and the graph are separate paths, so each view is
+  counted on its own.
 - `/admin` is never recorded: the client skips it and the database rejects it.
 - No cookie, IP address, account id, user agent or full URL is collected. The
   session id lives in `sessionStorage` and dies with the tab.
@@ -420,7 +422,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   updating hint beside the data; never hide the times or the header.
 - The full loading state appears only when there is genuinely no cached data to
   show. A failed revalidation keeps the cached data on screen.
-- The monthly and trend pages follow the same rule using their cached month.
+- The prayer-times table and graph follow the same rule using their cached
+  month.
 
 ### Updates
 
@@ -456,8 +459,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The app is usable without a pointer: every control is a native button, link,
   select or input, in DOM order, with a visible focus ring.
 - A skip link is the first focus stop and moves focus to the main content.
-- Page indicators are one tab stop: arrow keys move and switch page,
-  Home/End jump to the ends.
+- The prayer-times page nav is one tab stop: arrow keys move between entries,
+  Home/End jump to the ends, and the current entry is marked.
 - Menu, share menu and chart legend behave the same way: one tab stop, arrow
   keys walk the items, Home/End jump, Escape closes and returns focus to the
   trigger.
@@ -493,23 +496,27 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Share confirms the copy to the user.
 - [ ] Press-and-hold on share offers formatted (default) and raw text.
 - [ ] Pulling down past the threshold reloads the app.
-- [ ] Swiping right from the day shows the month; swiping left returns.
-- [ ] Swiping past either edge cycles back to the other page.
-- [ ] Tapping a page indicator switches pages and highlights that circle.
-- [ ] The address reflects the view, month, district, trend range and anchor,
-      and opening such a link restores it; malformed values fall back.
-- [ ] The menu's Trend chart entry opens `/trend`; the page links back.
-- [ ] The trend names the selected period above the chart for every range.
-- [ ] The trend page does not scroll horizontally at 390px wide.
-- [ ] `/trend` is a separate route bundle; the main page does not ship it.
-- [ ] The trend page plots one line per entry with date on x and time on y.
-- [ ] The trend range defaults to month and offers week and year.
+- [ ] The day page shows only the day; it has no monthly table and no chart.
+- [ ] The menu's Prayer times entry opens `/prayer-times`; both page tabs work
+      and the old `/trend` address redirects to the graph.
+- [ ] `/prayer-times` and `/prayer-times/graph` are separate routes, so
+      analytics records them as separate pages.
+- [ ] The table's month selector steps months in the footer and returns to the
+      current month.
+- [ ] The address reflects the district, month, graph range and anchor, and
+      opening such a link restores it; malformed values fall back.
+- [ ] The graph names the selected period above the chart for every range.
+- [ ] The graph page does not scroll horizontally at 390px wide.
+- [ ] Each prayer-times route is its own route bundle; the day page ships
+      neither.
+- [ ] The graph plots one line per entry with date on x and time on y.
+- [ ] The graph range defaults to year and offers month and year.
 - [ ] Every entry is plotted by default; tapping a legend chip filters to it.
-- [ ] Days without data leave a gap in the trend line.
+- [ ] Days without data leave a gap in the graph line.
 - [ ] Off-scale values are flagged and one toggle hides or shows them; the
       toggle only appears when such values exist.
 - [ ] Every control is reachable and operable with the keyboard alone.
-- [ ] Arrow keys move within the page indicators, both menus and the chart
+- [ ] Arrow keys move within the prayer-times nav, both menus and the chart
       legend; Escape closes a panel and restores focus.
 - [ ] The eight daily entries scale to fill the space between header and
       controls without scrolling.
@@ -754,3 +761,8 @@ None published. Consumes core and the Data port.
   current one.
 - 2026-11-01 — put the countdown and passed notes inline beside the time instead
   of on a second line.
+- 2026-11-02 — move the monthly table off `/` onto its own `/prayer-times` page
+  with a **Table / Graph** header nav, move the chart there as
+  `/prayer-times/graph`, default the graph to the year with month/year ranges,
+  give every route an English path, and redirect `/trend` to the graph so each
+  view is counted separately in analytics.

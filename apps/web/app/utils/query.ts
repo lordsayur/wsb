@@ -1,10 +1,7 @@
-// specs/web/spec.md — the address carries the view and its selection, so a
-// link opens the same district, month and trend range.
+// specs/web/spec.md — the address carries the selection of a prayer-times page,
+// so a link opens the same district, month, graph range and anchor.
 import { isChartRange, isDistrict, type ChartRange, type District } from '@wsb/core'
 
-export type ViewName = 'day' | 'month'
-
-const VIEWS: readonly ViewName[] = ['day', 'month']
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
 const DATE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
 
@@ -13,11 +10,6 @@ export function queryValue(value: unknown): string | null {
   if (typeof value === 'string') return value
   if (Array.isArray(value) && typeof value[0] === 'string') return value[0]
   return null
-}
-
-export function parseView(value: unknown): ViewName | null {
-  const text = queryValue(value)
-  return VIEWS.includes(text as ViewName) ? (text as ViewName) : null
 }
 
 export function parseMonth(value: unknown): string | null {

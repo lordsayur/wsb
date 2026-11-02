@@ -76,6 +76,10 @@ export function useDistrict(initialDistrict: District | null = null) {
   const district = ref<District>(
     resolveDistrict(initialDistrict ?? repo.getSelectionSync?.() ?? null),
   )
+  async function selectDistrict(next: District) {
+    district.value = resolveDistrict(next)
+    await repo.setSelection(district.value)
+  }
   onMounted(async () => {
     if (initialDistrict) {
       await repo.setSelection(initialDistrict)
@@ -83,7 +87,7 @@ export function useDistrict(initialDistrict: District | null = null) {
     }
     district.value = resolveDistrict(await repo.getSelection())
   })
-  return { district }
+  return { district, selectDistrict }
 }
 
 export function usePrayerTimes(

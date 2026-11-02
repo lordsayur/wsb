@@ -17,7 +17,7 @@ const stats: AnalyticsStats = {
   ],
   topPaths: [
     { path: '/', views: 80 },
-    { path: '/trend', views: 30 },
+    { path: '/prayer-times/graph', views: 30 },
     { path: '/ayat', views: 18 },
   ],
   events: [{ event: 'pageview', views: 128 }],
@@ -90,7 +90,7 @@ export const Default: Story = {
     await expect(canvas.getByText('+28%')).toBeInTheDocument()
     await expect(canvas.getByText('-20%')).toBeInTheDocument()
     await expect(canvas.getAllByText('128')).toHaveLength(2)
-    await expect(canvas.getByText('/trend')).toBeInTheDocument()
+    await expect(canvas.getByText('/prayer-times/graph')).toBeInTheDocument()
     await expect(canvas.getByText('Terus')).toBeInTheDocument()
 
     await userEvent.click(canvas.getByRole('button', { name: '7' }))

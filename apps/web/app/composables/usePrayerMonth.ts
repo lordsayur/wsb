@@ -1,6 +1,6 @@
 // specs/web/spec.md — monthly view: reads a month through the port and formats
 // display-ready rows. Core computes; the shell renders.
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   DEFAULT_TIME_FORMAT,
@@ -104,9 +104,19 @@ export function usePrayerMonth(
     return true
   }
 
+  // The cached month paints after hydration: painting during setup would
+  // disagree with the SSR shell and Vue would log a mismatch.
+  let mounted = false
+  if (import.meta.client) {
+    onMounted(() => {
+      mounted = true
+      paintFromCache()
+    })
+  }
+
   async function load() {
     if (!active()) return
-    if (!paintFromCache()) {
+    if (!mounted || !paintFromCache()) {
       state.value = 'loading'
       days.value = []
       stale.value = false

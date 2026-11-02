@@ -5,24 +5,18 @@ import {
   DEFAULT_DISTRICT,
   DISTRICTS,
   NOTIFICATION_LEAD_MINUTES,
-  bruneiNow,
   durationParts,
   formatNumber,
   formatWeekday,
-  monthOf,
 } from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
 import DayStatus from '~/components/molecules/DayStatus.vue'
 import PrayerTimeList from '~/components/organisms/PrayerTimeList.vue'
-import MonthPrayerTable from '~/components/organisms/MonthPrayerTable.vue'
 import AppFooter from '~/components/organisms/AppFooter.vue'
 import DateDisplay from '~/components/molecules/DateDisplay.vue'
-import PageIndicator from '~/components/molecules/PageIndicator.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
 import UpdatePrompt from '~/components/molecules/UpdatePrompt.vue'
 import { usePrayerTimes } from '~/composables/usePrayerTimes'
-import { usePrayerMonth } from '~/composables/usePrayerMonth'
-import { useSwipe } from '~/composables/useSwipe'
 import { usePrayerNotifications } from '~/composables/usePrayerNotifications'
 import { usePwaUpdate } from '~/composables/usePwaUpdate'
 import { usePullToRefresh } from '~/composables/usePullToRefresh'
@@ -30,16 +24,26 @@ import { useSettings } from '~/composables/useSettings'
 import { useSharePrayerTimes } from '~/composables/useSharePrayerTimes'
 import { useTheme } from '~/composables/useTheme'
 import { PALETTES, type PaletteId, type ThemeMode } from '~/utils/theme'
-import {
-  parseDistrict,
-  parseMonth,
-  parseView,
-  queryValue,
-  type ViewName,
-} from '~/utils/query'
+import { parseDistrict, queryValue } from '~/utils/query'
 
-// specs/web/spec.md — the day and month share the cached month; the trend is
-// its own page. The address carries the view and its selection.
+// specs/web/spec.md — the app shows the day; the monthly table and the graph
+// live on `/prayer-times`. The address carries the selected district.
+definePageMeta({
+  // Old `/?view=month&month=…` links land on the monthly table, selection kept.
+  middleware: [
+    (to) => {
+      if (to.query.view !== 'month') return
+      const query: Record<string, string> = {}
+      for (const key of ['district', 'month'] as const) {
+        const value = to.query[key]
+        const text = Array.isArray(value) ? value[0] : value
+        if (typeof text === 'string') query[key] = text
+      }
+      return navigateTo({ path: '/prayer-times', query })
+    },
+  ],
+})
+
 const route = useRoute()
 const router = useRouter()
 
@@ -95,59 +99,12 @@ const {
   parseDistrict(route.query.district),
 )
 
-const PAGES: readonly ViewName[] = ['day', 'month']
-
-// A month link opens the monthly view; a bare view link stays on the day.
-const initialMonth = parseMonth(route.query.month)
-const view = ref<ViewName>(
-  parseView(route.query.view) ?? (initialMonth ? 'month' : 'day'),
-)
-
-const pageOptions = computed(() =>
-  PAGES.map((page) => ({
-    id: page,
-    label: t(`page.${page}`),
-  })),
-)
-
-function goToPage(delta: number) {
-  const index = PAGES.indexOf(view.value)
-  view.value = PAGES[(index + delta + PAGES.length) % PAGES.length]!
-}
-
-function selectPage(page: string) {
-  if (PAGES.includes(page as ViewName)) view.value = page as ViewName
-}
-
-const {
-  month,
-  title: monthTitle,
-  columns: monthColumns,
-  rows: monthRows,
-  state: monthState,
-  stale: monthStale,
-  refreshing: monthRefreshing,
-  shift: shiftMonth,
-  setMonth,
-  reload: reloadMonth,
-} = usePrayerMonth(
-  () => district.value,
-  () => locale.value,
-  () => timeFormat.value,
-  () => view.value === 'month',
-  initialMonth,
-)
-
-/** specs/web/spec.md — the address mirrors the view and its selection. */
+/** specs/web/spec.md — the address mirrors the selected district. */
 function syncUrl() {
   if (!import.meta.client) return
   // Defaults stay out of the address, so "/" stays clean and shareable.
   const target: Record<string, string> = {}
   if (district.value !== DEFAULT_DISTRICT) target.district = district.value
-  if (view.value === 'month') {
-    target.view = 'month'
-    if (month.value !== monthOf(bruneiNow().date)) target.month = month.value
-  }
   const current = route.query as Record<string, unknown>
   const keys = new Set([...Object.keys(target), ...Object.keys(current)])
   const same = [...keys].every(
@@ -156,29 +113,18 @@ function syncUrl() {
   if (!same) void router.replace({ query: target })
 }
 
-watch([view, district, month], syncUrl)
+watch(district, syncUrl)
 
-/** A pasted or history-restored address restores the same view. */
+/** A pasted or history-restored address restores the same district. */
 watch(
   () => route.query,
   (query) => {
-    const nextView = parseView(query.view) ?? 'day'
-    if (nextView !== view.value) view.value = nextView
-    const nextMonth = parseMonth(query.month)
-    if (nextMonth && nextMonth !== month.value) setMonth(nextMonth)
     const nextDistrict = parseDistrict(query.district)
     if (nextDistrict && nextDistrict !== district.value) {
       void selectDistrict(nextDistrict)
     }
   },
 )
-
-const currentMonth = computed(() => monthOf(bruneiNow().date))
-
-const { offset: swipeOffset } = useSwipe({
-  right: () => goToPage(-1),
-  left: () => goToPage(1),
-})
 
 const { copied: shareCopied, share } = useSharePrayerTimes(
   () => baseEntries.value,
@@ -292,8 +238,7 @@ function reloadApp() {
 }
 
 function reloadCurrent() {
-  if (view.value === 'month') void reloadMonth()
-  else reloadData()
+  reloadData()
 }
 
 function openDownloads() {
@@ -312,12 +257,12 @@ function openPrivacy() {
   navigateTo('/privacy')
 }
 
-function openTrend() {
-  // The trend page reads the same district, so carry it across.
+function openPrayerTimes() {
+  // The prayer-times pages read the same district, so carry it across.
   navigateTo(
     district.value === DEFAULT_DISTRICT
-      ? '/trend'
-      : { path: '/trend', query: { district: district.value } },
+      ? '/prayer-times'
+      : { path: '/prayer-times', query: { district: district.value } },
   )
 }
 
@@ -341,23 +286,9 @@ onMounted(async () => {
 
   <div
     class="layout"
-    :class="`view-${view}`"
-    :style="{
-      transform: pull
-        ? `translateY(${pull}px)`
-        : swipeOffset
-          ? `translateX(${swipeOffset}px)`
-          : undefined,
-    }"
+    :style="{ transform: pull ? `translateY(${pull}px)` : undefined }"
   >
     <a class="skip-link" href="#main">{{ t('a11y.skipToContent') }}</a>
-
-    <PageIndicator
-      :pages="pageOptions"
-      :model-value="view"
-      :label="t('page.label')"
-      @update:model-value="selectPage"
-    />
 
     <SourceNote
       :label="t('source.label')"
@@ -366,47 +297,24 @@ onMounted(async () => {
     />
 
     <ClientOnly>
-      <main id="main" class="main" :class="view" tabindex="-1">
-        <template v-if="view === 'day'">
-          <p class="weekday">{{ weekday }}</p>
-          <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
-          <DayStatus :text="dayStatus" :busy="dayBusy" />
+      <main id="main" class="main day" tabindex="-1">
+        <p class="weekday">{{ weekday }}</p>
+        <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
+        <DayStatus :text="dayStatus" :busy="dayBusy" />
 
-          <PrayerTimeList
-            :rows="displayRows"
-            :countdown-key="progress.next"
-            :countdown="nextCountdown"
-            :passed-key="passedKey"
-            :passed-note="passedNote"
-            :note-soon="rowNoteSoon"
-            :pending-time="t('state.pending')"
-          />
-        </template>
-
-        <MonthPrayerTable
-          v-else
-          :state="monthState"
-          :columns="monthColumns"
-          :rows="monthRows"
-          :date-label="t('month.date')"
-          :table-label="t('month.tableLabel')"
-          :refreshing="monthRefreshing"
-          :refreshing-text="t('state.refreshing')"
-          :loading-text="t('state.loading')"
-          :unavailable-text="t('state.unavailable')"
-          :offline-text="monthStale ? t('state.offline') : ''"
+        <PrayerTimeList
+          :rows="displayRows"
+          :countdown-key="progress.next"
+          :countdown="nextCountdown"
+          :passed-key="passedKey"
+          :passed-note="passedNote"
+          :note-soon="rowNoteSoon"
+          :pending-time="t('state.pending')"
         />
       </main>
     </ClientOnly>
 
     <AppFooter
-      :view="view"
-      :month-label="t('month.label')"
-      :month-title="monthTitle"
-      :month-current="month === currentMonth"
-      :month-prev-label="t('month.prev')"
-      :month-next-label="t('month.next')"
-      :month-today-label="t('month.today')"
       :district-label="t('district.label')"
       :district="district"
       :district-options="districtOptions"
@@ -428,7 +336,7 @@ onMounted(async () => {
       :time-format="timeFormat"
       :time-format-options="timeFormatOptions"
       :downloads-label="t('action.downloads')"
-      :trend-label="t('action.trend')"
+      :prayer-times-label="t('action.prayerTimes')"
       :tasbih-label="t('action.tasbih')"
       :ayat-label="t('action.ayat')"
       :reload-data-label="t('action.reloadData')"
@@ -442,8 +350,6 @@ onMounted(async () => {
       :notification-label="notificationLabel"
       :notifications-enabled="notificationsEnabled"
       :notifications-supported="notificationsSupported"
-      @shift-month="shiftMonth"
-      @today-month="setMonth(currentMonth)"
       @update:district="selectDistrict"
       @share="share"
       @update:locale="chooseLocale"
@@ -452,7 +358,7 @@ onMounted(async () => {
       @update:custom-color="setCustom"
       @update:time-format="setTimeFormat"
       @downloads="openDownloads"
-      @trend="openTrend"
+      @prayer-times="openPrayerTimes"
       @tasbih="openTasbih"
       @ayat="openAyat"
       @reload-data="reloadCurrent"
@@ -539,15 +445,6 @@ onMounted(async () => {
   justify-content: center;
   text-align: center;
   gap: 0.5rem;
-}
-.main.month {
-  justify-content: flex-start;
-  text-align: start;
-}
-@media (min-width: 768px) {
-  .layout.view-month {
-    max-width: none;
-  }
 }
 .weekday {
   margin: 0;

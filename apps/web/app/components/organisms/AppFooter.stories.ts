@@ -7,13 +7,6 @@ const meta: Meta<typeof AppFooter> = {
   title: 'Organisms/AppFooter',
   component: AppFooter,
   args: {
-    view: 'day',
-    monthLabel: 'Bulan',
-    monthTitle: 'Oktober 2026',
-    monthCurrent: true,
-    monthPrevLabel: 'Bulan sebelumnya',
-    monthNextLabel: 'Bulan seterusnya',
-    monthTodayLabel: 'Bulan ini',
     districtLabel: 'Daerah',
     district: 'bruneiMuara',
     districtOptions: [
@@ -51,7 +44,7 @@ const meta: Meta<typeof AppFooter> = {
       { code: 'en', name: 'English' },
     ],
     downloadsLabel: 'Platform lain',
-    trendLabel: 'Grafik trend',
+    prayerTimesLabel: 'Waktu sembahyang',
     tasbihLabel: 'Tasbih',
     ayatLabel: 'Ayat Al-Quran',
     reloadDataLabel: 'Muat semula data',
@@ -72,15 +65,13 @@ const meta: Meta<typeof AppFooter> = {
     'onUpdate:timeFormat': fn(),
     onShare: fn(),
     onDownloads: fn(),
-    onTrend: fn(),
+    onPrayerTimes: fn(),
     onTasbih: fn(),
     onAyat: fn(),
     onReloadData: fn(),
     onReloadApp: fn(),
     onPrivacy: fn(),
     onToggleNotifications: fn(),
-    onShiftMonth: fn(),
-    onTodayMonth: fn(),
   },
 }
 export default meta
@@ -114,7 +105,7 @@ export const MenuOpen: Story = {
       canvas.getByRole('menuitem', { name: 'Ayat Al-Quran' }),
     ).toBeVisible()
     await expect(
-      canvas.getByRole('menuitem', { name: 'Grafik trend' }),
+      canvas.getByRole('menuitem', { name: 'Waktu sembahyang' }),
     ).toBeVisible()
     await expect(
       canvas.queryByRole('menuitem', { name: 'Muat semula data' }),
@@ -266,12 +257,14 @@ export const OpenAyat: Story = {
   },
 }
 
-export const OpenTrend: Story = {
+export const OpenPrayerTimes: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
     await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
-    await userEvent.click(canvas.getByRole('menuitem', { name: 'Grafik trend' }))
-    await expect(args.onTrend).toHaveBeenCalledTimes(1)
+    await userEvent.click(
+      canvas.getByRole('menuitem', { name: 'Waktu sembahyang' }),
+    )
+    await expect(args.onPrayerTimes).toHaveBeenCalledTimes(1)
   },
 }
 
@@ -284,7 +277,7 @@ export const KeyboardArrowOpensMenu: Story = {
     await expect(canvas.getByRole('menuitem', { name: 'Tetapan' })).toHaveFocus()
     await userEvent.keyboard('{ArrowDown}')
     await expect(
-      canvas.getByRole('menuitem', { name: 'Grafik trend' }),
+      canvas.getByRole('menuitem', { name: 'Waktu sembahyang' }),
     ).toHaveFocus()
     await userEvent.keyboard('{ArrowDown}')
     await expect(canvas.getByRole('menuitem', { name: 'Tasbih' })).toHaveFocus()

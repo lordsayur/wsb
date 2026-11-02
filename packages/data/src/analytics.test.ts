@@ -52,51 +52,75 @@ describe('isAnalyticsEnvironment', () => {
 
 describe('buildPageview', () => {
   it('records the route path and drops the query string', () => {
-    const row = build({ path: '/trend', search: '?range=year&date=2026-01-01' })
-    expect(row?.path).toBe('/trend')
+    const row = build({
+      path: '/prayer-times/graph',
+      search: '?range=year&date=2026-01-01',
+    })
+    expect(row?.path).toBe('/prayer-times/graph')
     expect(row?.props).toEqual({ range: 'year' })
   })
 
   it('keeps the path when the router already stripped the query', () => {
-    expect(build({ path: '/trend', search: '' })?.path).toBe('/trend')
+    expect(build({ path: '/prayer-times/graph', search: '' })?.path).toBe(
+      '/prayer-times/graph',
+    )
   })
 
-  it('records only allowlisted props for the home view', () => {
+  it('treats the month table and the graph as separate pages', () => {
+    expect(build({ path: '/prayer-times', search: '' })?.path).toBe(
+      '/prayer-times',
+    )
+    expect(build({ path: '/prayer-times/graph', search: '' })?.path).toBe(
+      '/prayer-times/graph',
+    )
+  })
+
+  it('records only allowlisted props for the month table', () => {
     const row = build({
-      path: '/',
-      search: '?view=month&month=2026-02&utm_source=x&district=tutong',
+      path: '/prayer-times',
+      search: '?month=2026-02&utm_source=x&district=tutong',
     })
-    expect(row?.props).toEqual({
-      view: 'month',
-      month: '2026-02',
-      district: 'tutong',
-    })
+    expect(row?.props).toEqual({ month: '2026-02', district: 'tutong' })
   })
 
-  it('defaults the home view to day and leaves the default district out', () => {
-    const row = build({ path: '/', search: '?district=bruneiMuara' })
-    expect(row?.props).toEqual({ view: 'day' })
+  it('leaves the default district out', () => {
+    const row = build({ path: '/prayer-times', search: '?district=bruneiMuara' })
+    expect(row?.props).toEqual({})
   })
 
   it('drops an unknown or malformed month and range', () => {
-    const row = build({
-      path: '/',
-      search: '?view=month&month=2026-13',
-    })
-    expect(row?.props).toEqual({ view: 'month' })
+    const table = build({ path: '/prayer-times', search: '?month=2026-13' })
+    expect(table?.props).toEqual({})
 
-    const trend = build({ path: '/trend', search: '?range=decade' })
-    expect(trend?.props).toEqual({})
+    const graph = build({
+      path: '/prayer-times/graph',
+      search: '?range=decade',
+    })
+    expect(graph?.props).toEqual({})
+  })
+
+  it('ignores the week range the graph does not offer', () => {
+    const row = build({ path: '/prayer-times/graph', search: '?range=week' })
+    expect(row?.props).toEqual({})
   })
 
   it('ignores query keys on paths that own none', () => {
-    const row = build({ path: '/ayat', search: '?view=month&range=year' })
+    const row = build({
+      path: '/ayat',
+      search: '?view=month&range=year&month=2026-02',
+    })
     expect(row?.props).toEqual({})
+  })
+
+  it('drops view and month from the home path', () => {
+    expect(
+      build({ path: '/', search: '?view=month&month=2026-02' })?.props,
+    ).toEqual({})
   })
 
   it('drops a same-origin referrer', () => {
     const row = build({
-      path: '/trend',
+      path: '/prayer-times/graph',
       referrer: 'https://wsb.example/?view=month',
     })
     expect(row?.referrer_host).toBeNull()
@@ -104,7 +128,7 @@ describe('buildPageview', () => {
 
   it('keeps the referring host only, without path or query', () => {
     const row = build({
-      path: '/trend',
+      path: '/prayer-times/graph',
       referrer: 'https://news.example/article?id=3',
     })
     expect(row?.referrer_host).toBe('news.example')

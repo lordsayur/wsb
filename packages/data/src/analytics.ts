@@ -17,10 +17,9 @@ export const ANALYTICS_DEVICES = ['mobile', 'tablet', 'desktop'] as const
 export type AnalyticsDevice = (typeof ANALYTICS_DEVICES)[number]
 
 export type PageviewProps = {
-  view?: 'day' | 'month'
   month?: string
   district?: District
-  range?: 'week' | 'month' | 'year'
+  range?: 'month' | 'year'
 }
 
 /** One row for `analytics_events`, with keys in the table's shape. */
@@ -120,17 +119,14 @@ function pageviewProps(
 ): PageviewProps {
   const props: PageviewProps = {}
 
-  if (path === '/') {
-    props.view = search.get('view') === 'month' ? 'month' : 'day'
+  if (path === '/prayer-times') {
     const month = search.get('month')
     if (month && MONTH.test(month)) props.month = month
   }
 
-  if (path === '/trend') {
+  if (path === '/prayer-times/graph') {
     const range = search.get('range')
-    if (range === 'week' || range === 'month' || range === 'year') {
-      props.range = range
-    }
+    if (range === 'month' || range === 'year') props.range = range
   }
 
   const district = search.get('district')

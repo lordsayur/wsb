@@ -33,9 +33,10 @@ Terms this context owns.
 - Every route change in the web shell records one `pageview` with:
   `path`, `locale`, `device`, `referrer_host`, `environment`, `session_id`,
   `occurred_at`, and a small `props` object.
-- `props` carries only allowlisted keys. In the first cut: `view` (`day` or
-  `month`) for `/`, the shown `month`, the selected `district`, and `range` for
-  `/trend`.
+- `props` carries only allowlisted keys. In the first cut: the shown `month`
+  for `/prayer-times`, `range` (`month` or `year`) for `/prayer-times/graph`,
+  and the selected `district`. The monthly table and the graph are separate
+  paths, so each is counted as its own page.
 - The path is the route path without its query string.
 - `device` is derived from the viewport width (`mobile`, `tablet`, `desktop`);
   no user-agent string is stored.
@@ -104,6 +105,8 @@ Terms this context owns.
 - [ ] A navigation records one `pageview` with the route path and no query
       string.
 - [ ] `props` contains only allowlisted keys; unknown query keys are dropped.
+- [ ] `/prayer-times` and `/prayer-times/graph` are recorded as separate
+      paths, so the table and the graph count apart.
 - [ ] A same-origin referrer records no `referrer_host`.
 - [ ] Viewport widths map to `mobile`, `tablet` and `desktop` at the
       documented breakpoints.
@@ -153,3 +156,5 @@ Names only.
 - 2026-10-24 — initial draft; Supabase-native, cookieless, pageviews first.
 - 2026-10-24 — a dev build always tags `development` (not the configured
   environment), so no test build can write production rows.
+- 2026-11-02 — the monthly table and the graph move to `/prayer-times` and
+  `/prayer-times/graph`; props drop `view` and carry the graph's `range` there.

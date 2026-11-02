@@ -1,6 +1,6 @@
 // specs/web/spec.md — trend view: reads a date range through the port and
 // formats display-ready series. Core computes; the shell renders.
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import {
   CHART_RANGES,
   isChartRange,
@@ -50,10 +50,21 @@ export function usePrayerChart(
   timeFormat: () => TimeFormat = () => DEFAULT_TIME_FORMAT,
   active: () => boolean = () => true,
   t: (key: string) => string,
-  initial: { range?: ChartRange | null; anchor?: string | null } = {},
+  initial: {
+    range?: ChartRange | null
+    anchor?: string | null
+    ranges?: readonly ChartRange[]
+    defaultRange?: ChartRange
+  } = {},
 ) {
   const today = bruneiNow().date
-  const range = ref<ChartRange>(initial.range ?? 'month')
+  const ranges = initial.ranges ?? CHART_RANGES
+  const defaultRange = initial.defaultRange ?? 'month'
+  const range = ref<ChartRange>(
+    initial.range && ranges.includes(initial.range)
+      ? initial.range
+      : defaultRange,
+  )
   const anchor = ref(initial.anchor ?? today)
   const days = ref<ChartDay[]>([])
   const state = ref<'loading' | 'ready' | 'unavailable'>('loading')
@@ -168,7 +179,7 @@ export function usePrayerChart(
   )
 
   const rangeOptions = computed(() =>
-    CHART_RANGES.map((value) => ({ value, label: t(`chart.range.${value}`) })),
+    ranges.map((value) => ({ value, label: t(`chart.range.${value}`) })),
   )
 
   const axis = computed(() =>
@@ -192,10 +203,23 @@ export function usePrayerChart(
     })),
   )
 
+  // Painting the cache during setup would disagree with the SSR shell; wait
+  // until the component is mounted, then fill before the first network reply.
+  let mounted = false
+  onMounted(() => {
+    mounted = true
+    void load()
+  })
+
   async function load() {
     if (!active()) return
+    // On the client, wait for mount so the cached range never disagrees with
+    // the SSR shell; the server still prefetches through the watch below.
+    if (import.meta.client && !mounted) return
     const id = ++request
-    const peek = peekRange(anchor.value, range.value, district(), locale())
+    const peek = mounted
+      ? peekRange(anchor.value, range.value, district(), locale())
+      : null
     if (peek) {
       days.value = peek.days
       stale.value = peek.stale
@@ -250,7 +274,7 @@ export function usePrayerChart(
   }
 
   function setRange(next: string) {
-    if (isChartRange(next)) range.value = next
+    if (isChartRange(next) && ranges.includes(next)) range.value = next
   }
 
   function shift(delta: number) {

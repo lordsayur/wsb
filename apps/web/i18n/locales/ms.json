@@ -32,10 +32,10 @@
     "reloadApp": "Muat semula aplikasi",
     "share": "Kongsi waktu sembahyang",
     "downloads": "Platform lain",
-    "trend": "Grafik trend",
     "tasbih": "Tasbih",
     "ayat": "Ayat Al-Quran",
-    "privacy": "Privasi"
+    "privacy": "Privasi",
+    "prayerTimes": "Waktu sembahyang"
   },
   "source": {
     "label": "Sumber data",
@@ -236,17 +236,7 @@
     "next": "Bulan seterusnya",
     "today": "Bulan ini",
     "date": "Tarikh",
-    "label": "Bulan",
-    "hijri": "Hijrah",
-    "view": "Paparan bulanan",
-    "dayView": "Paparan harian",
-    "tableLabel": "Jadual waktu sembahyang bulanan"
-  },
-  "page": {
-    "label": "Halaman",
-    "day": "Paparan harian",
-    "month": "Paparan bulanan",
-    "trend": "Grafik trend"
+    "label": "Bulan"
   },
   "chart": {
     "label": "Grafik waktu sembahyang",
@@ -261,9 +251,6 @@
       "month": "Bulan",
       "year": "Tahun"
     }
-  },
-  "trend": {
-    "back": "Kembali ke aplikasi"
   },
   "tasbih": {
     "title": "Tasbih",
@@ -363,5 +350,17 @@
     "retentionBody": "Peristiwa mentah disimpan 90 hari. Selepas itu hanya jumlah harian kekal.",
     "session": "Sesi dikira dengan pengecam sementara dalam tab; ia hilang apabila tab ditutup.",
     "back": "Kembali ke aplikasi"
+  },
+  "prayerTimes": {
+    "title": "Waktu sembahyang",
+    "graphTitle": "Grafik waktu sembahyang",
+    "back": "Kembali ke aplikasi",
+    "tableIntro": "Waktu sembahyang sebulan, satu baris setiap hari.",
+    "tableLabel": "Jadual waktu sembahyang bagi {month}",
+    "tabs": {
+      "label": "Paparan waktu sembahyang",
+      "table": "Jadual",
+      "graph": "Grafik"
+    }
   }
 }
