@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   DEFAULT_DISTRICT,
   DISTRICTS,
   NEXT_SOON_MINUTES,
-  PRAYER_ORDER,
   durationParts,
   formatNumber,
   formatTime,
@@ -26,7 +25,6 @@ import { useSharePrayerTimes } from '~/composables/useSharePrayerTimes'
 import { useSwipe } from '~/composables/useSwipe'
 import { useTheme } from '~/composables/useTheme'
 import { stepHomeSlide, HOME_SLIDE_COOKIE, homeSlideFromPath, homeSlidePath } from '~/utils/homeSlides'
-import { segmentProgress } from '~/utils/progress'
 import { parseDistrict, prayerTimesLink, queryValue } from '~/utils/query'
 import { PALETTES, type PaletteId, type ThemeMode } from '~/utils/theme'
 
@@ -179,19 +177,6 @@ const displayRows = computed<HomeRow[]>(() =>
   })),
 )
 
-/** Today's entries in prayer order, for the summary grid. */
-const summaryRows = computed<HomeRow[]>(() =>
-  PRAYER_ORDER.map((prayer) => {
-    const entry = entries.value.find((item) => item.prayer === prayer)
-    return {
-      prayer,
-      label: t(`prayer.${prayer}`),
-      time: entry ? formatTime(entry.minutes, locale.value, timeFormat.value) : '',
-      current: progress.value.current === prayer,
-    }
-  }),
-)
-
 const weekday = computed(() => formatWeekday(date.value, locale.value))
 
 const dayStatus = computed(() => {
@@ -247,13 +232,19 @@ const nextName = computed(() => t(`prayer.${progress.value.next}`))
 const nextTime = computed(
   () =>
     displayRows.value.find((row) => row.prayer === progress.value.next)?.time ??
-    summaryRows.value.find((row) => row.prayer === progress.value.next)?.time ??
     '',
 )
 
-const progressPercent = computed(() =>
-  Math.round(segmentProgress(entries.value, progress.value) * 100),
+/** The running entry, for the dashboard's hero. Empty before today's first. */
+const currentName = computed(() =>
+  progress.value.current ? t(`prayer.${progress.value.current}`) : '',
 )
+const currentTime = computed(() => {
+  const prayer = progress.value.current
+  if (!prayer) return ''
+  const entry = entries.value.find((item) => item.prayer === prayer)
+  return entry ? formatTime(entry.minutes, locale.value, timeFormat.value) : ''
+})
 
 /** The slides, in swipe order, named for the page indicator. */
 const slidePages = computed(() => [
@@ -261,25 +252,6 @@ const slidePages = computed(() => [
   { id: 'today', label: t('home.todayTitle') },
   { id: 'week', label: t('home.weekTitle') },
 ])
-
-provideHomeDeck({
-  district,
-  date,
-  dates,
-  weekday,
-  nextName,
-  nextTime,
-  nextCountdown,
-  progressPercent,
-  nextSoon,
-  summaryRows,
-  displayRows,
-  countdownKey,
-  passedKey,
-  passedNote,
-  dayStatus,
-  dayBusy,
-})
 
 function chooseLocale(code: string) {
   setLocale(code as typeof locale.value)
@@ -313,16 +285,147 @@ function openPrayerTimes() {
   void navigateTo(prayerTimesLink(district.value))
 }
 
+// specs/web/spec.md — the dashboard never shows the footer. A floating menu
+// button opens a dock with the district selector and the settings menu; from
+// there the reader can fill the screen with the card alone. Escape closes the
+// dock first, then leaves fullscreen.
+const fullscreen = ref(false)
+const fsMenu = ref(false)
+
+function toggleDock() {
+  fsMenu.value = !fsMenu.value
+}
+
+function enterFullscreen() {
+  fullscreen.value = true
+}
+
+function exitFullscreen() {
+  fullscreen.value = false
+}
+
+watch(slide, () => {
+  if (slide.value !== 'summary') {
+    fsMenu.value = false
+    fullscreen.value = false
+  }
+})
+
+watch(fullscreen, (on) => {
+  if (!import.meta.client) return
+  document.documentElement.classList.toggle('wsb-fullscreen', on)
+  document.body.classList.toggle('wsb-fullscreen-locked', on)
+})
+
+onBeforeUnmount(() => {
+  if (!import.meta.client) return
+  document.documentElement.classList.remove('wsb-fullscreen')
+  document.body.classList.remove('wsb-fullscreen-locked')
+})
+
+provideHomeDeck({
+  district,
+  date,
+  dates,
+  weekday,
+  currentName,
+  currentTime,
+  nextName,
+  nextTime,
+  nextCountdown,
+  nextSoon,
+  displayRows,
+  countdownKey,
+  passedKey,
+  passedNote,
+  dayStatus,
+  dayBusy,
+  fullscreen,
+})
+
+
+// specs/web/spec.md — the footer's props and handlers live in one place: the
+// daily and weekly slides render it inline, the dashboard renders the same
+// footer inside its dock.
+const footerProps = computed(() => ({
+  districtLabel: t('district.label'),
+  district: district.value,
+  districtOptions: districtOptions.value,
+  menuLabel: t('action.menu'),
+  settingsLabel: t('settings.title'),
+  backLabel: t('settings.back'),
+  languageLabel: t('settings.language'),
+  locale: locale.value,
+  languages: languageOptions.value,
+  themeModeLabel: t('theme.mode'),
+  themeMode: theme.value.mode,
+  themeModes: themeModes.value,
+  themePaletteLabel: t('theme.palette.label'),
+  palette: theme.value.palette,
+  paletteOptions: paletteOptions.value,
+  customColor: theme.value.custom,
+  customColorLabel: t('theme.palette.custom'),
+  timeFormatLabel: t('settings.timeFormat.label'),
+  timeFormat: timeFormat.value,
+  timeFormatOptions: timeFormatOptions.value,
+  downloadsLabel: t('action.downloads'),
+  prayerTimesLabel: t('action.prayerTimes'),
+  tasbihLabel: t('action.tasbih'),
+  ayatLabel: t('action.ayat'),
+  reloadDataLabel: t('action.reloadData'),
+  reloadAppLabel: t('action.reloadApp'),
+  privacyLabel: t('action.privacy'),
+  shareLabel: t('action.share'),
+  shareFormattedLabel: t('share.formatted'),
+  shareRawLabel: t('share.raw'),
+  shareCopiedLabel: t('share.copied'),
+  shareCopied: shareCopied.value,
+  notificationLabel: notificationLabel.value,
+  notificationsEnabled: notificationsEnabled.value,
+  notificationsSupported,
+}))
+
+const footerHandlers = {
+  'update:district': selectDistrict,
+  share,
+  'update:locale': chooseLocale,
+  'update:theme-mode': setMode,
+  'update:palette': setPalette,
+  'update:custom-color': setCustom,
+  'update:time-format': setTimeFormat,
+  downloads: openDownloads,
+  'prayer-times': openPrayerTimes,
+  tasbih: openTasbih,
+  ayat: openAyat,
+  'reload-data': reloadCurrent,
+  'reload-app': reloadApp,
+  privacy: openPrivacy,
+  'toggle-notifications': toggleNotifications,
+}
+
 const rootEl = ref<HTMLElement | null>(null)
 const { offset: dragOffset } = useSwipe(
   { right: () => goSlide(-1), left: () => goSlide(1) },
-  () => rootEl.value,
+  () => (fullscreen.value ? null : rootEl.value),
 )
 
+function onKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return
+  if (!fsMenu.value && !fullscreen.value) return
+  if (fsMenu.value) {
+    fsMenu.value = false
+    return
+  }
+  if (fullscreen.value) exitFullscreen()
+}
+
 onMounted(async () => {
+  window.addEventListener('keydown', onKeydown)
   await load()
   syncUrl()
 })
+
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
@@ -377,57 +480,47 @@ onMounted(async () => {
         </ClientOnly>
       </div>
 
+      <button
+        v-if="slide === 'summary'"
+        type="button"
+        class="fs-fab"
+        :class="{ fullscreen, open: fsMenu }"
+        :aria-label="t('action.menu')"
+        aria-haspopup="true"
+        :aria-expanded="fsMenu"
+        :aria-controls="fsMenu ? 'fs-dock' : undefined"
+        @click="toggleDock"
+      >
+        <Icon :name="fsMenu ? 'lucide:x' : 'lucide:settings-2'" aria-hidden="true" />
+      </button>
+
+      <div
+        v-if="slide === 'summary' && fsMenu"
+        id="fs-dock"
+        class="fs-dock"
+        role="menu"
+        :aria-label="t('action.menu')"
+      >
+        <AppFooter v-bind="footerProps" v-on="footerHandlers" />
+        <button
+          v-if="!fullscreen"
+          type="button"
+          class="fs-exit"
+          @click="enterFullscreen"
+        >
+          <Icon name="lucide:maximize-2" aria-hidden="true" />
+          <span>{{ t('home.fullscreen') }}</span>
+        </button>
+        <button v-else type="button" class="fs-exit" @click="exitFullscreen">
+          <Icon name="lucide:minimize-2" aria-hidden="true" />
+          <span>{{ t('home.exitFullscreen') }}</span>
+        </button>
+      </div>
+
       <AppFooter
-        :district-label="t('district.label')"
-        :district="district"
-        :district-options="districtOptions"
-        :menu-label="t('action.menu')"
-        :settings-label="t('settings.title')"
-        :back-label="t('settings.back')"
-        :language-label="t('settings.language')"
-        :locale="locale"
-        :languages="languageOptions"
-        :theme-mode-label="t('theme.mode')"
-        :theme-mode="theme.mode"
-        :theme-modes="themeModes"
-        :theme-palette-label="t('theme.palette.label')"
-        :palette="theme.palette"
-        :palette-options="paletteOptions"
-        :custom-color="theme.custom"
-        :custom-color-label="t('theme.palette.custom')"
-        :time-format-label="t('settings.timeFormat.label')"
-        :time-format="timeFormat"
-        :time-format-options="timeFormatOptions"
-        :downloads-label="t('action.downloads')"
-        :prayer-times-label="t('action.prayerTimes')"
-        :tasbih-label="t('action.tasbih')"
-        :ayat-label="t('action.ayat')"
-        :reload-data-label="t('action.reloadData')"
-        :reload-app-label="t('action.reloadApp')"
-        :privacy-label="t('action.privacy')"
-        :share-label="t('action.share')"
-        :share-formatted-label="t('share.formatted')"
-        :share-raw-label="t('share.raw')"
-        :share-copied-label="t('share.copied')"
-        :share-copied="shareCopied"
-        :notification-label="notificationLabel"
-        :notifications-enabled="notificationsEnabled"
-        :notifications-supported="notificationsSupported"
-        @update:district="selectDistrict"
-        @share="share"
-        @update:locale="chooseLocale"
-        @update:theme-mode="setMode"
-        @update:palette="setPalette"
-        @update:custom-color="setCustom"
-        @update:time-format="setTimeFormat"
-        @downloads="openDownloads"
-        @prayer-times="openPrayerTimes"
-        @tasbih="openTasbih"
-        @ayat="openAyat"
-        @reload-data="reloadCurrent"
-        @reload-app="reloadApp"
-        @privacy="openPrivacy"
-        @toggle-notifications="toggleNotifications"
+        v-if="slide !== 'summary'"
+        v-bind="footerProps"
+        v-on="footerHandlers"
       />
 
       <UpdatePrompt
@@ -511,6 +604,74 @@ onMounted(async () => {
 .pull-indicator.refreshing {
   opacity: 1 !important;
 }
+/* specs/web/spec.md — the dashboard's floating menu: it docks the deck's own
+   footer (district, settings) over the card and carries the fullscreen step. */
+.fs-fab {
+  position: fixed;
+  inset-block-end: 0.9rem;
+  inset-inline-end: 0.9rem;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  opacity: 0.75;
+  transition:
+    opacity 0.15s ease-out,
+    background 0.15s ease-out;
+}
+.fs-fab:hover,
+.fs-fab:focus-visible,
+.fs-fab.open {
+  opacity: 1;
+  background: color-mix(in srgb, var(--primary) 20%, var(--surface));
+}
+
+/* The docked footer: the real controls, so district and settings stay in reach. */
+.fs-dock {
+  position: fixed;
+  inset-inline: 0.6rem;
+  inset-block-end: 4.2rem;
+  z-index: 71;
+  max-inline-size: 34rem;
+  margin-inline: auto;
+  padding: 0.6rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+.fs-exit {
+  margin-block-start: 0.5rem;
+  inline-size: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-block-size: var(--control-h);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fs-exit:hover {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
 @media (max-height: 480px) {
   .layout {
     padding: 0.5rem;

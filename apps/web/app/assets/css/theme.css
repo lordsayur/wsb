@@ -103,3 +103,15 @@ a {
   color: var(--primary);
   text-underline-offset: 2px;
 }
+
+/* specs/web/spec.md — the dashboard's fullscreen mode shows the card alone:
+   the deck's chrome (source note, page dots, footer) steps aside. */
+html.wsb-fullscreen .source-note,
+html.wsb-fullscreen .page-indicator,
+html.wsb-fullscreen .layout > .app-footer {
+  visibility: hidden;
+}
+html.wsb-fullscreen-locked,
+html.wsb-fullscreen-locked body {
+  overflow: hidden;
+}

@@ -16,22 +16,25 @@ export interface HomeDeckContext {
   date: Ref<string>
   dates: ComputedRef<{ masihi: string; hijri: string }>
   weekday: ComputedRef<string>
+  /** The translated name of the running entry; empty before the first one. */
+  currentName: ComputedRef<string>
+  /** The running entry's time, display-ready; empty before the first one. */
+  currentTime: ComputedRef<string>
   /** The translated name of the entry after the current one. */
   nextName: ComputedRef<string>
   nextTime: ComputedRef<string>
   nextCountdown: ComputedRef<string>
-  /** How far the current interval has run, 0..100. */
-  progressPercent: ComputedRef<number>
+  /** The passed-entry note, shown in place of the countdown. */
+  passedNote: ComputedRef<string>
   nextSoon: ComputedRef<boolean>
-  /** Every entry of today, in prayer order, for the summary grid. */
-  summaryRows: ComputedRef<HomeRow[]>
   /** The rows the daily list shows, phase-dependent. */
   displayRows: ComputedRef<HomeRow[]>
   countdownKey: ComputedRef<string>
   passedKey: ComputedRef<string>
-  passedNote: ComputedRef<string>
   dayStatus: ComputedRef<string>
   dayBusy: ComputedRef<boolean>
+  /** The dashboard fills the screen and the deck chrome steps aside. */
+  fullscreen: Ref<boolean>
 }
 
 export const HOME_DECK_KEY: InjectionKey<HomeDeckContext> =

@@ -135,11 +135,25 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Home slides
 
-- **Summary (`/summary`)** is the dashboard: the weekday and both dates, the
-  next entry as a hero card (its name, its time, the countdown and a progress
-  bar for the running interval), the day's eight entries in a compact grid,
-  and a shortcut to every prayer time. The next entry's hero turns primary
-  when it is 15 minutes or less away.
+- **Summary (`/summary`)** is the dashboard, a calm, centred view: the weekday
+  and both dates at the top; the running entry as the hero (its name large, its
+  time under it); and below it, in a smaller line, the next entry with its time
+  and the countdown (or the passed-entry note). The hero turns primary when the
+  next entry is 15 minutes or less away. Before the day's first entry there is
+  no hero, only the next entry. The slide is a surface for future additions
+  (for example the nearest mosque); the simplified view leaves that room
+  without adding them yet. A decorative background (soft colour orbs and a
+  faint lattice) sits behind the text, respects `prefers-reduced-motion`, and
+  carries no information.
+- **Summary menu.** The dashboard never shows the deck footer. Instead a
+  floating menu button sits bottom-right and opens a dock over the card holding
+  the same footer the other slides use (district selector, share, settings)
+  plus a **fullscreen** action; the deck's chrome (source note, page dots)
+  stays. Choosing fullscreen makes the card fill the screen and the chrome
+  step aside; the same dock then offers **exit fullscreen**. Escape closes the
+  dock first, then leaves fullscreen; leaving the summary slide (swipe or dot)
+  closes the dock and leaves fullscreen. The button is absent on the other
+  slides, which keep their inline footer.
 - **Today (`/today`)** is the daily page exactly as it was: the phase-aware
   list, the current-entry highlight, the countdown, the passed-entry note and
   the loading/offline status.
