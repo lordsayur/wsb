@@ -23,6 +23,7 @@ import { usePullToRefresh } from '~/composables/usePullToRefresh'
 import { useSettings } from '~/composables/useSettings'
 import { useSharePrayerTimes } from '~/composables/useSharePrayerTimes'
 import { useSwipe } from '~/composables/useSwipe'
+import { useWakeLock } from '~/composables/useWakeLock'
 import { useTheme } from '~/composables/useTheme'
 import { stepHomeSlide, HOME_SLIDE_COOKIE, homeSlideFromPath, homeSlidePath } from '~/utils/homeSlides'
 import { parseDistrict, prayerTimesLink, queryValue } from '~/utils/query'
@@ -292,6 +293,9 @@ function openPrayerTimes() {
 const fullscreen = ref(false)
 const fsMenu = ref(false)
 
+const { supported: wakeLockSupported, enabled: keepAwake, toggle: toggleKeepAwake, hydrate: hydrateWakeLock } =
+  useWakeLock()
+
 function toggleDock() {
   fsMenu.value = !fsMenu.value
 }
@@ -421,6 +425,7 @@ function onKeydown(event: KeyboardEvent) {
 
 onMounted(async () => {
   window.addEventListener('keydown', onKeydown)
+  hydrateWakeLock()
   await load()
   syncUrl()
 })
@@ -502,19 +507,36 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         :aria-label="t('action.menu')"
       >
         <AppFooter v-bind="footerProps" v-on="footerHandlers" />
-        <button
-          v-if="!fullscreen"
-          type="button"
-          class="fs-exit"
-          @click="enterFullscreen"
-        >
-          <Icon name="lucide:maximize-2" aria-hidden="true" />
-          <span>{{ t('home.fullscreen') }}</span>
-        </button>
-        <button v-else type="button" class="fs-exit" @click="exitFullscreen">
-          <Icon name="lucide:minimize-2" aria-hidden="true" />
-          <span>{{ t('home.exitFullscreen') }}</span>
-        </button>
+        <div class="fs-actions">
+          <button
+            v-if="!fullscreen"
+            type="button"
+            class="fs-action"
+            @click="enterFullscreen"
+          >
+            <Icon name="lucide:maximize-2" aria-hidden="true" />
+            <span>{{ t('home.fullscreen') }}</span>
+          </button>
+          <button v-else type="button" class="fs-action" @click="exitFullscreen">
+            <Icon name="lucide:minimize-2" aria-hidden="true" />
+            <span>{{ t('home.exitFullscreen') }}</span>
+          </button>
+
+          <button
+            v-if="wakeLockSupported"
+            type="button"
+            class="fs-action"
+            :class="{ on: keepAwake }"
+            :aria-pressed="keepAwake"
+            @click="toggleKeepAwake"
+          >
+            <Icon
+              :name="keepAwake ? 'lucide:sun' : 'lucide:sun-dim'"
+              aria-hidden="true"
+            />
+            <span>{{ t('home.keepAwake') }}</span>
+          </button>
+        </div>
       </div>
 
       <AppFooter
@@ -651,14 +673,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   box-shadow: var(--shadow);
   backdrop-filter: blur(14px);
 }
-.fs-exit {
+.fs-actions {
   margin-block-start: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.4rem;
+}
+.fs-action {
   inline-size: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
   min-block-size: var(--control-h);
+  padding-inline: 0.5rem;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: transparent;
@@ -668,8 +696,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   font-weight: 600;
   cursor: pointer;
 }
-.fs-exit:hover {
+.fs-action:hover {
   background: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+.fs-action.on {
+  border-color: color-mix(in srgb, var(--primary) 60%, transparent);
+  color: var(--primary);
 }
 
 @media (max-height: 480px) {

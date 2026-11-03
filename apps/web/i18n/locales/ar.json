@@ -372,6 +372,7 @@
     "nextLabel": "التالي",
     "fullscreen": "ملء الشاشة",
     "exitFullscreen": "الخروج من ملء الشاشة",
+    "keepAwake": "إبقاء الشاشة مضاءة",
     "entryLabel": "الصلاة",
     "allTimes": "جميع أوقات الصلاة",
     "weekTableLabel": "أوقات الصلاة الأسبوعية لـ {period}",

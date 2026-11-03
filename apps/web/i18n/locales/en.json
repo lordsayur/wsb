@@ -372,6 +372,7 @@
     "nextLabel": "Next",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
+    "keepAwake": "Keep screen on",
     "entryLabel": "Prayer",
     "allTimes": "All prayer times",
     "weekTableLabel": "Weekly prayer times for {period}",

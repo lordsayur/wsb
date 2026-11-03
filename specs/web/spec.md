@@ -154,6 +154,15 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   dock first, then leaves fullscreen; leaving the summary slide (swipe or dot)
   closes the dock and leaves fullscreen. The button is absent on the other
   slides, which keep their inline footer.
+- **Keep screen on.** The dock's action row pairs the fullscreen step with a
+  **keep screen on** toggle, offered only where the Screen Wake Lock API
+  exists. Turning it on requests a screen wake lock so the phone does not
+  sleep while the dashboard is on show; turning it off releases the lock. The
+  choice is remembered across visits; the browser may drop the lock (for
+  example when the tab is hidden), so it is re-requested when the page becomes
+  visible again. A refused request leaves the preference stored and the UI
+  quiet. The toggle carries `aria-pressed` and a single label; while on it is
+  marked primary.
 - **Today (`/today`)** is the daily page exactly as it was: the phase-aware
   list, the current-entry highlight, the countdown, the passed-entry note and
   the loading/offline status.

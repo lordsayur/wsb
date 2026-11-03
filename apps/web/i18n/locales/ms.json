@@ -372,6 +372,7 @@
     "nextLabel": "Seterusnya",
     "fullscreen": "Skrin penuh",
     "exitFullscreen": "Keluar skrin penuh",
+    "keepAwake": "Kekalkan skrin hidup",
     "entryLabel": "Sembahyang",
     "allTimes": "Semua waktu",
     "weekTableLabel": "Jadual waktu sembahyang mingguan bagi {period}",
