@@ -366,19 +366,20 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Admin pages
 
-- The admin surface is split into two separate, non-indexed pages, neither
+- The admin surface is split into three separate, non-indexed pages, none
   linked from the app UI:
   - `/admin` — prayer times, the default page.
   - `/admin/analytics` — the analytics dashboard.
-- Both pages share one shell (`layouts/admin.vue`): a left menu listing every
-  admin page (prayer times, analytics) plus a link back to the app, and the
-  signed-in account's email with **Sign out** at the top right. The menu marks
-  the current page and gains an entry per new admin page without touching the
-  pages themselves.
+  - `/admin/settings` — appearance, time format and language preferences.
+- All pages share one shell (`layouts/admin.vue`): a left menu listing every
+  admin page (prayer times, analytics, settings) plus a link back to the app,
+  and the signed-in account's email with **Sign out** at the top right. The
+  menu marks the current page and gains an entry per new admin page without
+  touching the pages themselves.
 - The shell is the only scrolling container: the document itself does not
   scroll, so long tables scroll inside the content area rather than moving the
   menu and account. At narrow widths the left menu becomes a horizontal bar.
-- Signed out, either page offers **Sign in with Google** (Supabase Auth) and
+- Signed out, every page offers **Sign in with Google** (Supabase Auth) and
   nothing else. The OAuth redirect returns to the page that started it.
 - Authorization belongs to the `admin` Edge Function (Data context): a
   signed-in account whose email is not in `admin_allowlist` sees a
@@ -410,6 +411,19 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   a toggle includes preview and development rows. A signed-in non-allowlisted
   account gets no data even if it calls the RPC directly.
 - With no rows the page shows an empty state, not an error.
+
+### Admin settings
+
+- `/admin/settings` reaches the reader's own display preferences from the
+  admin shell: the theme controls (mode, palette, custom colour), the time
+  format, and the language selector. It sits behind the same Google sign-in
+  gate as the other admin pages, so its content appears only for an allowlisted
+  admin.
+- The controls write the same cookies as the app footer's Settings panel, so a
+  change here is a change in the app too. There is no second copy of the
+  settings state.
+- Notifications, reload data, reload app and privacy stay app-level actions in
+  the footer's Settings panel; the admin page shows preferences only.
 
 ### Analytics
 
@@ -708,8 +722,12 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Editing one cell stages it, shows the pending count, writes nothing until
       **Save**, and then reloads the month with the new value; **Discard**
       clears staged edits.
-- [ ] `/admin` and `/admin/analytics` carry a `noindex` robots meta tag and are
-      reachable from the shared menu.
+- [ ] Every admin page (`/admin`, `/admin/analytics`, `/admin/settings`)
+      carries a `noindex` robots meta tag and is reachable from the shared
+      menu.
+- [ ] The admin menu offers `/admin/settings`, which changes the theme, time
+      format and language through the same controls and cookies as the app
+      footer.
 - [ ] A route change records one `pageview` with the route path and no query
       string.
 - [ ] With `import.meta.dev`, environment `development`, or missing Supabase
@@ -853,3 +871,5 @@ None published. Consumes core and the Data port.
 - 2026-11-02 — split the home into three swipeable slides (summary, today,
   weekly), each its own route so analytics counts them apart; `/` reopens the
   last viewed slide from a cookie.
+- 2026-11-04 — add `/admin/settings`, reachable from the admin menu, reusing
+  the footer's theme, time-format and language controls and their cookies.

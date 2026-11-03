@@ -170,7 +170,8 @@
     "nav": {
       "label": "ناۏيکاسي ڤنتدبير",
       "times": "وقت سمبهيڠ",
-      "analytics": "اناليتيک"
+      "analytics": "اناليتيک",
+      "settings": "تتاڤن"
     },
     "signIn": "ماسوق دڠن Google",
     "signInHint": "ماسوق دڠن اكون Google يڠ دبنرکن اونتوق مڠوروس وقت سمبهيڠ.",
@@ -229,7 +230,10 @@
     },
     "save": "سيمڤن",
     "discard": "باتل",
-    "pending": "{count} perubahan بلوم دسيمڤن."
+    "pending": "{count} perubahan بلوم دسيمڤن.",
+    "settings": {
+      "title": "تتاڤن"
+    }
   },
   "month": {
     "prev": "بولن سبلوم",

@@ -170,7 +170,8 @@
     "nav": {
       "label": "Navigasi pentadbir",
       "times": "Waktu sembahyang",
-      "analytics": "Analitik"
+      "analytics": "Analitik",
+      "settings": "Tetapan"
     },
     "signIn": "Masuk dengan Google",
     "signInHint": "Masuk dengan akaun Google yang dibenarkan untuk mengurus waktu sembahyang.",
@@ -229,7 +230,10 @@
     },
     "save": "Simpan",
     "discard": "Batal",
-    "pending": "{count} perubahan belum disimpan."
+    "pending": "{count} perubahan belum disimpan.",
+    "settings": {
+      "title": "Tetapan"
+    }
   },
   "month": {
     "prev": "Bulan sebelumnya",

@@ -19,6 +19,11 @@ const links = computed(() => [
     icon: 'lucide:chart-line',
     label: t('admin.nav.analytics'),
   },
+  {
+    to: '/admin/settings',
+    icon: 'lucide:settings',
+    label: t('admin.nav.settings'),
+  },
 ])
 
 function current(to: string) {

@@ -170,7 +170,8 @@
     "nav": {
       "label": "Admin navigation",
       "times": "Prayer times",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "settings": "Settings"
     },
     "signIn": "Sign in with Google",
     "signInHint": "Sign in with an authorized Google account to manage prayer times.",
@@ -229,7 +230,10 @@
     },
     "save": "Save",
     "discard": "Discard",
-    "pending": "{count} unsaved changes."
+    "pending": "{count} unsaved changes.",
+    "settings": {
+      "title": "Settings"
+    }
   },
   "month": {
     "prev": "Previous month",
