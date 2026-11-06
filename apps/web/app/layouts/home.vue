@@ -413,25 +413,29 @@ const footerProps = computed(() => ({
   notificationsSupported,
 }))
 
+// specs/web/spec.md — `v-on="object"` runs each key through toHandlers, which
+// only capitalises the first letter, so a hyphenated key becomes
+// `onPrayer-times` and never matches the emitted `prayerTimes`. Keys here must
+// be the emit names verbatim, camelCase included.
 const footerHandlers = {
   'update:district': selectDistrict,
   share,
   'update:locale': chooseLocale,
-  'update:theme-mode': setMode,
+  'update:themeMode': setMode,
   'update:palette': setPalette,
-  'update:custom-color': setCustom,
-  'update:time-format': setTimeFormat,
+  'update:customColor': setCustom,
+  'update:timeFormat': setTimeFormat,
   downloads: openDownloads,
-  'prayer-times': openPrayerTimes,
+  prayerTimes: openPrayerTimes,
   notifications: openNotifications,
   about: openAbout,
   feedback: openFeedback,
   tasbih: openTasbih,
   ayat: openAyat,
-  'reload-data': reloadCurrent,
-  'reload-app': reloadApp,
+  reloadData: reloadCurrent,
+  reloadApp: reloadApp,
   privacy: openPrivacy,
-  'toggle-notifications': toggleNotifications,
+  toggleNotifications: toggleNotifications,
 }
 
 const rootEl = ref<HTMLElement | null>(null)

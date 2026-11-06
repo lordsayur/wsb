@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.7 — 2026-11-07
+
+- Fix the footer menu items (Prayer times, reload, settings) doing nothing: v-on object keys must match the emitted camelCase event names, and a test now enforces it.
+
 ## 4.0.0-beta.6 — 2026-11-07
 
 - Rename the Quran verse page to "Quran verse challenge" and move its route to /quran-verse-challenge, keeping /ayat as a redirect.

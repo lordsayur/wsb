@@ -1,6 +1,13 @@
 {
-  "version": "4.0.0-beta.6",
+  "version": "4.0.0-beta.7",
   "entries": [
+    {
+      "version": "4.0.0-beta.7",
+      "date": "2026-11-07",
+      "changes": [
+        "Fix the footer menu items (Prayer times, reload, settings) doing nothing: v-on object keys must match the emitted camelCase event names, and a test now enforces it."
+      ]
+    },
     {
       "version": "4.0.0-beta.6",
       "date": "2026-11-07",
