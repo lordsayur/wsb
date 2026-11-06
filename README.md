@@ -35,6 +35,7 @@ pnpm dev:all    # app + Storybook, exposed through routeup
 pnpm test       # core + data + extension + web unit + Storybook component tests
 pnpm typecheck
 pnpm build
+pnpm version:bump --note "what changed"   # every push: version + CHANGELOG
 ```
 
 ## Browser extension

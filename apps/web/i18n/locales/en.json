@@ -35,7 +35,10 @@
     "tasbih": "Tasbih",
     "ayat": "Quran verse",
     "privacy": "Privacy",
-    "prayerTimes": "Prayer times"
+    "prayerTimes": "Prayer times",
+    "notifications": "Notifications",
+    "about": "About",
+    "feedback": "Feedback"
   },
   "source": {
     "label": "Data source",
@@ -171,7 +174,8 @@
       "label": "Admin navigation",
       "times": "Prayer times",
       "analytics": "Analytics",
-      "settings": "Settings"
+      "settings": "Settings",
+      "notifications": "Notifications"
     },
     "signIn": "Sign in with Google",
     "signInHint": "Sign in with an authorized Google account to manage prayer times.",
@@ -233,6 +237,25 @@
     "pending": "{count} unsaved changes.",
     "settings": {
       "title": "Settings"
+    },
+    "announcements": {
+      "title": "Announcements",
+      "intro": "Publish a message shown on the notifications page.",
+      "titleField": "Title",
+      "bodyField": "Body",
+      "linkField": "Link (optional)",
+      "expiresField": "Expires on (optional)",
+      "publish": "Publish",
+      "titlePlaceholder": "Announcement title",
+      "bodyPlaceholder": "Write the message here",
+      "list": "Published announcements",
+      "empty": "No announcements yet.",
+      "inactive": "Inactive",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this announcement?",
+      "published": "Announcement published.",
+      "deleted": "Announcement deleted.",
+      "failed": "The announcement could not be saved."
     }
   },
   "month": {
@@ -383,5 +406,94 @@
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
     "thisWeek": "This week"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "intro": "New versions and recent announcements.",
+    "empty": "Nothing new. You are on the latest version.",
+    "versionTitle": "Version {version} is available",
+    "versionKind": "Version",
+    "announcementKind": "Announcement",
+    "viewChanges": "View changes",
+    "openLink": "Open link",
+    "back": "Back to the app",
+    "unreadDot": "Unread notifications"
+  },
+  "about": {
+    "title": "About",
+    "intro": "Brunei prayer times — everywhere, offline first.",
+    "beta": "beta",
+    "betaNote": "This build is a beta. The stable release will be {version}.",
+    "links": "About links",
+    "changelog": "Change history",
+    "notifications": "Notifications",
+    "platforms": "Other platforms",
+    "privacy": "Privacy",
+    "builtWith": "Built with",
+    "builtWithBody": "Nuxt, one TypeScript core and Supabase. Data source: Department of Religious Affairs (KHEU).",
+    "back": "Back to the app",
+    "feedback": "Feedback"
+  },
+  "changelog": {
+    "title": "Change history",
+    "intro": "Every web app version, newest first.",
+    "current": "current",
+    "back": "Back to the app"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "intro": "Report a bug, suggest an improvement, or tell us anything about the app.",
+    "githubNote": "No GitHub account needed. Send it here and we will open the issue for you.",
+    "githubAction": "Open an issue on GitHub",
+    "submit": "Send",
+    "sent": "Thank you! Your feedback has been sent.",
+    "kindLabel": "Kind",
+    "kind": {
+      "bug": "Bug",
+      "idea": "Suggestion",
+      "other": "Other"
+    },
+    "fields": {
+      "title": "Title",
+      "body": "Message",
+      "contact": "Email or how to reach you (optional)",
+      "titlePlaceholder": "Example: Asar time does not change after switching district",
+      "contactPlaceholder": "so we can ask follow-up questions",
+      "honeypot": "Do not fill this field"
+    },
+    "error": {
+      "failed": "The feedback could not be sent. Please try again.",
+      "Too many messages": "Too many messages. Try again in a few minutes.",
+      "Could not file the issue": "The feedback could not be sent. Please try again."
+    },
+    "privacyLink": "Privacy",
+    "privacyNote": "No IP address is stored. Your contact is used only to reply.",
+    "back": "Back to the app",
+    "attachment": {
+      "attachmentLabel": "Screenshot (optional, up to 3)",
+      "attachmentAlt": "Attachment",
+      "attachLabel": "Add a screenshot",
+      "uploadingLabel": "Uploading…",
+      "removeAttachmentLabel": "Remove image",
+      "attachmentErrorLabel": "The image could not be uploaded.",
+      "tooLarge": "The image is too large (2 MB maximum).",
+      "unsupported": "That image type is not supported. Use PNG, JPEG or WebP.",
+      "tooMany": "Too many uploads. Try again in a few minutes."
+    },
+    "hint": {
+      "bug": "Say what happened, what you expected, and how to reproduce it.",
+      "idea": "Start with the problem, propose the change, and mention alternatives.",
+      "other": "Write anything you want us to know."
+    },
+    "section": {
+      "whatHappened": "What happened",
+      "expected": "What you expected",
+      "steps": "Steps to reproduce",
+      "environment": "Device and version",
+      "problem": "Problem",
+      "proposal": "Proposal",
+      "alternatives": "Alternatives",
+      "message": "Message"
+    }
   }
 }

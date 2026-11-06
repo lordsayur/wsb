@@ -23,6 +23,13 @@
     "raycast:store": "pnpm --filter ./apps/raycast run store:export",
     "tui:build": "pnpm --filter wsb-tui build",
     "tui:binaries": "pnpm --filter wsb-tui run binaries",
-    "tui:screenshot": "pnpm --filter wsb-tui run screenshot"
-  }
+    "tui:screenshot": "pnpm --filter wsb-tui run screenshot",
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "version:bump": "node scripts/version.mjs bump",
+    "version:stable": "node scripts/version.mjs bump --stable",
+    "version:sync": "node scripts/version.mjs sync",
+    "version:validate": "node scripts/version.mjs validate",
+    "version:check": "node scripts/version.mjs check"
+  },
+  "workspaces": ["apps/*", "packages/*"]
 }

@@ -35,7 +35,10 @@
     "tasbih": "Tasbih",
     "ayat": "Ayat Al-Quran",
     "privacy": "Privasi",
-    "prayerTimes": "Waktu sembahyang"
+    "prayerTimes": "Waktu sembahyang",
+    "notifications": "Notifikasi",
+    "about": "Perihal",
+    "feedback": "Maklum balas"
   },
   "source": {
     "label": "Sumber data",
@@ -171,7 +174,8 @@
       "label": "Navigasi pentadbir",
       "times": "Waktu sembahyang",
       "analytics": "Analitik",
-      "settings": "Tetapan"
+      "settings": "Tetapan",
+      "notifications": "Notifikasi"
     },
     "signIn": "Masuk dengan Google",
     "signInHint": "Masuk dengan akaun Google yang dibenarkan untuk mengurus waktu sembahyang.",
@@ -233,6 +237,25 @@
     "pending": "{count} perubahan belum disimpan.",
     "settings": {
       "title": "Tetapan"
+    },
+    "announcements": {
+      "title": "Pengumuman",
+      "intro": "Terbitkan mesej yang dipaparkan pada halaman notifikasi.",
+      "titleField": "Tajuk",
+      "bodyField": "Kandungan",
+      "linkField": "Pautan (pilihan)",
+      "expiresField": "Tamat pada (pilihan)",
+      "publish": "Terbitkan",
+      "titlePlaceholder": "Tajuk pengumuman",
+      "bodyPlaceholder": "Tulis mesej di sini",
+      "list": "Pengumuman diterbitkan",
+      "empty": "Belum ada pengumuman.",
+      "inactive": "Tidak aktif",
+      "delete": "Padam",
+      "deleteConfirm": "Padam pengumuman ini?",
+      "published": "Pengumuman diterbitkan.",
+      "deleted": "Pengumuman dipadam.",
+      "failed": "Pengumuman tidak dapat disimpan."
     }
   },
   "month": {
@@ -383,5 +406,94 @@
     "prevWeek": "Minggu sebelumnya",
     "nextWeek": "Minggu seterusnya",
     "thisWeek": "Minggu ini"
+  },
+  "notifications": {
+    "title": "Notifikasi",
+    "intro": "Versi baharu dan pengumuman terkini.",
+    "empty": "Tiada notifikasi. Anda menggunakan versi terkini.",
+    "versionTitle": "Versi {version} tersedia",
+    "versionKind": "Versi",
+    "announcementKind": "Pengumuman",
+    "viewChanges": "Lihat perubahan",
+    "openLink": "Buka pautan",
+    "back": "Kembali ke aplikasi",
+    "unreadDot": "Ada notifikasi belum dibaca"
+  },
+  "about": {
+    "title": "Perihal",
+    "intro": "Waktu Sembahyang Brunei — waktu sembahyang Brunei di mana-mana sahaja, di luar talian dahulu.",
+    "beta": "beta",
+    "betaNote": "Versi ini masih beta. Versi stabil akan menjadi {version}.",
+    "links": "Pautan perihal",
+    "changelog": "Sejarah perubahan",
+    "notifications": "Notifikasi",
+    "platforms": "Platform lain",
+    "privacy": "Privasi",
+    "builtWith": "Dibina dengan",
+    "builtWithBody": "Nuxt, satu teras TypeScript dan Supabase. Sumber data: Jabatan Hal Ehwal Ugama (KHEU).",
+    "back": "Kembali ke aplikasi",
+    "feedback": "Maklum balas"
+  },
+  "changelog": {
+    "title": "Sejarah perubahan",
+    "intro": "Setiap versi aplikasi web, terbaharu dahulu.",
+    "current": "semasa",
+    "back": "Kembali ke aplikasi"
+  },
+  "feedback": {
+    "title": "Maklum balas",
+    "intro": "Laporkan pepijat, cadangkan penambahbaikan, atau beritahu kami apa-apa sahaja tentang aplikasi ini.",
+    "githubNote": "Tidak perlu akaun GitHub. Hantar di sini dan kami akan membuka isu itu untuk anda.",
+    "githubAction": "Buka isu di GitHub",
+    "submit": "Hantar",
+    "sent": "Terima kasih! Maklum balas anda telah dihantar.",
+    "kindLabel": "Jenis",
+    "kind": {
+      "bug": "Pepijat",
+      "idea": "Cadangan",
+      "other": "Lain-lain"
+    },
+    "fields": {
+      "title": "Tajuk",
+      "body": "Mesej",
+      "contact": "E-mel atau cara menghubungi (pilihan)",
+      "titlePlaceholder": "Contoh: Waktu Asar tidak berubah selepas menukar daerah",
+      "contactPlaceholder": "supaya kami boleh bertanya lanjut",
+      "honeypot": "Jangan isi medan ini"
+    },
+    "error": {
+      "failed": "Maklum balas tidak dapat dihantar. Cuba lagi.",
+      "Too many messages": "Terlalu banyak mesej. Cuba lagi sebentar lagi.",
+      "Could not file the issue": "Maklum balas tidak dapat dihantar. Cuba lagi."
+    },
+    "privacyLink": "Privasi",
+    "privacyNote": "Alamat IP tidak disimpan. Hubungan anda hanya digunakan untuk membalas.",
+    "back": "Kembali ke aplikasi",
+    "attachment": {
+      "attachmentLabel": "Gambar (pilihan, sehingga 3)",
+      "attachmentAlt": "Lampiran",
+      "attachLabel": "Tambah gambar",
+      "uploadingLabel": "Memuat naik…",
+      "removeAttachmentLabel": "Buang gambar",
+      "attachmentErrorLabel": "Gambar tidak dapat dimuat naik.",
+      "tooLarge": "Gambar terlalu besar (maksimum 2 MB).",
+      "unsupported": "Jenis gambar tidak disokong. Gunakan PNG, JPEG atau WebP.",
+      "tooMany": "Terlalu banyak muat naik. Cuba sebentar lagi."
+    },
+    "hint": {
+      "bug": "Terangkan apa yang berlaku, apa yang anda jangkakan, dan langkah untuk mengulanginya.",
+      "idea": "Mulakan dengan masalah, cadangkan penyelesaian, dan sebut pilihan lain jika ada.",
+      "other": "Tulis apa sahaja yang anda mahu kami tahu."
+    },
+    "section": {
+      "whatHappened": "Apa yang berlaku",
+      "expected": "Apa yang dijangka",
+      "steps": "Langkah untuk mengulangi",
+      "environment": "Peranti dan versi",
+      "problem": "Masalah",
+      "proposal": "Cadangan",
+      "alternatives": "Pilihan lain",
+      "message": "Mesej"
+    }
   }
 }

@@ -13,8 +13,11 @@ export const ICONS = [
   'lucide:download',
   'lucide:external-link',
   'lucide:hash',
+  'lucide:image-plus',
+  'lucide:info',
   'lucide:layers',
   'lucide:menu',
+  'lucide:message-square',
   'lucide:minus',
   'lucide:pause',
   'lucide:play',
@@ -26,4 +29,5 @@ export const ICONS = [
   'lucide:settings',
   'lucide:share-2',
   'lucide:sun',
+  'lucide:x',
 ] as const

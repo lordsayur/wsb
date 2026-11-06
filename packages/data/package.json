@@ -14,7 +14,9 @@
     "./quran": "./src/quran/loader.ts",
     "./quran/index": "./src/quran/index.ts",
     "./quran/audio": "./src/quran/audio.ts",
-    "./analytics": "./src/analytics.ts"
+    "./analytics": "./src/analytics.ts",
+    "./notifications": "./src/notifications.ts",
+    "./feedback": "./src/feedback.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

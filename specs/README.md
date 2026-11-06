@@ -26,6 +26,9 @@ language; see [`CONTEXT-MAP.md`](./CONTEXT-MAP.md) for how they relate.
 | TUI shell | `apps/tui` | [`tui/spec.md`](./tui/spec.md) |
 | Quran Ayat (core domain) | `packages/core` + `packages/data` | [`quran/spec.md`](./quran/spec.md) |
 | Analytics (supporting domain) | `supabase/migrations` + `packages/data` + `apps/web` | [`analytics/spec.md`](./analytics/spec.md) |
+| Notifications (supporting domain) | `packages/data` + `supabase/migrations` + `apps/web` | [`notifications/spec.md`](./notifications/spec.md) |
+| Feedback (supporting domain) | `packages/data` + `apps/web` | [`feedback/spec.md`](./feedback/spec.md) |
+| Release (cross-cutting) | `scripts` + `apps/web` + `CHANGELOG.md` | [`release/spec.md`](./release/spec.md) |
 | Testing (cross-cutting) | all | [`testing/spec.md`](./testing/spec.md) |
 
 `packages/shared` is not a context. It is a placeholder being split into `core`

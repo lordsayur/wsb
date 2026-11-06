@@ -54,6 +54,16 @@
               <Icon name="lucide:chart-line" aria-hidden="true" />
               {{ prayerTimesLabel }}
             </button>
+            <button type="button" role="menuitem" @click="openNotifications">
+              <Icon name="lucide:bell" aria-hidden="true" />
+              <span class="notify-label">{{ notificationsLabel }}</span>
+              <span
+                v-if="hasUnread"
+                class="unread-dot"
+                aria-hidden="true"
+              />
+              <span v-if="hasUnread" class="sr-only">{{ unreadLabel }}</span>
+            </button>
             <button type="button" role="menuitem" @click="openTasbih">
               <Icon name="lucide:circle-dot-dashed" aria-hidden="true" />
               {{ tasbihLabel }}
@@ -65,6 +75,14 @@
             <button type="button" role="menuitem" @click="openDownloads">
               <Icon name="lucide:download" aria-hidden="true" />
               {{ downloadsLabel }}
+            </button>
+            <button type="button" role="menuitem" @click="openAbout">
+              <Icon name="lucide:info" aria-hidden="true" />
+              {{ aboutLabel }}
+            </button>
+            <button type="button" role="menuitem" @click="openFeedback">
+              <Icon name="lucide:message-square" aria-hidden="true" />
+              {{ feedbackLabel }}
             </button>
           </template>
 
@@ -191,6 +209,11 @@ defineProps<{
   timeFormatOptions: TimeFormatOption[]
   downloadsLabel: string
   prayerTimesLabel: string
+  notificationsLabel: string
+  aboutLabel: string
+  feedbackLabel: string
+  unreadLabel: string
+  hasUnread?: boolean
   tasbihLabel: string
   ayatLabel: string
   reloadDataLabel: string
@@ -216,6 +239,9 @@ const emit = defineEmits<{
   share: [format: 'formatted' | 'raw']
   downloads: []
   prayerTimes: []
+  notifications: []
+  about: []
+  feedback: []
   tasbih: []
   ayat: []
   reloadData: []
@@ -268,6 +294,21 @@ function openPrayerTimes() {
 
 function openTasbih() {
   emit('tasbih')
+  close()
+}
+
+function openNotifications() {
+  emit('notifications')
+  close()
+}
+
+function openAbout() {
+  emit('about')
+  close()
+}
+
+function openFeedback() {
+  emit('feedback')
   close()
 }
 
@@ -411,5 +452,26 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   align-items: center;
   gap: 0.4rem;
   font-weight: 600;
+}
+.notify-label {
+  flex: 1;
+}
+.unread-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--primary);
+  flex: none;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

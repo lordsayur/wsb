@@ -6,6 +6,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { MORA_PAGE_URL, fetchMoraItems, moraMonthRange, normalizeMoraItems } from '@wsb/data/mora.ts'
 import { isMonth, validateRecordEdit, type AdminRecord } from '@wsb/data/admin.ts'
+import { validateAnnouncement } from '@wsb/data/notifications.ts'
 
 interface AdminRow {
   prayer_date: string
@@ -103,6 +104,32 @@ async function updateRecords(records: readonly AdminRecord[]): Promise<void> {
   if (error) throw new Error(error.message)
 }
 
+/** specs/notifications/spec.md — publishes one validated announcement. */
+async function publishAnnouncement(body: unknown): Promise<unknown> {
+  const validated = validateAnnouncement(body)
+  if (!validated.ok) return { error: validated.error }
+  const { messages, link, expiresAt } = validated.value
+  const { data, error } = await adminClient()
+    .from('announcements')
+    .insert({ messages, link, expires_at: expiresAt })
+    .select('id,published_at')
+    .single()
+  if (error) throw new Error(error.message)
+  return { announcement: data }
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+async function deleteAnnouncement(id: unknown): Promise<boolean> {
+  if (typeof id !== 'string' || !UUID.test(id)) return false
+  const { error } = await adminClient()
+    .from('announcements')
+    .delete()
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+  return true
+}
+
 export default {
   fetch: async (req: Request): Promise<Response> => {
     if (req.method === 'OPTIONS') {
@@ -122,6 +149,10 @@ export default {
         month?: unknown
         records?: unknown
         record?: unknown
+        messages?: unknown
+        link?: unknown
+        expiresAt?: unknown
+        id?: unknown
       }
 
       if (body.action === 'me') {
@@ -158,6 +189,25 @@ export default {
         )
         await updateRecords(records)
         return json({ records })
+      }
+
+      if (body.action === 'publish') {
+        const result = await publishAnnouncement({
+          messages: body.messages,
+          link: body.link,
+          expiresAt: body.expiresAt,
+        })
+        if (result && typeof result === 'object' && 'error' in result) {
+          return json({ error: (result as { error: string }).error }, 400)
+        }
+        return json(result)
+      }
+
+      if (body.action === 'delete') {
+        if (!(await deleteAnnouncement(body.id))) {
+          return json({ error: 'Invalid id' }, 400)
+        }
+        return json({ deleted: true })
       }
 
       return json({ error: 'Unknown action' }, 400)

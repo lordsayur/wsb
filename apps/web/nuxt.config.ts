@@ -62,6 +62,16 @@ export default defineNuxtConfig({
   },
   // Public dev previews through routeup (see VISION.md).
   runtimeConfig: {
+    // specs/feedback/spec.md — the feedback form files a GitHub issue from the
+    // server, so the token never reaches the browser. A reader needs no GitHub
+    // account. Without a token the route logs the message instead.
+    feedbackGithubToken: process.env.FEEDBACK_GITHUB_TOKEN ?? "",
+    // specs/feedback/spec.md — screenshot uploads go to the public `feedback`
+    // bucket with the service role; never exposed to the browser.
+    supabaseServiceKey:
+      process.env.SUPABASE_SERVICE_ROLE_KEY ??
+      process.env.NUXT_SUPABASE_SERVICE_KEY ??
+      "",
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL ?? "",
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
@@ -69,6 +79,9 @@ export default defineNuxtConfig({
       analyticsEnv: process.env.NUXT_PUBLIC_ANALYTICS_ENV ?? "development",
       // Opt-in for a deliberate local ingestion test; off everywhere by default.
       analyticsEnabled: process.env.NUXT_PUBLIC_ANALYTICS_DEV === "1",
+      // specs/feedback/spec.md — the repo the form files into, for the GitHub
+      // fallback link. The token stays server-side.
+      feedbackRepo: process.env.FEEDBACK_REPO ?? "lordsayur/wsb",
     },
   },
   vite: {

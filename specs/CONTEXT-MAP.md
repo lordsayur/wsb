@@ -111,3 +111,25 @@ apps/web ──▶ Quran Ayat (core) ──▶ Quran corpus (static, bundled)
 - Shell → core → data-port. Never the reverse.
 - Core never imports from a shell or an adapter.
 - `packages/shared` is not a context; it is being split into core and data.
+
+## Notifications — supporting domain
+
+- **Owns:** the announcement vocabulary, the pure selection rules (active,
+  sort, version notices, unread), and the `announcements` table read path.
+- **Published language:** `Announcement`, `AnnouncementMessages`,
+  `AnnouncementInput`, `validateAnnouncement`, `announcementText`,
+  `activeAnnouncements`, `versionNotices`, `unreadCount`. See
+  [`notifications/spec.md`](./notifications/spec.md).
+- **Invariant:** the browser can only read; publishing and deleting go through
+  the `admin` Edge Function, which re-checks the allowlist.
+- **Depends on:** Data (same Supabase project), Release (version notices).
+
+## Feedback — supporting domain
+
+- **Owns:** the feedback payload, its validation, and how it becomes a GitHub
+  issue. See [`feedback/spec.md`](./feedback/spec.md).
+- **Published language:** `FeedbackInput`, `validateFeedback`, `issueContent`,
+  `issueLink`.
+- **Invariant:** the reader needs no account; the maintainer's GitHub token stays
+  on the server.
+- **Depends on:** Release (the version stamped on an issue), Web (the route).

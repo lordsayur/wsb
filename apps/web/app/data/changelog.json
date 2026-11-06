@@ -1,0 +1,44 @@
+{
+  "version": "4.0.0-beta.5",
+  "entries": [
+    {
+      "version": "4.0.0-beta.5",
+      "date": "2026-11-04",
+      "changes": [
+        "Replace the Markdown feedback body with one plain-text field per section and a per-kind hint, so the sender never writes Markdown."
+      ]
+    },
+    {
+      "version": "4.0.0-beta.4",
+      "date": "2026-11-04",
+      "changes": [
+        "Seed the feedback body with a per-kind Markdown template and a hint, keep typed text when the kind changes, and reject a template that was never filled."
+      ]
+    },
+    {
+      "version": "4.0.0-beta.3",
+      "date": "2026-11-04",
+      "changes": [
+        "Let feedback carry up to three screenshots: scaled in the browser, stored in the public `feedback` bucket, and embedded in the filed issue."
+      ]
+    },
+    {
+      "version": "4.0.0-beta.2",
+      "date": "2026-11-04",
+      "changes": [
+        "Add `/feedback`: the form files a GitHub issue from the server, so sending feedback needs no GitHub account; linked from the footer menu and `/about`."
+      ]
+    },
+    {
+      "version": "4.0.0-beta.1",
+      "date": "2026-11-04",
+      "changes": [
+        "Add `/about`, which shows the running version, the beta marker and the data source.",
+        "Add `/changelog`, rendering this file newest first.",
+        "Add `/notifications` for version notices and admin-authored announcements, with an unread dot in the footer menu.",
+        "Add `/admin/notifications` to publish and delete announcements.",
+        "Add the version and changelog bump script and its CI check."
+      ]
+    }
+  ]
+}

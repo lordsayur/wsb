@@ -35,7 +35,10 @@
     "tasbih": "تسبيح",
     "ayat": "آية قرآنية",
     "privacy": "الخصوصية",
-    "prayerTimes": "أوقات الصلاة"
+    "prayerTimes": "أوقات الصلاة",
+    "notifications": "الإشعارات",
+    "about": "حول",
+    "feedback": "الملاحظات"
   },
   "source": {
     "label": "مصدر البيانات",
@@ -171,7 +174,8 @@
       "label": "تنقل الإدارة",
       "times": "أوقات الصلاة",
       "analytics": "التحليلات",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "notifications": "الإشعارات"
     },
     "signIn": "تسجيل الدخول عبر Google",
     "signInHint": "سجّل الدخول بحساب Google مصرّح له لإدارة أوقات الصلاة.",
@@ -233,6 +237,25 @@
     "pending": "{count} تغييرات غير محفوظة.",
     "settings": {
       "title": "الإعدادات"
+    },
+    "announcements": {
+      "title": "الإعلانات",
+      "intro": "انشر رسالة تظهر في صفحة الإشعارات.",
+      "titleField": "العنوان",
+      "bodyField": "النص",
+      "linkField": "الرابط (اختياري)",
+      "expiresField": "ينتهي في (اختياري)",
+      "publish": "نشر",
+      "titlePlaceholder": "عنوان الإعلان",
+      "bodyPlaceholder": "اكتب الرسالة هنا",
+      "list": "الإعلانات المنشورة",
+      "empty": "لا إعلانات بعد.",
+      "inactive": "غير فعّال",
+      "delete": "حذف",
+      "deleteConfirm": "حذف هذا الإعلان؟",
+      "published": "تم نشر الإعلان.",
+      "deleted": "تم حذف الإعلان.",
+      "failed": "تعذّر حفظ الإعلان."
     }
   },
   "month": {
@@ -383,5 +406,94 @@
     "prevWeek": "الأسبوع السابق",
     "nextWeek": "الأسبوع التالي",
     "thisWeek": "هذا الأسبوع"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "intro": "الإصدارات الجديدة وأحدث الإعلانات.",
+    "empty": "لا جديد. أنت على أحدث إصدار.",
+    "versionTitle": "الإصدار {version} متاح",
+    "versionKind": "إصدار",
+    "announcementKind": "إعلان",
+    "viewChanges": "عرض التغييرات",
+    "openLink": "فتح الرابط",
+    "back": "العودة إلى التطبيق",
+    "unreadDot": "إشعارات غير مقروءة"
+  },
+  "about": {
+    "title": "حول",
+    "intro": "أوقات الصلاة في بروناي — في كل مكان، وتعمل دون اتصال أولًا.",
+    "beta": "تجريبي",
+    "betaNote": "هذا الإصدار تجريبي. سيكون الإصدار المستقر {version}.",
+    "links": "روابط حول",
+    "changelog": "سجل التغييرات",
+    "notifications": "الإشعارات",
+    "platforms": "منصات أخرى",
+    "privacy": "الخصوصية",
+    "builtWith": "بُني بـ",
+    "builtWithBody": "Nuxt ونواة TypeScript واحدة وSupabase. مصدر البيانات: دائرة الشؤون الدينية (KHEU).",
+    "back": "العودة إلى التطبيق",
+    "feedback": "الملاحظات"
+  },
+  "changelog": {
+    "title": "سجل التغييرات",
+    "intro": "كل إصدار لتطبيق الويب، الأحدث أولًا.",
+    "current": "الحالي",
+    "back": "العودة إلى التطبيق"
+  },
+  "feedback": {
+    "title": "الملاحظات",
+    "intro": "أبلغ عن خطأ، أو اقترح تحسينًا، أو أخبرنا بأي شيء عن التطبيق.",
+    "githubNote": "لا حاجة إلى حساب GitHub. أرسل هنا وسنفتح البلاغ عنك.",
+    "githubAction": "فتح بلاغ على GitHub",
+    "submit": "إرسال",
+    "sent": "شكرًا! تم إرسال ملاحظاتك.",
+    "kindLabel": "النوع",
+    "kind": {
+      "bug": "خطأ",
+      "idea": "اقتراح",
+      "other": "أخرى"
+    },
+    "fields": {
+      "title": "العنوان",
+      "body": "الرسالة",
+      "contact": "البريد أو طريقة التواصل (اختياري)",
+      "titlePlaceholder": "مثال: لا يتغير وقت العصر بعد تبديل المنطقة",
+      "contactPlaceholder": "حتى نتمكن من المتابعة",
+      "honeypot": "لا تملأ هذا الحقل"
+    },
+    "error": {
+      "failed": "تعذّر إرسال الملاحظات. حاول مرة أخرى.",
+      "Too many messages": "رسائل كثيرة جدًا. حاول بعد بضع دقائق.",
+      "Could not file the issue": "تعذّر إرسال الملاحظات. حاول مرة أخرى."
+    },
+    "privacyLink": "الخصوصية",
+    "privacyNote": "لا يُخزَّن عنوان IP. يُستخدم وسيلة الاتصال للرد فقط.",
+    "back": "العودة إلى التطبيق",
+    "attachment": {
+      "attachmentLabel": "صورة (اختياري، حتى ٣)",
+      "attachmentAlt": "مرفق",
+      "attachLabel": "إضافة صورة",
+      "uploadingLabel": "جارٍ الرفع…",
+      "removeAttachmentLabel": "إزالة الصورة",
+      "attachmentErrorLabel": "تعذّر رفع الصورة.",
+      "tooLarge": "الصورة كبيرة جدًا (٢ ميغابايت كحد أقصى).",
+      "unsupported": "نوع الصورة غير مدعوم. استخدم PNG أو JPEG أو WebP.",
+      "tooMany": "عمليات رفع كثيرة جدًا. حاول بعد بضع دقائق."
+    },
+    "hint": {
+      "bug": "اذكر ما حدث، وما توقعته، وخطوات إعادة المشكلة.",
+      "idea": "ابدأ بالمشكلة، واقترح التغيير، واذكر البدائل.",
+      "other": "اكتب ما تريد أن نعرفه."
+    },
+    "section": {
+      "whatHappened": "ما حدث",
+      "expected": "ما توقعته",
+      "steps": "خطوات إعادة المشكلة",
+      "environment": "الجهاز والإصدار",
+      "problem": "المشكلة",
+      "proposal": "الاقتراح",
+      "alternatives": "البدائل",
+      "message": "الرسالة"
+    }
   }
 }

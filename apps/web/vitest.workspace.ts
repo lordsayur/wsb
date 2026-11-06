@@ -8,7 +8,7 @@ export default defineWorkspace([
     test: {
       name: 'unit',
       environment: 'node',
-      include: ['app/**/*.test.ts'],
+      include: ['app/**/*.test.ts', 'server/**/*.test.ts'],
     },
   },
   {

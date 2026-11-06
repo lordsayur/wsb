@@ -45,6 +45,11 @@ const meta: Meta<typeof AppFooter> = {
     ],
     downloadsLabel: 'Platform lain',
     prayerTimesLabel: 'Waktu sembahyang',
+    notificationsLabel: 'Notifikasi',
+    aboutLabel: 'Perihal',
+    feedbackLabel: 'Maklum balas',
+    unreadLabel: 'Ada notifikasi belum dibaca',
+    hasUnread: false,
     tasbihLabel: 'Tasbih',
     ayatLabel: 'Ayat Al-Quran',
     reloadDataLabel: 'Muat semula data',
@@ -66,6 +71,9 @@ const meta: Meta<typeof AppFooter> = {
     onShare: fn(),
     onDownloads: fn(),
     onPrayerTimes: fn(),
+    onNotifications: fn(),
+    onAbout: fn(),
+    onFeedback: fn(),
     onTasbih: fn(),
     onAyat: fn(),
     onReloadData: fn(),
@@ -106,6 +114,13 @@ export const MenuOpen: Story = {
     ).toBeVisible()
     await expect(
       canvas.getByRole('menuitem', { name: 'Waktu sembahyang' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Notifikasi' }),
+    ).toBeVisible()
+    await expect(canvas.getByRole('menuitem', { name: 'Perihal' })).toBeVisible()
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Maklum balas' }),
     ).toBeVisible()
     await expect(
       canvas.queryByRole('menuitem', { name: 'Muat semula data' }),
@@ -280,9 +295,15 @@ export const KeyboardArrowOpensMenu: Story = {
       canvas.getByRole('menuitem', { name: 'Waktu sembahyang' }),
     ).toHaveFocus()
     await userEvent.keyboard('{ArrowDown}')
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Notifikasi' }),
+    ).toHaveFocus()
+    await userEvent.keyboard('{ArrowDown}')
     await expect(canvas.getByRole('menuitem', { name: 'Tasbih' })).toHaveFocus()
     await userEvent.keyboard('{End}')
-    await expect(canvas.getByRole('menuitem', { name: 'Platform lain' })).toHaveFocus()
+    await expect(
+      canvas.getByRole('menuitem', { name: 'Maklum balas' }),
+    ).toHaveFocus()
   },
 }
 
@@ -305,5 +326,45 @@ export const KeyboardSettingsBackReturnsToMenu: Story = {
     await userEvent.click(canvas.getByRole('menuitem', { name: 'Tetapan' }))
     await userEvent.keyboard('{Escape}')
     await expect(canvas.getByRole('menuitem', { name: 'Tetapan' })).toHaveFocus()
+  },
+}
+
+export const UnreadNotifications: Story = {
+  args: { hasUnread: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    const item = canvas.getByRole('menuitem', { name: /Notifikasi/ })
+    await expect(item).toBeVisible()
+    await expect(item).toHaveTextContent('Ada notifikasi belum dibaca')
+  },
+}
+
+export const OpenNotifications: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Notifikasi' }))
+    await expect(args.onNotifications).toHaveBeenCalledTimes(1)
+  },
+}
+
+export const OpenAbout: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Perihal' }))
+    await expect(args.onAbout).toHaveBeenCalledTimes(1)
+  },
+}
+
+export const OpenFeedback: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(
+      canvas.getByRole('menuitem', { name: 'Maklum balas' }),
+    )
+    await expect(args.onFeedback).toHaveBeenCalledTimes(1)
   },
 }

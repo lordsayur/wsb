@@ -24,6 +24,11 @@ const links = computed(() => [
     icon: 'lucide:settings',
     label: t('admin.nav.settings'),
   },
+  {
+    to: '/admin/notifications',
+    icon: 'lucide:bell',
+    label: t('admin.nav.notifications'),
+  },
 ])
 
 function current(to: string) {

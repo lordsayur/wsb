@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 9.12.0
@@ -19,6 +21,14 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter web exec playwright install --with-deps chromium
+      # specs/release/spec.md — every push to main bumps the version and the
+      # changelog. The range is the pushed commits, not just the last one.
+      - if: github.event_name == 'push'
+        run: pnpm version:check
+        env:
+          VERSION_CHECK_RANGE: ${{ github.event.before }}..${{ github.sha }}
+      - run: pnpm version:validate
+      - run: pnpm test:scripts
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build

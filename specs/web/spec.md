@@ -119,6 +119,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The menu has a **Prayer times** entry that opens `/prayer-times`; the weekly
   slide also links straight to it ("all prayer times"). Both pages link back
   to the home and to each other through the header nav.
+- `/about`, `/changelog`, `/notifications` and `/feedback` are plain pages
+  reached from the footer menu, each linking back to the app.
 - Every route path is English. Locale only changes labels, never the address.
 - The address carries each page's selection, and is updated in place
   (`replace`, no history entry) as it changes. Defaults stay out of the
@@ -305,6 +307,41 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The page links back to the app, credits the MORA/KHEU source, and is fully
   localized (Malay first).
 
+### Notifications page
+
+- `/notifications` lists, newest first, a version notice for every app version
+  newer than the one this device last acknowledged, and every active
+  announcement. Each row shows its kind, title, body, date and, when it has
+  one, a link.
+- A version notice links to `/changelog`; the row's body is the newest change
+  and the remaining changes follow as a list.
+- Announcement text renders in the reader's locale, falling back to Malay and
+  then to any locale that was written.
+- Opening the page records a seen mark (`wsb.notificationsSeen`: the instant
+  and the running version) so the unread dot clears on the next visit; the rows
+  stay on screen for the current visit.
+- A device with no seen mark counts only the running version as one new
+  version, not the whole history, and counts every active announcement.
+- An expired announcement is never shown and never counted.
+- A failed announcement read shows the version notices only; the page never
+  errors and never blocks.
+- With nothing new the page shows an empty state, not an error.
+
+### About page
+
+- `/about` shows the running app version from the bundled changelog, marked
+  **beta** while the version carries a prerelease suffix, and states the
+  version the stable release will become.
+- It links to the changelog, the notifications page, the other platforms and
+  the privacy page, credits the data source, and links back to the app.
+- No component hard-codes a version string.
+
+### Changelog page
+
+- `/changelog` renders every bundled changelog entry, newest first, with its
+  version, localized date and changes, and marks the entry for the running
+  version.
+
 ### Footer
 
 - The footer shows the district selector on the left, filling the available
@@ -314,9 +351,13 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   district, with the current district highlighted. Left/Right arrows move
   between the options. It has no visible group label; its accessible name
   carries the "District" label instead.
-- The menu button opens a panel with **Settings**, **Prayer times**, **Tasbih**,
-  **Quran verse**, and **Other platforms**; it closes on Escape or after
-  choosing an action.
+- The menu button opens a panel with **Settings**, **Prayer times**,
+  **Notifications**, **Tasbih**, **Quran verse**, **Other platforms** and
+  **About**; it closes on Escape or after choosing an action.
+- **Notifications** opens `/notifications` and carries a dot while something is
+  unread, with a screen-reader label saying so.
+- **About** opens `/about`; **Feedback** opens `/feedback` with the
+  current page as `?from=`.
 - Settings is a second panel reached from the menu, with a back entry. It
   contains the theme controls, the time-format choice, the language selector,
   the notification toggle, and the "reload data" and "reload app" actions.
@@ -366,16 +407,17 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 
 ### Admin pages
 
-- The admin surface is split into three separate, non-indexed pages, none
+- The admin surface is split into four separate, non-indexed pages, none
   linked from the app UI:
   - `/admin` — prayer times, the default page.
   - `/admin/analytics` — the analytics dashboard.
   - `/admin/settings` — appearance, time format and language preferences.
+  - `/admin/notifications` — publish and delete announcements.
 - All pages share one shell (`layouts/admin.vue`): a left menu listing every
-  admin page (prayer times, analytics, settings) plus a link back to the app,
-  and the signed-in account's email with **Sign out** at the top right. The
-  menu marks the current page and gains an entry per new admin page without
-  touching the pages themselves.
+  admin page (prayer times, analytics, settings, notifications) plus a link
+  back to the app, and the signed-in account's email with **Sign out** at the
+  top right. The menu marks the current page and gains an entry per new admin
+  page without touching the pages themselves.
 - The shell is the only scrolling container: the document itself does not
   scroll, so long tables scroll inside the content area rather than moving the
   menu and account. At narrow widths the left menu becomes a horizontal bar.
@@ -722,9 +764,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Editing one cell stages it, shows the pending count, writes nothing until
       **Save**, and then reloads the month with the new value; **Discard**
       clears staged edits.
-- [ ] Every admin page (`/admin`, `/admin/analytics`, `/admin/settings`)
-      carries a `noindex` robots meta tag and is reachable from the shared
-      menu.
+- [ ] Every admin page (`/admin`, `/admin/analytics`, `/admin/settings`,
+      `/admin/notifications`) carries a `noindex` robots meta tag and is
+      reachable from the shared menu.
 - [ ] The admin menu offers `/admin/settings`, which changes the theme, time
       format and language through the same controls and cookies as the app
       footer.
@@ -733,11 +775,24 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] With `import.meta.dev`, environment `development`, or missing Supabase
       config, no pageview is sent.
 - [ ] Only allowlisted `props` are sent; unknown query keys are dropped.
-- [ ] Visiting either admin page records nothing.
+- [ ] Visiting any admin page records nothing.
 - [ ] `/admin/analytics` renders totals, a daily series and the splits for
       production, and an empty state with no rows.
 - [ ] The analytics panel's toggle includes preview and development rows.
 - [ ] `/privacy` is reachable from the footer menu and fully localized.
+- [ ] `/notifications` lists a newer version notice and an active announcement,
+      and the footer's notification entry shows an unread dot until the page is
+      opened.
+- [ ] An expired announcement never appears in `/notifications`.
+- [ ] `/about` shows the bundled version and marks it beta while it is a
+      prerelease.
+- [ ] `/changelog` renders every entry newest first and marks the running
+      version.
+- [ ] `/admin/notifications` publishes and deletes announcements behind the
+      admin gate.
+- [ ] `/about` and `/changelog` carry no hard-coded version string.
+- [ ] The footer menu offers `/feedback`, which needs no sign-in and is
+      reachable from `/about` too.
 
 ## Interfaces
 
@@ -873,3 +928,14 @@ None published. Consumes core and the Data port.
   last viewed slide from a cookie.
 - 2026-11-04 — add `/admin/settings`, reachable from the admin menu, reusing
   the footer's theme, time-format and language controls and their cookies.
+- 2026-11-04 — admin pages are four now: prayer times, analytics, settings and
+  notifications.
+- 2026-11-04 — add `/about` (running version, beta marker, links), `/changelog`
+  (the bundled record) and `/notifications` (version notices plus admin
+  announcements, with an unread dot in the menu).
+- 2026-11-04 — add `/admin/notifications` to publish and delete announcements.
+- 2026-11-04 — the app version and changelog come from one bundled record; see
+  [`../release/spec.md`](../release/spec.md).
+
+- 2026-11-04 — add `/feedback`, filed as a GitHub issue by the server so no
+  GitHub account is needed; linked from the footer menu and `/about`.

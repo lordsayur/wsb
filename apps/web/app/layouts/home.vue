@@ -16,6 +16,7 @@ import PageIndicator from '~/components/molecules/PageIndicator.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
 import UpdatePrompt from '~/components/molecules/UpdatePrompt.vue'
 import { provideHomeDeck, type HomeRow } from '~/composables/useHomeDeck'
+import { useNotifications } from '~/composables/useNotifications'
 import { usePrayerNotifications } from '~/composables/usePrayerNotifications'
 import { usePrayerTimes } from '~/composables/usePrayerTimes'
 import { usePwaUpdate } from '~/composables/usePwaUpdate'
@@ -59,6 +60,11 @@ const paletteOptions = computed(() => [
 ])
 
 const { needRefresh, reload, dismiss } = usePwaUpdate()
+
+// specs/notifications/spec.md — the menu's notification entry carries a dot
+// while anything is unread. The check is best-effort and never blocks the day.
+const notifications = useNotifications()
+const unread = computed(() => notifications.feed.value.unread)
 
 const {
   state,
@@ -286,6 +292,19 @@ function openPrayerTimes() {
   void navigateTo(prayerTimesLink(district.value))
 }
 
+function openNotifications() {
+  void navigateTo('/notifications')
+}
+
+function openAbout() {
+  void navigateTo('/about')
+}
+
+/** The route the reader came from travels with them, so the issue says where. */
+function openFeedback() {
+  void navigateTo({ path: '/feedback', query: { from: route.path } })
+}
+
 // specs/web/spec.md — the dashboard never shows the footer. A floating menu
 // button opens a dock with the district selector and the settings menu; from
 // there the reader can fill the screen with the card alone. Escape closes the
@@ -374,6 +393,11 @@ const footerProps = computed(() => ({
   timeFormatOptions: timeFormatOptions.value,
   downloadsLabel: t('action.downloads'),
   prayerTimesLabel: t('action.prayerTimes'),
+  notificationsLabel: t('action.notifications'),
+  aboutLabel: t('action.about'),
+  feedbackLabel: t('action.feedback'),
+  unreadLabel: t('notifications.unreadDot'),
+  hasUnread: unread.value > 0,
   tasbihLabel: t('action.tasbih'),
   ayatLabel: t('action.ayat'),
   reloadDataLabel: t('action.reloadData'),
@@ -399,6 +423,9 @@ const footerHandlers = {
   'update:time-format': setTimeFormat,
   downloads: openDownloads,
   'prayer-times': openPrayerTimes,
+  notifications: openNotifications,
+  about: openAbout,
+  feedback: openFeedback,
   tasbih: openTasbih,
   ayat: openAyat,
   'reload-data': reloadCurrent,
@@ -428,6 +455,8 @@ onMounted(async () => {
   hydrateWakeLock()
   await load()
   syncUrl()
+  // Best-effort; a failed read simply leaves the dot off.
+  notifications.load().catch(() => {})
 })
 
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))

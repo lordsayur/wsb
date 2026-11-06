@@ -171,6 +171,18 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
   (`delete from analytics_events where day < current_date - 90`), with `pg_cron`
   as the named upgrade path.
 
+### Announcement storage
+
+- `announcements` holds one row per admin-authored message: `published_at`,
+  `expires_at` (nullable), `link` and a `messages` JSON object keyed by
+  locale, each with a `title` and `body`.
+- RLS: a `select` policy for `anon` and `authenticated`; no insert, update or
+  delete grant. Publishing and deleting go through the `admin` Edge Function.
+- `check` constraints require Malay title and body, bound their length, and
+  bound the whole JSON payload, so a hostile client cannot poison the table.
+- The shell renders active rows only; `expires_at` filtering is applied by the
+  pure selector in `packages/data/src/notifications.ts`.
+
 ## Invariants
 
 - Core and shells never import an adapter directly; they import the port.
@@ -217,6 +229,10 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
       environment or oversized `props` is rejected by the database.
 - [ ] `analytics_stats` raises for a caller with no session and for a
       non-allowlisted caller, and returns aggregates for an allowlisted one.
+- [ ] An anonymous client can read announcements but cannot insert, update or
+      delete one.
+- [ ] A publish with no Malay title or body is rejected by the function and by
+      the table's constraints.
 
 ## Interfaces
 
@@ -232,6 +248,9 @@ Names only.
 - `analytics_events` (insert-only for `anon`), `analytics_daily` (service role)
   and `analytics_stats(days int, environment text)` — see
   [`../analytics/spec.md`](../analytics/spec.md).
+- `announcements` (public read, service-role write) and the `publish` /
+  `delete` actions on the `admin` function — see
+  [`../notifications/spec.md`](../notifications/spec.md).
 
 ## Out of scope
 
@@ -251,6 +270,8 @@ Names only.
 - 2026-10-18 — expose the day's Hijri date through the port.
 - 2026-10-18 — offline first everywhere; Supabase is the only runtime source;
   MORA import is monthly and manual; durable shell-supplied cache.
+- 2026-11-04 — add the `announcements` table and its `publish`/`delete`
+  admin actions.
 - 2026-10-19 — add the authenticated `admin` Edge Function (one-month MORA
   import, record correction) gated by a Google-signed-in allowlist; the CLI
   importer remains.

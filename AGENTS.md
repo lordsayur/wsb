@@ -24,6 +24,11 @@ Run everything **inside the devcontainer** (never install deps on the host).
 pnpm install          # install workspace deps
 pnpm dev              # run the web app (0.0.0.0:5173)
 pnpm build            # build all packages
+pnpm version:bump     # next beta/patch version + a new CHANGELOG.md entry
+pnpm version:stable   # drop the beta suffix (4.0.0-beta.N -> 4.0.0)
+pnpm version:sync     # regenerate the bundled changelog from CHANGELOG.md
+pnpm version:validate # prove package version, changelog and bundle agree
+pnpm version:check    # fail a push that skipped the bump
 pnpm typecheck        # typecheck all packages
 pnpm lint             # lint all packages
 pnpm extension:build  # bundle the browser extension into apps/extension/dist
@@ -38,6 +43,9 @@ pnpm raycast:store    # export a self-contained Raycast Store folder
 - pnpm workspaces; cross-package imports use `workspace:*`.
 - TypeScript strict mode; `tsconfig.base.json` holds shared compiler options.
 - No new dependency if it can be avoided.
+- Every push bumps the app version and adds a changelog entry: run
+  `pnpm version:bump --note "..."` before committing. See
+  `specs/release/spec.md`.
 
 ## Internationalization
 

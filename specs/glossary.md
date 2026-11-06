@@ -166,3 +166,29 @@ The audio of one ayah, in Arabic, played on request from its own row. One
 recitation plays at a time and it never reveals the ayah's text by itself. A
 recitation is not a **Reveal**: playing it and revealing the text are
 independent choices.
+
+## App version
+
+The semantic version of the web shell, and the only version the product shows.
+It lives in `apps/web/package.json`, the changelog and the bundled changelog
+record, and all three must agree. Until 4.0.0 ships it is a prerelease
+(`4.0.0-beta.N`) and the interface marks it **beta**.
+
+## Changelog
+
+The newest-first record of every app version: its date and the changes shipped
+in it. `CHANGELOG.md` is the human copy; `apps/web/app/data/changelog.json` is
+the same record the app renders at `/changelog`.
+
+## Announcement
+
+A message an admin publishes at runtime for the notifications page: a title and
+body per locale (Malay required), an optional link, and an optional expiry. Not
+the same as a **Version notice**, which is derived from the changelog.
+
+## Feedback
+
+One message a reader submits from `/feedback`: a **kind** (bug, idea or
+other), a title, a body, an optional contact, and the context it was written in.
+Feedback becomes a GitHub **issue**, filed by the server, so sending one needs
+no GitHub account.
