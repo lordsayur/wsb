@@ -33,7 +33,7 @@
     "share": "Kongsi waktu sembahyang",
     "downloads": "Platform lain",
     "tasbih": "Tasbih",
-    "ayat": "Ayat Al-Quran",
+    "ayat": "Cabaran Ayat Al-Quran",
     "privacy": "Privasi",
     "prayerTimes": "Waktu sembahyang",
     "notifications": "Notifikasi",
@@ -297,7 +297,7 @@
     "resetConfirm": "Set semula kiraan kepada sifar?"
   },
   "ayat": {
-    "title": "Ayat Al-Quran",
+    "title": "Cabaran Ayat Al-Quran",
     "intro": "Baca satu ayat secara rawak daripada skop pilihan anda. Tiada apa-apa ditunjukkan sehingga anda mahu.",
     "back": "Kembali ke aplikasi",
     "juz": "Juzuk",

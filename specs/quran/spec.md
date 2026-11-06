@@ -21,7 +21,7 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 
 ### Setup state
 
-- `/ayat` opens in the **setup state**: only the range selection is shown.
+- `/quran-verse-challenge` opens in the **setup state**: only the range selection is shown.
   No ayah is loaded, fetched or picked.
 - The reader chooses **one** scope: the whole Quran, a **juz range** (1–30),
   or a single **surah** (1–114). Juz and surah are alternatives, never
@@ -133,7 +133,8 @@ Terms from [`../glossary.md`](../glossary.md): **Ayah**, **Surah**, **Juz**,
 - [x] Search finds `baqarah`, `kahf`, `ikhlas` and a one-edit typo, ranking
       Malay and English names equally, and lists the Arabic name.
 - [x] The corpus integrity check passes: 114 surahs, 30 juz, 6,236 ayahs.
-- [x] `/ayat` does not pull the corpus into the main page bundle.
+- [x] `/ayat` redirects to `/quran-verse-challenge`, keeping any query.
+- [x] `/quran-verse-challenge` does not pull the corpus into the main page bundle.
 - [x] Starting shows a skeleton per ayah, not Arabic text; text appears only
       after **Reveal text**.
 - [x] A newly appended ayah starts hidden with its own play control.

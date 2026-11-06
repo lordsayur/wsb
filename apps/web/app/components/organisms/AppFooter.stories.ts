@@ -51,7 +51,7 @@ const meta: Meta<typeof AppFooter> = {
     unreadLabel: 'Ada notifikasi belum dibaca',
     hasUnread: false,
     tasbihLabel: 'Tasbih',
-    ayatLabel: 'Ayat Al-Quran',
+    ayatLabel: 'Cabaran Ayat Al-Quran',
     reloadDataLabel: 'Muat semula data',
     reloadAppLabel: 'Muat semula aplikasi',
     privacyLabel: 'Privasi',
@@ -110,7 +110,7 @@ export const MenuOpen: Story = {
       canvas.getByRole('menuitem', { name: 'Tasbih' }),
     ).toBeVisible()
     await expect(
-      canvas.getByRole('menuitem', { name: 'Ayat Al-Quran' }),
+      canvas.getByRole('menuitem', { name: 'Cabaran Ayat Al-Quran' }),
     ).toBeVisible()
     await expect(
       canvas.getByRole('menuitem', { name: 'Waktu sembahyang' }),
@@ -266,7 +266,7 @@ export const OpenAyat: Story = {
     const canvas = within(canvasElement)
     await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
     await userEvent.click(
-      canvas.getByRole('menuitem', { name: 'Ayat Al-Quran' }),
+      canvas.getByRole('menuitem', { name: 'Cabaran Ayat Al-Quran' }),
     )
     await expect(args.onAyat).toHaveBeenCalledTimes(1)
   },

@@ -1,6 +1,13 @@
 {
-  "version": "4.0.0-beta.5",
+  "version": "4.0.0-beta.6",
   "entries": [
+    {
+      "version": "4.0.0-beta.6",
+      "date": "2026-11-07",
+      "changes": [
+        "Rename the Quran verse page to \"Quran verse challenge\" and move its route to /quran-verse-challenge, keeping /ayat as a redirect."
+      ]
+    },
     {
       "version": "4.0.0-beta.5",
       "date": "2026-11-04",

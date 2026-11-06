@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.6 — 2026-11-07
+
+- Rename the Quran verse page to "Quran verse challenge" and move its route to /quran-verse-challenge, keeping /ayat as a redirect.
+
 ## 4.0.0-beta.5 — 2026-11-04
 
 - Replace the Markdown feedback body with one plain-text field per section and

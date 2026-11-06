@@ -106,7 +106,7 @@ describe('buildPageview', () => {
 
   it('ignores query keys on paths that own none', () => {
     const row = build({
-      path: '/ayat',
+      path: '/quran-verse-challenge',
       search: '?view=month&range=year&month=2026-02',
     })
     expect(row?.props).toEqual({})

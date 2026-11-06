@@ -352,7 +352,7 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   between the options. It has no visible group label; its accessible name
   carries the "District" label instead.
 - The menu button opens a panel with **Settings**, **Prayer times**,
-  **Notifications**, **Tasbih**, **Quran verse**, **Other platforms** and
+  **Notifications**, **Tasbih**, **Quran verse challenge**, **Other platforms** and
   **About**; it closes on Escape or after choosing an action.
 - **Notifications** opens `/notifications` and carries a dot while something is
   unread, with a screen-reader label saying so.

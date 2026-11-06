@@ -281,7 +281,7 @@ function openTasbih() {
 }
 
 function openAyat() {
-  void navigateTo('/ayat')
+  void navigateTo('/quran-verse-challenge')
 }
 
 function openPrivacy() {

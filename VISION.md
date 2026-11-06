@@ -34,8 +34,8 @@ for the user's district, fast and correct, on any surface.
 
 ## Secondary feature: Quran Ayat
 
-- A web-only `/ayat` page inside the same PWA: one Quran ayah at random from a
-  range the reader chooses by juz and surah.
+- A web-only `/quran-verse-challenge` page inside the same PWA: one Quran ayah
+  at random from a range the reader chooses by juz and surah.
 - Arabic only. The reader reveals the juz, surah, ayah number or the next ayah
   on demand; nothing is disclosed before that.
 - The corpus is static, bundled and loaded lazily by juz, so the main page

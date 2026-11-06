@@ -18,7 +18,7 @@ const stats: AnalyticsStats = {
   topPaths: [
     { path: '/', views: 80 },
     { path: '/prayer-times/graph', views: 30 },
-    { path: '/ayat', views: 18 },
+    { path: '/quran-verse-challenge', views: 18 },
   ],
   events: [{ event: 'pageview', views: 128 }],
   locales: [
