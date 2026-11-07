@@ -138,6 +138,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   direction do to the controls on either side of it. The nav row always spans
   the full header width, so the menu lands on the real edge even where the page
   centres its content.
+- `/tasbih` fits one viewport without scrolling: the device is the only
+  flexible block and shrinks to the space left between the header and the
+  controls.
 - **Hand mode** (`right` by default, `left`) moves the menu controls to that
   hand's side: page header menus and the dashboard's floating menu sit on the
   right for right-handed readers and on the left for left-handed ones. It is

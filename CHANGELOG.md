@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.9 — 2026-11-07
+
+- Fit the tasbih page on one screen: the device takes the leftover height and the controls never scroll out of view.
+
 ## 4.0.0-beta.8 — 2026-11-07
 
 - Give every page outside the home deck one header: a flat nav with a menu (settings, home and every destination) plus the basmalah, with hand-mode control over which side the menu takes.
