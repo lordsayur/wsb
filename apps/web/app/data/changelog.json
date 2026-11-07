@@ -1,6 +1,13 @@
 {
-  "version": "4.0.0-beta.10",
+  "version": "4.0.0-beta.11",
   "entries": [
+    {
+      "version": "4.0.0-beta.11",
+      "date": "2026-11-07",
+      "changes": [
+        "Fix the Netlify 500: build on Node 22 and never create the Supabase client while server-rendering, since its realtime layer needs a native WebSocket."
+      ]
+    },
     {
       "version": "4.0.0-beta.10",
       "date": "2026-11-07",

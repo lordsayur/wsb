@@ -6,7 +6,9 @@
   functions = ".netlify/functions-internal"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # specs/web/spec.md — @supabase/realtime-js needs a native WebSocket, which
+  # Node 20 does not expose. 22 is the first release with it built in.
+  NODE_VERSION = "22"
   NITRO_PRESET = "netlify"
   # specs/analytics/spec.md — only real deploys count; previews are tagged below.
   NUXT_PUBLIC_ANALYTICS_ENV = "production"

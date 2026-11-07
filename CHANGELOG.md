@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.11 — 2026-11-07
+
+- Fix the Netlify 500: build on Node 22 and never create the Supabase client while server-rendering, since its realtime layer needs a native WebSocket.
+
 ## 4.0.0-beta.10 — 2026-11-07
 
 - Hide the summary slide's deck chrome: the card carries the basmalah at its own top and the data-source note is gone.

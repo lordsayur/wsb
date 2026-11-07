@@ -153,6 +153,12 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - The basmalah (`بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ`) appears in both navs.
   It is scripture, not copy: the same Arabic text renders in every locale and
   is never translated or localized.
+- The Supabase client exists only in the browser. Nothing needs it to render,
+  and its realtime layer requires a native `WebSocket`, which server runtimes do
+  not always provide; `supabaseClient()` therefore returns `null` while
+  server-rendering.
+- Netlify builds on Node 22, the first release with a native `WebSocket`, so a
+  dependency that touches it during the build cannot fail the deploy.
 - Every route path is English. Locale only changes labels, never the address.
 - The address carries each page's selection, and is updated in place
   (`replace`, no history entry) as it changes. Defaults stay out of the
