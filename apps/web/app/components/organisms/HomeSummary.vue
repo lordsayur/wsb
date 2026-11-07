@@ -15,6 +15,8 @@
     </div>
 
     <div class="content">
+      <BasmalahText class="basmalah" />
+
       <header class="hero">
         <p class="weekday">{{ weekday }}</p>
         <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
@@ -46,6 +48,7 @@
 // in a quieter size. Decorative layers are purely visual. Fullscreen is the
 // layout's: it owns the toggle and the menu, this card only fills the screen.
 import { computed } from 'vue'
+import BasmalahText from '../atoms/BasmalahText.vue'
 import DateDisplay from '../molecules/DateDisplay.vue'
 import DayStatus from '../molecules/DayStatus.vue'
 import TimeText from '../atoms/TimeText.vue'
@@ -206,6 +209,15 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   justify-content: center;
   gap: clamp(1rem, 4vh, 2.2rem);
   padding: clamp(1rem, 4vh, 2rem) 1rem;
+  text-align: center;
+}
+
+/* specs/web/spec.md — the basmalah heads the card itself, not the deck: it
+   sits at the card's top edge while the day's content stays centred. */
+.basmalah {
+  position: absolute;
+  inset-inline: 0;
+  top: clamp(0.9rem, 3vh, 1.5rem);
   text-align: center;
 }
 

@@ -503,9 +503,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
     >
       <a class="skip-link" href="#main">{{ t('a11y.skipToContent') }}</a>
 
-      <BasmalahText class="basmalah" />
+      <!-- specs/web/spec.md — the summary card carries the basmalah itself and
+           hides the source note, so its top is the card edge. The other slides
+           keep both in the deck chrome. -->
+      <BasmalahText v-if="slide !== 'summary'" class="basmalah" />
 
       <SourceNote
+        v-if="slide !== 'summary'"
         :label="t('source.label')"
         :name="t('source.name')"
         :url="MORA_PAGE_URL"

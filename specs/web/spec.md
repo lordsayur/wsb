@@ -134,6 +134,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   summary. The header is flat: a single bottom rule, no card and no pill.
 - The daily and weekly slides carry the basmalah alone at the top of the deck,
   centred, with no back link (the deck is home) and no rule under it.
+- The summary slide hides that deck chrome: its card carries the basmalah at its
+  own top edge and the data-source note is not shown, so the card is the whole
+  screen below the page dots.
 - The basmalah is centred in both navs, whatever the hand mode and writing
   direction do to the controls on either side of it. The nav row always spans
   the full header width, so the menu lands on the real edge even where the page

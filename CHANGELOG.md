@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.10 — 2026-11-07
+
+- Hide the summary slide's deck chrome: the card carries the basmalah at its own top and the data-source note is gone.
+
 ## 4.0.0-beta.9 — 2026-11-07
 
 - Fit the tasbih page on one screen: the device takes the leftover height and the controls never scroll out of view.
