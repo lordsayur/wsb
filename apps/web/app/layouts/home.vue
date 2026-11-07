@@ -11,6 +11,7 @@ import {
   formatWeekday,
 } from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
+import BasmalahText from '~/components/atoms/BasmalahText.vue'
 import AppFooter from '~/components/organisms/AppFooter.vue'
 import PageIndicator from '~/components/molecules/PageIndicator.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
@@ -39,12 +40,21 @@ const router = useRouter()
 const { t, locale, locales, setLocale } = useI18n()
 
 const { theme, setMode, setPalette, setCustom } = useTheme()
-const { timeFormat, setTimeFormat } = useSettings()
+const { timeFormat, setTimeFormat, handMode, setHandMode } = useSettings()
 
 const timeFormatOptions = computed(() => [
   { value: '24h' as const, label: t('settings.timeFormat.h24') },
   { value: '12h' as const, label: t('settings.timeFormat.h12') },
 ])
+
+// specs/web/spec.md — hand mode moves the menu controls to the chosen side.
+const handModeOptions = computed(() => [
+  { value: 'right' as const, label: t('settings.handMode.right') },
+  { value: 'left' as const, label: t('settings.handMode.left') },
+])
+const menuSide = computed(() =>
+  handMode.value === 'left' ? 'start' : 'end',
+)
 
 const themeModes = computed(() => [
   { value: 'dark' as ThemeMode, label: t('theme.dark') },
@@ -391,6 +401,9 @@ const footerProps = computed(() => ({
   timeFormatLabel: t('settings.timeFormat.label'),
   timeFormat: timeFormat.value,
   timeFormatOptions: timeFormatOptions.value,
+  handModeLabel: t('settings.handMode.label'),
+  handMode: handMode.value,
+  handModeOptions: handModeOptions.value,
   downloadsLabel: t('action.downloads'),
   prayerTimesLabel: t('action.prayerTimes'),
   notificationsLabel: t('action.notifications'),
@@ -425,6 +438,7 @@ const footerHandlers = {
   'update:palette': setPalette,
   'update:customColor': setCustom,
   'update:timeFormat': setTimeFormat,
+  'update:handMode': setHandMode,
   downloads: openDownloads,
   prayerTimes: openPrayerTimes,
   notifications: openNotifications,
@@ -488,6 +502,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       :style="{ transform: pull ? `translateY(${pull}px)` : undefined }"
     >
       <a class="skip-link" href="#main">{{ t('a11y.skipToContent') }}</a>
+
+      <BasmalahText class="basmalah" />
 
       <SourceNote
         :label="t('source.label')"
@@ -606,6 +622,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   overflow: hidden;
   transition: transform 0.15s ease-out;
 }
+.basmalah {
+  flex: none;
+}
 .skip-link {
   position: absolute;
   inset-inline-start: 0.5rem;
@@ -664,7 +683,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 .fs-fab {
   position: fixed;
   inset-block-end: 0.9rem;
-  inset-inline-end: 0.9rem;
+  /* specs/web/spec.md — the floating menu follows the hand mode. */
+  left: var(--fab-left);
+  right: var(--fab-right);
   z-index: 70;
   display: grid;
   place-items: center;

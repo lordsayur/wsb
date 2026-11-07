@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import VersionBadge from '~/components/molecules/VersionBadge.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
@@ -27,15 +28,18 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <header class="head">
-        <h1 class="title">{{ t('about.title') }}</h1>
-        <VersionBadge
-          :version="APP_VERSION"
-          :beta="beta"
-          :beta-label="t('about.beta')"
-        />
-      </header>
-      <p class="intro">{{ t('about.intro') }}</p>
+      <PageHeader
+        :title="t('about.title')"
+        :intro="t('about.intro')"
+      >
+        <template #badge>
+          <VersionBadge
+            :version="APP_VERSION"
+            :beta="beta"
+            :beta-label="t('about.beta')"
+          />
+        </template>
+      </PageHeader>
       <p v-if="beta" class="note">
         {{ t('about.betaNote', { version: stableVersion() }) }}
       </p>
@@ -58,10 +62,6 @@ useSeoMeta({
         :url="MORA_PAGE_URL"
       />
 
-      <NuxtLink class="back" to="/">
-        <Icon name="lucide:arrow-left" aria-hidden="true" />
-        {{ t('about.back') }}
-      </NuxtLink>
     </main>
   </div>
 </template>
@@ -72,7 +72,7 @@ useSeoMeta({
   height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem 2rem;
   overflow-y: auto;
 }
 .content {
@@ -81,21 +81,7 @@ useSeoMeta({
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-.intro {
-  margin: 0;
-  opacity: 0.8;
+  padding-top: 0.75rem;
 }
 .note {
   margin: 0;
@@ -136,12 +122,5 @@ useSeoMeta({
   margin: 0;
   font-size: 0.9rem;
   opacity: 0.8;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
 }
 </style>

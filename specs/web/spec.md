@@ -121,6 +121,32 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   to the home and to each other through the header nav.
 - `/about`, `/changelog`, `/notifications` and `/feedback` are plain pages
   reached from the footer menu, each linking back to the app.
+- Every page outside the home deck (`/about`, `/changelog`, `/download`,
+  `/privacy`, `/notifications`, `/feedback`, `/tasbih`,
+  `/quran-verse-challenge`, `/prayer-times` and `/prayer-times/graph`) shares
+  one header organism. Its top nav row holds a menu button and the basmalah;
+  below it come the page title, an optional intro, and an optional row of tabs.
+  The menu is the same everywhere and offers **Settings** (theme, palette, time
+  format, hand mode, language), **Home**, every page the footer menu reaches and
+  **Privacy**. Settings therefore live on every page, not only in the deck's
+  footer. Home opens `/`, which restores the slide the reader last had open and
+  their saved district, so it returns them to the deck rather than forcing the
+  summary. The header is flat: a single bottom rule, no card and no pill.
+- The daily and weekly slides carry the basmalah alone at the top of the deck,
+  centred, with no back link (the deck is home) and no rule under it.
+- The basmalah is centred in both navs, whatever the hand mode and writing
+  direction do to the controls on either side of it. The nav row always spans
+  the full header width, so the menu lands on the real edge even where the page
+  centres its content.
+- **Hand mode** (`right` by default, `left`) moves the menu controls to that
+  hand's side: page header menus and the dashboard's floating menu sit on the
+  right for right-handed readers and on the left for left-handed ones. It is
+  stored in a cookie and applied as `data-hand` on the document, so the first
+  paint already has the menu on the chosen side. The basmalah's centring never
+  moves with it.
+- The basmalah (`بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ`) appears in both navs.
+  It is scripture, not copy: the same Arabic text renders in every locale and
+  is never translated or localized.
 - Every route path is English. Locale only changes labels, never the address.
 - The address carries each page's selection, and is updated in place
   (`replace`, no history entry) as it changes. Defaults stay out of the
@@ -793,6 +819,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] `/about` and `/changelog` carry no hard-coded version string.
 - [ ] The footer menu offers `/feedback`, which needs no sign-in and is
       reachable from `/about` too.
+- [ ] Every non-deck page shows the same header: one menu whose items include
+      Home, one `h1` title, and the tabs on the prayer-times pages.
 
 ## Interfaces
 

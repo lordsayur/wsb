@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import PrayerTrendChart from '~/components/organisms/PrayerTrendChart.vue'
 import RangeSelector from '~/components/molecules/RangeSelector.vue'
 import PageTabs from '~/components/molecules/PageTabs.vue'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
 import { DEFAULT_DISTRICT, type ChartRange } from '@wsb/core'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
@@ -103,12 +104,6 @@ watch(
   },
 )
 
-const backTo = computed(() =>
-  district.value === DEFAULT_DISTRICT
-    ? '/'
-    : { path: '/', query: { district: district.value } },
-)
-
 const tabs = computed(() => [
   { id: 'table', label: t('prayerTimes.tabs.table') },
   { id: 'graph', label: t('prayerTimes.tabs.graph') },
@@ -134,19 +129,16 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <header class="head">
-        <NuxtLink class="back" :to="backTo">
-          <Icon name="lucide:arrow-left" aria-hidden="true" />
-          {{ t('prayerTimes.back') }}
-        </NuxtLink>
-        <h1 class="title">{{ t('prayerTimes.title') }}</h1>
+      <PageHeader
+        :title="t('prayerTimes.title')"
+      >
         <PageTabs
           :label="t('prayerTimes.tabs.label')"
           :tabs="tabs"
           model-value="graph"
           @update:model-value="selectTab"
         />
-      </header>
+      </PageHeader>
 
       <SourceNote
         :label="t('source.label')"
@@ -214,22 +206,6 @@ useSeoMeta({
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.35rem;
 }
 .controls {
   display: flex;

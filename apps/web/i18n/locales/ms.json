@@ -38,7 +38,8 @@
     "prayerTimes": "Waktu sembahyang",
     "notifications": "Notifikasi",
     "about": "Perihal",
-    "feedback": "Maklum balas"
+    "feedback": "Maklum balas",
+    "home": "Utama"
   },
   "source": {
     "label": "Sumber data",
@@ -108,6 +109,11 @@
       "label": "Format masa",
       "h24": "24 jam",
       "h12": "12 jam"
+    },
+    "handMode": {
+      "label": "Mod tangan",
+      "right": "Tangan kanan",
+      "left": "Tangan kiri"
     }
   },
   "extension": {
@@ -125,7 +131,6 @@
   "downloads": {
     "title": "Muat turun",
     "intro": "Waktu Sembahyang Brunei untuk platform lain. Satu teras, banyak cangkerang.",
-    "back": "Kembali ke aplikasi",
     "available": "Tersedia",
     "soon": "Akan datang",
     "download": "Muat turun",
@@ -282,7 +287,6 @@
   "tasbih": {
     "title": "Tasbih",
     "intro": "Tasbih digital untuk zikir. Ketik di mana-mana untuk mengira.",
-    "back": "Kembali ke aplikasi",
     "label": "Kiraan tasbih, {count}",
     "count": "Kiraan: {count}",
     "hint": "Ketik di mana-mana untuk tambah satu. Guna kekunci sisi untuk tolak satu atau set semula.",
@@ -299,7 +303,6 @@
   "ayat": {
     "title": "Cabaran Ayat Al-Quran",
     "intro": "Baca satu ayat secara rawak daripada skop pilihan anda. Tiada apa-apa ditunjukkan sehingga anda mahu.",
-    "back": "Kembali ke aplikasi",
     "juz": "Juzuk",
     "from": "dari",
     "to": "hingga",
@@ -375,13 +378,11 @@
     "notAddress": "Tiada alamat IP dan tiada URL penuh.",
     "retention": "Tempoh simpanan",
     "retentionBody": "Peristiwa mentah disimpan 90 hari. Selepas itu hanya jumlah harian kekal.",
-    "session": "Sesi dikira dengan pengecam sementara dalam tab; ia hilang apabila tab ditutup.",
-    "back": "Kembali ke aplikasi"
+    "session": "Sesi dikira dengan pengecam sementara dalam tab; ia hilang apabila tab ditutup."
   },
   "prayerTimes": {
     "title": "Waktu sembahyang",
     "graphTitle": "Grafik waktu sembahyang",
-    "back": "Kembali ke aplikasi",
     "tableIntro": "Waktu sembahyang sebulan, satu baris setiap hari.",
     "tableLabel": "Jadual waktu sembahyang bagi {month}",
     "tabs": {
@@ -416,7 +417,6 @@
     "announcementKind": "Pengumuman",
     "viewChanges": "Lihat perubahan",
     "openLink": "Buka pautan",
-    "back": "Kembali ke aplikasi",
     "unreadDot": "Ada notifikasi belum dibaca"
   },
   "about": {
@@ -431,14 +431,12 @@
     "privacy": "Privasi",
     "builtWith": "Dibina dengan",
     "builtWithBody": "Nuxt, satu teras TypeScript dan Supabase. Sumber data: Jabatan Hal Ehwal Ugama (KHEU).",
-    "back": "Kembali ke aplikasi",
     "feedback": "Maklum balas"
   },
   "changelog": {
     "title": "Sejarah perubahan",
     "intro": "Setiap versi aplikasi web, terbaharu dahulu.",
-    "current": "semasa",
-    "back": "Kembali ke aplikasi"
+    "current": "semasa"
   },
   "feedback": {
     "title": "Maklum balas",
@@ -468,7 +466,6 @@
     },
     "privacyLink": "Privasi",
     "privacyNote": "Alamat IP tidak disimpan. Hubungan anda hanya digunakan untuk membalas.",
-    "back": "Kembali ke aplikasi",
     "attachment": {
       "attachmentLabel": "Gambar (pilihan, sehingga 3)",
       "attachmentAlt": "Lampiran",

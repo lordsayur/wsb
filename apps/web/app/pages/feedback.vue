@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import FeedbackForm from '~/components/organisms/FeedbackForm.vue'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import { FEEDBACK_KINDS, TEMPLATE_SECTIONS } from '@wsb/data/feedback'
 import { useFeedback } from '~/composables/useFeedback'
 
@@ -48,10 +49,10 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <header class="head">
-        <h1 class="title">{{ t('feedback.title') }}</h1>
-        <p class="intro">{{ t('feedback.intro') }}</p>
-      </header>
+      <PageHeader
+        :title="t('feedback.title')"
+        :intro="t('feedback.intro')"
+      />
 
       <p class="note">{{ t('feedback.githubNote') }}</p>
 
@@ -90,10 +91,6 @@ useSeoMeta({
         <span>{{ t('feedback.privacyNote') }}</span>
       </p>
 
-      <NuxtLink class="back" to="/">
-        <Icon name="lucide:arrow-left" aria-hidden="true" />
-        {{ t('feedback.back') }}
-      </NuxtLink>
     </main>
   </div>
 </template>
@@ -104,7 +101,7 @@ useSeoMeta({
   height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem 2rem;
   overflow-y: auto;
 }
 .content {
@@ -113,18 +110,8 @@ useSeoMeta({
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-.intro,
-.note {
+  padding-top: 0.75rem;
+}.note {
   margin: 0;
   font-size: 0.9rem;
   opacity: 0.8;
@@ -143,12 +130,5 @@ useSeoMeta({
   margin: 0;
   font-size: 0.8rem;
   opacity: 0.7;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
 }
 </style>

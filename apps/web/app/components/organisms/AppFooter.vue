@@ -115,6 +115,12 @@
               :options="timeFormatOptions"
               @update:format="emit('update:timeFormat', $event)"
             />
+            <HandModeControls
+              :label="handModeLabel"
+              :mode="handMode"
+              :options="handModeOptions"
+              @update:mode="emit('update:handMode', $event)"
+            />
             <hr class="divider" />
             <p class="menu-heading">{{ languageLabel }}</p>
             <div class="languages">
@@ -177,7 +183,11 @@ import ThemeControls, {
 import TimeFormatControls, {
   type TimeFormatOption,
 } from '../molecules/TimeFormatControls.vue'
+import HandModeControls, {
+  type HandModeOption,
+} from '../molecules/HandModeControls.vue'
 import type { TimeFormat } from '@wsb/core'
+import type { HandMode } from '~/utils/handMode'
 import type { PaletteId, ThemeMode } from '~/utils/theme'
 import { focusables, onGroupKeydown } from '~/utils/rovingFocus'
 
@@ -207,6 +217,9 @@ defineProps<{
   timeFormatLabel: string
   timeFormat: TimeFormat
   timeFormatOptions: TimeFormatOption[]
+  handModeLabel: string
+  handMode: HandMode
+  handModeOptions: HandModeOption[]
   downloadsLabel: string
   prayerTimesLabel: string
   notificationsLabel: string
@@ -236,6 +249,7 @@ const emit = defineEmits<{
   'update:palette': [value: PaletteId]
   'update:customColor': [value: string]
   'update:timeFormat': [value: TimeFormat]
+  'update:handMode': [value: HandMode]
   share: [format: 'formatted' | 'raw']
   downloads: []
   prayerTimes: []

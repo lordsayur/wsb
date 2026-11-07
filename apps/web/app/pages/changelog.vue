@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import VersionBadge from '~/components/molecules/VersionBadge.vue'
 import { formatDate } from '@wsb/core'
 import { APP_VERSION, CHANGELOG, isBeta } from '~/utils/changelog'
@@ -25,15 +26,18 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <header class="head">
-        <h1 class="title">{{ t('changelog.title') }}</h1>
-        <VersionBadge
-          :version="APP_VERSION"
-          :beta="isBeta()"
-          :beta-label="t('about.beta')"
-        />
-      </header>
-      <p class="intro">{{ t('changelog.intro') }}</p>
+      <PageHeader
+        :title="t('changelog.title')"
+        :intro="t('changelog.intro')"
+      >
+        <template #badge>
+          <VersionBadge
+            :version="APP_VERSION"
+            :beta="isBeta()"
+            :beta-label="t('about.beta')"
+          />
+        </template>
+      </PageHeader>
 
       <ol class="entries">
         <li v-for="entry in entries" :key="entry.version" class="entry">
@@ -52,10 +56,6 @@ useSeoMeta({
         </li>
       </ol>
 
-      <NuxtLink class="back" to="/">
-        <Icon name="lucide:arrow-left" aria-hidden="true" />
-        {{ t('changelog.back') }}
-      </NuxtLink>
     </main>
   </div>
 </template>
@@ -66,7 +66,7 @@ useSeoMeta({
   height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem 2rem;
   overflow-y: auto;
 }
 .content {
@@ -75,21 +75,7 @@ useSeoMeta({
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-.intro {
-  margin: 0;
-  opacity: 0.75;
+  padding-top: 0.75rem;
 }
 .entries {
   margin: 0;
@@ -143,12 +129,5 @@ useSeoMeta({
   gap: 0.2rem;
   font-size: 0.85rem;
   opacity: 0.85;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
 }
 </style>

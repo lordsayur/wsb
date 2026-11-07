@@ -47,6 +47,28 @@ const StoryIcon = defineComponent({
   },
 })
 
+/**
+ * Nuxt auto-imports that components reach for directly. Stories run without the
+ * Nuxt runtime, so give them the same shape with in-memory state and a cookie
+ * that lives for the session. Nothing persists, which is what a story wants.
+ */
+const storyCookies = new Map<string, { value: unknown }>()
+const storyState = new Map<string, { value: unknown }>()
+
+;(globalThis as Record<string, unknown>).useCookie = (key: string) => {
+  if (!storyCookies.has(key)) storyCookies.set(key, { value: null })
+  return storyCookies.get(key)
+}
+;(globalThis as Record<string, unknown>).useState = (
+  key: string,
+  init?: () => unknown,
+) => {
+  if (!storyState.has(key)) {
+    storyState.set(key, { value: init ? init() : undefined })
+  }
+  return storyState.get(key)
+}
+
 setup((app) => {
   app.component('Icon', StoryIcon)
   app.component('NuxtLink', StoryLink)

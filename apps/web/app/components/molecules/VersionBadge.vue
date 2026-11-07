@@ -1,6 +1,6 @@
 <template>
   <span class="version-badge" :class="{ beta }">
-    <span class="version">{{ version }}</span>
+    <span class="version" dir="ltr">{{ version }}</span>
     <span v-if="beta" class="tag">{{ betaLabel }}</span>
   </span>
 </template>
@@ -26,6 +26,7 @@ withDefaults(
 }
 .version {
   font-weight: 700;
+  unicode-bidi: isolate;
 }
 .tag {
   padding: 0.1rem 0.45rem;

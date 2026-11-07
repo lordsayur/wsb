@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import PlatformCard from '~/components/molecules/PlatformCard.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
 import { MORA_PAGE_URL } from '@wsb/data/mora'
@@ -43,8 +44,10 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <h1 class="title">{{ t('downloads.title') }}</h1>
-      <p class="intro">{{ t('downloads.intro') }}</p>
+      <PageHeader
+        :title="t('downloads.title')"
+        :intro="t('downloads.intro')"
+      />
 
       <div class="cards">
         <div v-for="platform in platforms" :key="platform.id" class="card-slot">
@@ -75,10 +78,6 @@ useSeoMeta({
         </div>
       </div>
 
-      <NuxtLink class="back" to="/">
-        <Icon name="lucide:arrow-left" aria-hidden="true" />
-        {{ t('downloads.back') }}
-      </NuxtLink>
       <SourceNote
         :label="t('source.label')"
         :name="t('source.name')"
@@ -94,7 +93,7 @@ useSeoMeta({
   height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem 2rem;
   overflow-y: auto;
 }
 .content {
@@ -103,14 +102,7 @@ useSeoMeta({
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-.intro {
-  margin: 0;
-  opacity: 0.8;
+  padding-top: 0.75rem;
 }
 .cards {
   display: flex;
@@ -126,12 +118,5 @@ useSeoMeta({
   margin: 0;
   font-size: 0.75rem;
   opacity: 0.7;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
 }
 </style>

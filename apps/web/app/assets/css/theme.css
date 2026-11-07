@@ -4,6 +4,53 @@
   --control-h: 2.5rem;
 }
 
+/* specs/web/spec.md — hand mode decides which physical side the menu controls
+   take. Right-handed is the default: the menu sits on the right. The writing
+   direction flips the inline axis, so both axes are folded in here once and the
+   components only read the variables. */
+:root,
+:root[dir='ltr'] {
+  --menu-col: 3;
+  --menu-justify: end;
+  --menu-panel-left: auto;
+  --menu-panel-right: 0;
+  --actions-col: 1;
+  --actions-justify: start;
+  --fab-left: auto;
+  --fab-right: 0.9rem;
+}
+:root[dir='rtl'] {
+  --menu-col: 1;
+  --menu-justify: start;
+  --menu-panel-left: 0;
+  --menu-panel-right: auto;
+  --actions-col: 3;
+  --actions-justify: end;
+  --fab-left: 0.9rem;
+  --fab-right: auto;
+}
+:root[data-hand='left'],
+:root[dir='ltr'][data-hand='left'] {
+  --menu-col: 1;
+  --menu-justify: start;
+  --menu-panel-left: 0;
+  --menu-panel-right: auto;
+  --actions-col: 3;
+  --actions-justify: end;
+  --fab-left: 0.9rem;
+  --fab-right: auto;
+}
+:root[dir='rtl'][data-hand='left'] {
+  --menu-col: 3;
+  --menu-justify: end;
+  --menu-panel-left: auto;
+  --menu-panel-right: 0;
+  --actions-col: 1;
+  --actions-justify: start;
+  --fab-left: auto;
+  --fab-right: 0.9rem;
+}
+
 :root,
 :root[data-theme='dark'] {
   color-scheme: dark;

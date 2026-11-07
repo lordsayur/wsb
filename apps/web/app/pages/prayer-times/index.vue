@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MonthSelector from '~/components/molecules/MonthSelector.vue'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import MonthPrayerTable from '~/components/organisms/MonthPrayerTable.vue'
 import PageTabs from '~/components/molecules/PageTabs.vue'
 import SourceNote from '~/components/molecules/SourceNote.vue'
@@ -82,12 +83,6 @@ watch(
   },
 )
 
-const backTo = computed(() =>
-  district.value === DEFAULT_DISTRICT
-    ? '/'
-    : { path: '/', query: { district: district.value } },
-)
-
 const tabs = computed(() => [
   { id: 'table', label: t('prayerTimes.tabs.table') },
   { id: 'graph', label: t('prayerTimes.tabs.graph') },
@@ -117,19 +112,16 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <header class="head">
-        <NuxtLink class="back" :to="backTo">
-          <Icon name="lucide:arrow-left" aria-hidden="true" />
-          {{ t('prayerTimes.back') }}
-        </NuxtLink>
-        <h1 class="title">{{ t('prayerTimes.title') }}</h1>
+      <PageHeader
+        :title="t('prayerTimes.title')"
+      >
         <PageTabs
           :label="t('prayerTimes.tabs.label')"
           :tabs="tabs"
           model-value="table"
           @update:model-value="selectTab"
         />
-      </header>
+      </PageHeader>
 
       <SourceNote
         :label="t('source.label')"
@@ -182,22 +174,6 @@ useSeoMeta({
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.35rem;
 }
 .controls {
   display: flex;

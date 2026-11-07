@@ -8,6 +8,7 @@ import {
   ayahAudioUrl,
 } from '@wsb/data/quran/audio'
 import AyahReader from '~/components/organisms/AyahReader.vue'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import AyahSetup from '~/components/organisms/AyahSetup.vue'
 import RevealChip from '~/components/molecules/RevealChip.vue'
 import { useAyahAudio } from '~/composables/useAyahAudio'
@@ -103,15 +104,13 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <NuxtLink class="back" to="/">
-        <Icon name="lucide:arrow-left" aria-hidden="true" />
-        {{ t('ayat.back') }}
-      </NuxtLink>
+      <PageHeader
+        :title="t('ayat.title')"
+        :intro="phase === 'setup' ? t('ayat.intro') : ''"
+      />
 
       <AyahSetup
         v-if="phase === 'setup'"
-        :title="t('ayat.title')"
-        :intro="t('ayat.intro')"
         :scope-label="t('ayat.scope')"
         :all-label="t('ayat.whole')"
         :juz-label="t('ayat.juz')"
@@ -217,7 +216,7 @@ useSeoMeta({
   min-height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 1rem;
+  padding: 0 1rem 1rem;
 }
 .content {
   width: 100%;
@@ -226,13 +225,7 @@ useSeoMeta({
   flex-direction: column;
   gap: 1.25rem;
   padding-bottom: 2rem;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
+  padding-top: 1rem;
 }
 .reveals {
   display: flex;

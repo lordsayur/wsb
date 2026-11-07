@@ -38,7 +38,8 @@
     "prayerTimes": "Prayer times",
     "notifications": "Notifications",
     "about": "About",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "home": "Home"
   },
   "source": {
     "label": "Data source",
@@ -108,6 +109,11 @@
       "label": "Time format",
       "h24": "24-hour",
       "h12": "12-hour"
+    },
+    "handMode": {
+      "label": "Hand mode",
+      "right": "Right-handed",
+      "left": "Left-handed"
     }
   },
   "extension": {
@@ -125,7 +131,6 @@
   "downloads": {
     "title": "Download",
     "intro": "Brunei Prayer Times for other platforms. One core, many shells.",
-    "back": "Back to the app",
     "available": "Available",
     "soon": "Coming soon",
     "download": "Download",
@@ -282,7 +287,6 @@
   "tasbih": {
     "title": "Tasbih",
     "intro": "Digital tasbih for zikir. Tap anywhere to count.",
-    "back": "Back to the app",
     "label": "Tasbih counter, {count}",
     "count": "Count: {count}",
     "hint": "Tap anywhere to add one. Use the side keys to subtract one or reset.",
@@ -299,7 +303,6 @@
   "ayat": {
     "title": "Quran verse challenge",
     "intro": "Read one verse at random from a scope you choose. Nothing is shown until you ask.",
-    "back": "Back to the app",
     "juz": "Juz",
     "from": "from",
     "to": "to",
@@ -375,13 +378,11 @@
     "notAddress": "No IP address and no full URL.",
     "retention": "Retention",
     "retentionBody": "Raw events are kept for 90 days. After that only the daily totals remain.",
-    "session": "Sessions are counted with a temporary identifier in the tab; it disappears when the tab closes.",
-    "back": "Back to the app"
+    "session": "Sessions are counted with a temporary identifier in the tab; it disappears when the tab closes."
   },
   "prayerTimes": {
     "title": "Prayer times",
     "graphTitle": "Prayer times graph",
-    "back": "Back to the app",
     "tableIntro": "One month of prayer times, one row per day.",
     "tableLabel": "Prayer times table for {month}",
     "tabs": {
@@ -416,7 +417,6 @@
     "announcementKind": "Announcement",
     "viewChanges": "View changes",
     "openLink": "Open link",
-    "back": "Back to the app",
     "unreadDot": "Unread notifications"
   },
   "about": {
@@ -431,14 +431,12 @@
     "privacy": "Privacy",
     "builtWith": "Built with",
     "builtWithBody": "Nuxt, one TypeScript core and Supabase. Data source: Department of Religious Affairs (KHEU).",
-    "back": "Back to the app",
     "feedback": "Feedback"
   },
   "changelog": {
     "title": "Change history",
     "intro": "Every web app version, newest first.",
-    "current": "current",
-    "back": "Back to the app"
+    "current": "current"
   },
   "feedback": {
     "title": "Feedback",
@@ -468,7 +466,6 @@
     },
     "privacyLink": "Privacy",
     "privacyNote": "No IP address is stored. Your contact is used only to reply.",
-    "back": "Back to the app",
     "attachment": {
       "attachmentLabel": "Screenshot (optional, up to 3)",
       "attachmentAlt": "Attachment",

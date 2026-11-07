@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import NotificationItem from '~/components/molecules/NotificationItem.vue'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 import { formatDate } from '@wsb/core'
 import { announcementText } from '@wsb/data/notifications'
 import { useNotifications } from '~/composables/useNotifications'
@@ -49,10 +50,10 @@ useSeoMeta({ title: () => t('notifications.title') })
 <template>
   <div class="page">
     <main class="content">
-      <header class="head">
-        <h1 class="title">{{ t('notifications.title') }}</h1>
-      </header>
-      <p class="intro">{{ t('notifications.intro') }}</p>
+      <PageHeader
+        :title="t('notifications.title')"
+        :intro="t('notifications.intro')"
+      />
 
       <p v-if="state !== 'ready'" class="state" role="status">
         {{ t('state.loading') }}
@@ -88,10 +89,6 @@ useSeoMeta({ title: () => t('notifications.title') })
         />
       </div>
 
-      <NuxtLink class="back" to="/">
-        <Icon name="lucide:arrow-left" aria-hidden="true" />
-        {{ t('notifications.back') }}
-      </NuxtLink>
     </main>
   </div>
 </template>
@@ -102,7 +99,7 @@ useSeoMeta({ title: () => t('notifications.title') })
   height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem 2rem;
   overflow-y: auto;
 }
 .content {
@@ -111,20 +108,8 @@ useSeoMeta({ title: () => t('notifications.title') })
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-.intro,
-.state {
+  padding-top: 0.75rem;
+}.state {
   margin: 0;
   opacity: 0.75;
 }
@@ -132,12 +117,5 @@ useSeoMeta({ title: () => t('notifications.title') })
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
 }
 </style>

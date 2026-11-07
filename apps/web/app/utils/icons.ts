@@ -13,6 +13,7 @@ export const ICONS = [
   'lucide:download',
   'lucide:external-link',
   'lucide:hash',
+  'lucide:house',
   'lucide:image-plus',
   'lucide:info',
   'lucide:layers',
@@ -28,6 +29,7 @@ export const ICONS = [
   'lucide:rotate-ccw',
   'lucide:settings',
   'lucide:share-2',
+  'lucide:shield-check',
   'lucide:sun',
   'lucide:x',
 ] as const

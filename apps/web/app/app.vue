@@ -10,6 +10,7 @@
 const { t, locale, localeProperties } = useI18n()
 const origin = useRequestURL().origin
 const { theme, primary } = useTheme()
+const { handMode } = useSettings()
 const primaryFg = computed(() => readableOn(primary.value))
 
 const isRtl = computed(() => localeProperties.value?.dir === 'rtl')
@@ -61,6 +62,9 @@ useHead({
     lang: computed(() => locale.value),
     dir: computed(() => (isRtl.value ? 'rtl' : 'ltr')),
     'data-theme': computed(() => theme.value.mode),
+    // specs/web/spec.md — hand mode decides which side the menu controls sit
+    // on; it is an attribute so the first paint already has it.
+    'data-hand': computed(() => handMode.value),
     style: computed(
       () =>
         `--accent:${primary.value};--primary-fg:${primaryFg.value}`,

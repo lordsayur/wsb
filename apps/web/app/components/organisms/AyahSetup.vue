@@ -1,10 +1,5 @@
 <template>
   <section class="ayah-setup">
-    <header class="head">
-      <h1 class="title">{{ title }}</h1>
-      <p class="intro">{{ intro }}</p>
-    </header>
-
     <ScopePicker
       :scope-label="scopeLabel"
       :all-label="allLabel"
@@ -41,8 +36,6 @@ import SourceNote from '../molecules/SourceNote.vue'
 import ScopePicker from '../molecules/ScopePicker.vue'
 
 defineProps<{
-  title: string
-  intro: string
   scopeLabel: string
   allLabel: string
   juzLabel: string
@@ -76,20 +69,7 @@ const emit = defineEmits<{
   flex-direction: column;
   gap: 1.5rem;
 }
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-.intro {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.5;
-}
+
 .count {
   margin: 0;
   font-size: 0.85rem;

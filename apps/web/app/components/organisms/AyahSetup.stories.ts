@@ -8,8 +8,6 @@ const meta: Meta<typeof AyahSetup> = {
   title: 'Organisms/AyahSetup',
   component: AyahSetup,
   args: {
-    title: 'Ayat Al-Quran',
-    intro: 'Baca satu ayat secara rawak dalam julat pilihan anda.',
     scopeLabel: 'Pilih skop',
     allLabel: 'Seluruh Al-Quran',
     juzLabel: 'Juzuk',
@@ -40,9 +38,6 @@ type Story = StoryObj<typeof AyahSetup>
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      canvas.getByRole('heading', { name: 'Ayat Al-Quran' }),
-    ).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Mula' }),
     ).toBeEnabled()

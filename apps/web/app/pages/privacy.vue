@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import PageHeader from '~/components/organisms/PageHeader.vue'
 
 // specs/web/spec.md — /privacy: what analytics records, what it never records,
 // and how long it is kept. Every claim here is enforced by the core and the
@@ -18,8 +19,10 @@ useSeoMeta({
 <template>
   <div class="page">
     <main class="content">
-      <h1 class="title">{{ t('privacy.title') }}</h1>
-      <p class="intro">{{ t('privacy.intro') }}</p>
+      <PageHeader
+        :title="t('privacy.title')"
+        :intro="t('privacy.intro')"
+      />
 
       <section class="section">
         <h2 class="heading">{{ t('privacy.collected') }}</h2>
@@ -41,10 +44,6 @@ useSeoMeta({
         <p class="muted">{{ t('privacy.session') }}</p>
       </section>
 
-      <NuxtLink class="back" to="/">
-        <Icon name="lucide:arrow-left" aria-hidden="true" />
-        {{ t('privacy.back') }}
-      </NuxtLink>
     </main>
   </div>
 </template>
@@ -55,7 +54,7 @@ useSeoMeta({
   height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem 2rem;
   overflow-y: auto;
 }
 .content {
@@ -64,14 +63,7 @@ useSeoMeta({
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-.intro {
-  margin: 0;
-  opacity: 0.8;
+  padding-top: 0.75rem;
 }
 .section {
   display: flex;
@@ -96,12 +88,5 @@ useSeoMeta({
 }
 .muted {
   opacity: 0.7;
-}
-.back {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
 }
 </style>
