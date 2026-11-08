@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.12 — 2026-11-08
+
+- Fix the Raycast extension review findings: the day keeps its own date when served stale, a partial day is never cached, the list updates its markers while open and reloads at Brunei midnight, the reload reports failures, the header shows the countdown, and the shell is US English only with no custom translation layer.
+
 ## 4.0.0-beta.11 — 2026-11-07
 
 - Fix the Netlify 500: build on Node 22 and never create the Supabase client while server-rendering, since its realtime layer needs a native WebSocket.

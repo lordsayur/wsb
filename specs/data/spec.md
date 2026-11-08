@@ -31,6 +31,9 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
   if present, else fetch via the Supabase adapter and cache it.
 - The returned day includes the source's Hijri date for that day; it is stored
   and returned with the entries.
+- The returned day carries its own `date`: the date the entries belong to. A
+  stale read (last known day after a failed request) returns that older date, so
+  a shell never labels yesterday's times with today's date.
 - A month read returns one entry per cached or fetched day for a `YYYY-MM`
   month; cached days are used first and missing days are fetched. Days the
   source cannot supply are omitted; the result is marked *stale* when any day
@@ -44,6 +47,9 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 - When the network fails, return the last known good data; never throw to core.
 - When no data exists at all (first run, offline), signal *unavailable*
   explicitly so the shell can render an empty state.
+- A day is returned only when all eight prayers are present: a partial source
+  response is rejected at the adapter boundary and treated as a failed read, so
+  an incomplete day is never cached as a complete one.
 - When a shell has no Supabase configuration, reads behave as unavailable; there
   is no fake or direct-MORA fallback in production.
 
@@ -58,7 +64,9 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 
 ### Refresh
 
-- A refresh updates cached data but never blocks rendering.
+- A refresh updates cached data but never blocks rendering. It resolves `true`
+  when fresh data was stored and `false` when the source failed, so a shell can
+  report a refresh that did not happen.
 - A failed refresh leaves the previous cache intact.
 
 ### Selection persistence
@@ -200,7 +208,11 @@ See [`../glossary.md`](../glossary.md). Owned terms: *Data port*, *Refresh*.
 - [ ] A corrupt cache entry is ignored and refetched.
 - [ ] A cache entry written under an older schema version is not rendered; the
       day is refetched.
-- [ ] A failed refresh leaves the previous cached data readable.
+- [ ] A failed refresh leaves the previous cached data readable and resolves
+      `false`; a successful one resolves `true`.
+- [ ] A partial day from the source is rejected rather than cached.
+- [ ] A stale day is returned with the date its entries belong to, not the
+      requested date.
 - [ ] Storing then reading a selection round-trips the same district.
 - [ ] A corrupt stored selection reads back as no selection.
 - [ ] No Supabase (or other vendor) type is referenced in the port's public
@@ -289,3 +301,6 @@ Names only.
   entries are not served as current forever.
 - 2026-10-25 — drop the stored `district`; key rows by (date, prayer), store
   Brunei & Muara base times only, and dedupe duplicate MORA dates on import.
+- 2026-11-08 — a read result carries the date its entries belong to; a refresh
+  resolves whether fresh data was stored; a partial day is rejected so it is
+  never cached as complete.

@@ -117,6 +117,13 @@ export function toEntries(rows: readonly PrayerTimeRow[]): PrayerEntry[] {
     if (!time) continue
     entries.push({ prayer, minutes: timeToMinutes(time) })
   }
-  if (entries.length === 0) throw new Error('No prayer times for this date')
+  // specs/data/spec.md — a day is complete only when all eight prayers are
+  // present. A partial day is rejected so it is never cached as complete; the
+  // repository then falls back to the last known good day or unavailable.
+  if (entries.length < PRAYER_ORDER.length) {
+    throw new Error(
+      `Incomplete prayer day: ${entries.length}/${PRAYER_ORDER.length}`,
+    )
+  }
   return entries
 }

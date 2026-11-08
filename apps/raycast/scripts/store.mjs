@@ -2,6 +2,7 @@
 // The Store builds each extension with npm in its own folder, so the shared
 // packages are vendored (generated, never edited) and the public Supabase
 // config is committed. specs/raycast/spec.md — no remote code, no analytics.
+import { execFileSync } from 'node:child_process'
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -28,13 +29,15 @@ function rewrite(source, prefix) {
     .replaceAll("from '@wsb/data/mora'", `from '${prefix}source.js'`)
     .replaceAll("from '@wsb/data'", `from '${prefix}data.js'`)
     .replaceAll("from './index.js'", "from './data.js'")
+    // The Store's tsconfig (moduleResolution: node) rejects explicit .ts
+    // specifiers; core re-exports the Quran domain with one.
+    .replaceAll("from './quran.ts'", "from './quran.js'")
     .replaceAll("from './config.generated.js'", "from './config.js'")
 }
 
 await rm(out, { recursive: true, force: true })
 await mkdir(join(out, 'src/vendor'), { recursive: true })
 await mkdir(join(out, 'src/shared'), { recursive: true })
-await mkdir(join(out, 'src/locales'), { recursive: true })
 await mkdir(join(out, 'assets'), { recursive: true })
 
 async function vendor(from, to) {
@@ -55,24 +58,9 @@ await vendor('packages/data/src/mora.ts', 'src/vendor/source.ts')
   await writeFile(join(out, 'src/prayer-times.tsx'), rewrite(source, './vendor/'))
 }
 
-for (const file of ['view.ts', 'settings.ts', 'day.ts', 'i18n.ts', 'constants.ts', 'store.ts']) {
+for (const file of ['view.ts', 'settings.ts', 'day.ts', 'strings.ts', 'constants.ts', 'store.ts']) {
   const source = await readFile(join(root, 'src/shared', file), 'utf8')
-  let body = rewrite(source, '../vendor/')
-  if (file === 'i18n.ts') {
-    body = source
-      .replaceAll("'../../../web/i18n/locales/ms.json'", "'../locales/ms.json'")
-      .replaceAll("'../../../web/i18n/locales/en.json'", "'../locales/en.json'")
-      .replaceAll("'../../../web/i18n/locales/ar.json'", "'../locales/ar.json'")
-      .replaceAll("'../../../web/i18n/locales/ms-Arab.json'", "'../locales/ms-Arab.json'")
-  }
-  if (file === 'settings.ts') {
-    body = body.replace("export const DEFAULT_LOCALE: Locale = 'ms'", "export const DEFAULT_LOCALE: Locale = 'en'")
-  }
-  await writeFile(join(out, 'src/shared', file), body)
-}
-
-for (const locale of ['ms.json', 'ms-Arab.json', 'ar.json', 'en.json']) {
-  await cp(join(repo, 'apps/web/i18n/locales', locale), join(out, 'src/locales', locale))
+  await writeFile(join(out, 'src/shared', file), rewrite(source, '../vendor/'))
 }
 
 await cp(join(root, 'assets/icon.png'), join(out, 'assets/icon.png'))
@@ -93,53 +81,9 @@ delete manifest.dependencies['@wsb/core']
 delete manifest.dependencies['@wsb/data']
 delete manifest.devDependencies.vitest
 manifest.name = 'brunei-prayer-times'
-manifest.title = 'Brunei Prayer Times'
-manifest.description =
-  'Prayer times for Brunei and Muara, Tutong and Belait, right from your launcher.'
-// The Store is US English only, so the manifest metadata is English there.
-const command = manifest.commands[0]
-command.title = 'View Prayer Times'
-command.description =
-  "Show today's prayer times for a district in Brunei."
-manifest.preferences = manifest.preferences.map((preference) => ({
-  ...preference,
-  ...(preference.name === 'locale'
-    ? {
-        title: 'Language',
-        description: 'Language for labels and dates.',
-        default: 'en',
-      }
-    : preference.name === 'timeFormat'
-      ? {
-          title: 'Time Format',
-          description: 'Use a 24-hour or 12-hour clock.',
-        }
-      : {
-          title: 'Default District',
-          description: 'District selected when the command first opens.',
-        }),
-}))
-manifest.preferences = manifest.preferences.map((preference) => ({
-  ...preference,
-  data:
-    preference.name === 'locale'
-      ? [
-          { title: 'English', value: 'en' },
-          { title: 'Bahasa Melayu', value: 'ms' },
-          { title: 'بهاس ملايو (Jawi)', value: 'ms-Arab' },
-          { title: 'العربية', value: 'ar' },
-        ]
-      : preference.name === 'timeFormat'
-        ? [
-            { title: '24-hour', value: '24h' },
-            { title: '12-hour', value: '12h' },
-          ]
-        : [
-            { title: 'Brunei and Muara', value: 'bruneiMuara' },
-            { title: 'Tutong', value: 'tutong' },
-            { title: 'Belait', value: 'belait' },
-          ],
-}))
+// The workspace manifest is already US English, so the Store manifest only
+// needs the package rename and the workspace dependencies removed.
+
 manifest.scripts = {
   build: 'ray build -e dist',
   dev: 'ray dev',
@@ -158,7 +102,7 @@ await writeFile(
     '',
     "- Show the day's prayer times for Brunei and Muara, Tutong and Belait",
     '- Highlight the current entry and count down to the next',
-    '- District dropdown, language and 12/24-hour preferences',
+    '- District dropdown and 12/24-hour preferences',
     '',
   ].join('\n'),
 )
@@ -176,11 +120,13 @@ await writeFile(
     '- The eight entries (Imsak, Subuh, Syuruk, Dhuha, Zuhur, Asar, Maghrib,',
     '  Isyak) with the current entry highlighted and a countdown to the next.',
     '- A district dropdown in the search bar; the choice is remembered.',
-    '- Language (English, Malay, Jawi, Arabic) and 12/24-hour preferences.',
-    '- Read-only data from the public KHEU/MORA source, cached on device so it',
-    '  keeps working offline.',
+    '- 12/24-hour preference',
+    '- Read-only times from a mirror of the public KHEU/MORA data, cached on',
+    '  device so it keeps working offline.',
     '',
-    'Data: Jabatan Hal Ehwal Ugama (KHEU), Brunei.',
+    'Data: Jabatan Hal Ehwal Ugama (KHEU), Brunei, served from a read-only',
+    'Supabase mirror of the MORA dataset. The extension never contacts MORA',
+    'directly at runtime.',
     '',
   ].join('\n'),
 )
@@ -209,7 +155,7 @@ await writeFile(
   `${JSON.stringify(
     {
       $schema: 'https://json.schemastore.org/tsconfig',
-      include: ['src/**/*'],
+      include: ['src/**/*', 'raycast-env.d.ts'],
       compilerOptions: {
         jsx: 'react-jsx',
         module: 'commonjs',
@@ -228,5 +174,12 @@ await writeFile(
     2,
   )}\n`,
 )
+
+// The Store builds each extension with npm and requires a package-lock.json in
+// the PR; generate one from the exported manifest so it always matches.
+execFileSync('npm', ['install', '--package-lock-only', '--silent'], {
+  cwd: out,
+  stdio: 'inherit',
+})
 
 console.log(`store: ${relative(repo, out)}`)

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { PrayerEntry } from '@wsb/core'
+import type { PrayerRepository, ReadResult } from '@wsb/data'
 import { buildDayView, dayTitle } from './view.js'
 import { resolveSettings } from './settings.js'
-import { t } from './i18n.js'
-import { storeCache, type StringStore } from './day.js'
+import { PRAYER_LABELS } from './strings.js'
+import { loadDay, storeCache, type StringStore } from './day.js'
 
 // specs/raycast/spec.md — shell formatting, settings and the device cache.
 const entries: PrayerEntry[] = [
@@ -19,9 +20,8 @@ const entries: PrayerEntry[] = [
 const day = { date: '2026-10-18', entries, hijriDate: '7 Jamadilawal 1448 H' }
 
 describe('settings', () => {
-  it('defaults: Malay, 24h, default district', () => {
+  it('defaults: 24h, default district', () => {
     expect(resolveSettings(undefined)).toEqual({
-      locale: 'ms',
       timeFormat: '24h',
       district: 'bruneiMuara',
     })
@@ -29,13 +29,11 @@ describe('settings', () => {
 
   it('falls back safely on unknown stored values', () => {
     expect(
-      resolveSettings({ locale: 'fr', timeFormat: 'nope', district: 'mars' }),
-    ).toEqual({ locale: 'ms', timeFormat: '24h', district: 'bruneiMuara' })
+      resolveSettings({ timeFormat: 'nope', district: 'mars' }),
+    ).toEqual({ timeFormat: '24h', district: 'bruneiMuara' })
   })
 
-  it('accepts the Arabic-script locales and 12-hour time', () => {
-    expect(resolveSettings({ locale: 'ar' }).locale).toBe('ar')
-    expect(resolveSettings({ locale: 'ms-Arab' }).locale).toBe('ms-Arab')
+  it('accepts 12-hour time', () => {
     expect(resolveSettings({ timeFormat: '12h' }).timeFormat).toBe('12h')
   })
 })
@@ -80,7 +78,7 @@ describe('buildDayView', () => {
     expect(view.rows.filter((row) => row.next).map((row) => row.prayer)).toEqual([
       'asar',
     ])
-    expect(view.next).toContain('3 jam 10 minit')
+    expect(view.next).toBe('3h 10m until Asar')
   })
 
   it('has no current entry before imsak, so imsak is next', () => {
@@ -94,30 +92,85 @@ describe('buildDayView', () => {
     expect(view.rows[1]!.time).toMatch(/04:50\s?(PG|AM)/i)
   })
 
-  it('uses Arabic-Indic digits for Arabic-script locales', () => {
-    const view = buildDayView(
-      day,
-      { ...resolveSettings(undefined), locale: 'ar' },
-      12 * 60 * 60 + 10 * 60,
-    )
-    expect(view.rows[1]!.time).toBe('٠٤:٥٠')
-    expect(view.masihi).toContain('٢٠٢٦')
+  it('labels every prayer in English', () => {
+    const view = buildDayView(day, resolveSettings(undefined), 0)
+    expect(view.rows.map((row) => row.label)).toEqual([
+      'Imsak',
+      'Subuh',
+      'Syuruk',
+      'Dhuha',
+      'Zuhur',
+      'Asar',
+      'Maghrib',
+      'Isyak',
+    ])
+    expect(PRAYER_LABELS.zuhur).toBe('Zuhur')
   })
 
-  it('titles the section with weekday and both dates', () => {
+  it('titles the section with weekday, both dates and the duration to next', () => {
     const view = buildDayView(day, resolveSettings(undefined), 0)
-    expect(dayTitle(view)).toContain(view.weekday)
-    expect(dayTitle(view)).toContain(view.masihi)
-    expect(dayTitle(view)).toContain(view.hijri)
+    const title = dayTitle(view)
+    expect(title).toContain(view.weekday)
+    expect(title).toContain(view.masihi)
+    expect(title).toContain(view.hijri)
+    // The countdown the README promises must be on screen, not merely computed.
+    expect(title).toContain(view.next)
   })
 })
 
-describe('i18n', () => {
-  it('resolves keys and interpolates', () => {
-    expect(t('en', 'notification.due', { prayer: 'Asar' })).toBe(
-      'It is time for Asar',
+describe('strings', () => {
+  it('keeps the interface US English with no lookup layer', () => {
+    const view = buildDayView(day, resolveSettings(undefined), 0)
+    expect(view.next).toMatch(/^\d+(h \d+m|m|s) until [A-Z]\w+$/)
+  })
+})
+
+describe('loadDay', () => {
+  /** A repository that always answers from the last known day. */
+  function staleRepo(result: ReadResult): PrayerRepository {
+    return {
+      async read() {
+        return result
+      },
+      async refresh() {
+        return false
+      },
+      async readMonth() {
+        return { status: 'unavailable' }
+      },
+      async getSelection() {
+        return null
+      },
+      async setSelection() {},
+    }
+  }
+
+  it('labels a stale day with the date its entries belong to', async () => {
+    const loaded = await loadDay(
+      staleRepo({
+        status: 'ok',
+        date: '2026-11-07',
+        entries,
+        hijriDate: 'hijri',
+        stale: true,
+      }),
     )
-    expect(t('ms', 'missing.key')).toBe('missing.key')
+    expect(loaded?.date).toBe('2026-11-07')
+    expect(loaded?.stale).toBe(true)
+  })
+
+  it('reports whether a forced reload actually refreshed', async () => {
+    const loaded = await loadDay(
+      staleRepo({
+        status: 'ok',
+        date: '2026-11-07',
+        entries,
+        hijriDate: 'hijri',
+        stale: true,
+      }),
+      true,
+    )
+    expect(loaded?.refreshed).toBe(false)
   })
 })
 

@@ -62,8 +62,9 @@ export async function loadDay(
   if (force) await repo.refresh(date, 'bruneiMuara')
   const result = await repo.read(date, 'bruneiMuara')
   if (result.status === 'unavailable') return null
+  // A stale read carries the day it was fetched for, not the requested date.
   return {
-    date,
+    date: result.date,
     entries: result.entries,
     hijriDate: result.hijriDate,
     stale: result.stale,

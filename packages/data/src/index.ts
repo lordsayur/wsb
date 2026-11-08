@@ -8,7 +8,14 @@ export interface PrayerDay {
 }
 
 export type ReadResult =
-  | { status: 'ok'; entries: PrayerEntry[]; hijriDate: string; stale: boolean }
+  | {
+      status: 'ok'
+      /** The day the entries belong to; older when served from a stale cache. */
+      date: string
+      entries: PrayerEntry[]
+      hijriDate: string
+      stale: boolean
+    }
   | { status: 'unavailable' }
 
 export interface PrayerMonthDay {
@@ -26,8 +33,11 @@ export interface PrayerRepository {
   read(date: string, district: District): Promise<ReadResult>
   /** Cached days first; fetches the missing ones. Never throws to core. */
   readMonth(month: string, district: District): Promise<MonthResult>
-  /** Updates the cache; never blocks rendering; keeps the last good data on failure. */
-  refresh(date: string, district: District): Promise<void>
+  /**
+   * Updates the cache; never blocks rendering; keeps the last good data on
+   * failure. Resolves true when fresh data was stored, false otherwise.
+   */
+  refresh(date: string, district: District): Promise<boolean>
   /** The persisted district selection, or null when missing/corrupt. */
   getSelection(): Promise<District | null>
   setSelection(district: District): Promise<void>
@@ -129,6 +139,7 @@ export class CachedPrayerRepository implements PrayerRepository {
     if (cached) {
       return {
         status: 'ok',
+        date: cached.date,
         entries: cached.entries,
         hijriDate: cached.hijriDate,
         stale: false,
@@ -139,6 +150,7 @@ export class CachedPrayerRepository implements PrayerRepository {
     return lastKnown
       ? {
           status: 'ok',
+          date: lastKnown.date,
           entries: lastKnown.entries,
           hijriDate: lastKnown.hijriDate,
           stale: true,
@@ -170,6 +182,7 @@ export class CachedPrayerRepository implements PrayerRepository {
     if (cached) {
       return {
         status: 'ok',
+        date: cached.date,
         entries: cached.entries,
         hijriDate: cached.hijriDate,
         stale: false,
@@ -181,6 +194,7 @@ export class CachedPrayerRepository implements PrayerRepository {
       await this.store({ date, district, ...day })
       return {
         status: 'ok',
+        date,
         entries: day.entries,
         hijriDate: day.hijriDate,
         stale: false,
@@ -191,6 +205,7 @@ export class CachedPrayerRepository implements PrayerRepository {
       return stale
         ? {
             status: 'ok',
+            date: stale.date,
             entries: stale.entries,
             hijriDate: stale.hijriDate,
             stale: true,
@@ -199,12 +214,14 @@ export class CachedPrayerRepository implements PrayerRepository {
     }
   }
 
-  async refresh(date: string, district: District): Promise<void> {
+  async refresh(date: string, district: District): Promise<boolean> {
     try {
       const day = await this.source.fetchPrayerEntries(date, district)
       await this.store({ date, district, ...day })
+      return true
     } catch {
       // specs/data/spec.md — a failed refresh leaves the previous cache intact.
+      return false
     }
   }
 

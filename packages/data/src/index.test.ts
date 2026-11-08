@@ -63,8 +63,20 @@ describe('read', () => {
     online = false
     const second = await repo.read('2026-10-18', 'bruneiMuara')
 
-    expect(first).toEqual({ status: 'ok', entries, hijriDate: '', stale: false })
-    expect(second).toEqual({ status: 'ok', entries, hijriDate: '', stale: false })
+    expect(first).toEqual({
+      status: 'ok',
+      date: '2026-10-18',
+      entries,
+      hijriDate: '',
+      stale: false,
+    })
+    expect(second).toEqual({
+      status: 'ok',
+      date: '2026-10-18',
+      entries,
+      hijriDate: '',
+      stale: false,
+    })
   })
 
   it('falls back to last known data for another date when offline', async () => {
@@ -80,7 +92,14 @@ describe('read', () => {
     online = false
     const result = await repo.read('2026-10-19', 'bruneiMuara')
 
-    expect(result).toEqual({ status: 'ok', entries, hijriDate: '', stale: true })
+    // The stale day keeps the date it was fetched for, not the requested one.
+    expect(result).toEqual({
+      status: 'ok',
+      date: '2026-10-18',
+      entries,
+      hijriDate: '',
+      stale: true,
+    })
   })
 })
 
@@ -100,6 +119,7 @@ describe('refresh', () => {
 
     await expect(repo.read('2026-10-18', 'bruneiMuara')).resolves.toEqual({
       status: 'ok',
+      date: '2026-10-18',
       entries,
       hijriDate: '',
       stale: false,
@@ -150,6 +170,7 @@ describe('durable cache', () => {
     })
     await expect(fresh.read('2026-10-18', 'bruneiMuara')).resolves.toEqual({
       status: 'ok',
+      date: '2026-10-18',
       entries,
       hijriDate: 'date',
       stale: false,
@@ -173,6 +194,7 @@ describe('durable cache', () => {
     })
     await expect(offline.read('2026-10-19', 'bruneiMuara')).resolves.toEqual({
       status: 'ok',
+      date: '2026-10-18',
       entries,
       hijriDate: 'date',
       stale: true,
@@ -188,6 +210,7 @@ describe('durable cache', () => {
     })
     await expect(repo.read('2026-10-18', 'bruneiMuara')).resolves.toEqual({
       status: 'ok',
+      date: '2026-10-18',
       entries,
       hijriDate: '',
       stale: false,
@@ -217,6 +240,7 @@ describe('durable cache', () => {
     })
     expect(fresh.peek('2026-10-18', 'bruneiMuara')).toEqual({
       status: 'ok',
+      date: '2026-10-18',
       entries,
       hijriDate: 'date',
       stale: false,
@@ -246,6 +270,7 @@ describe('durable cache', () => {
     })
     expect(fresh.peek('2026-10-19', 'bruneiMuara')).toEqual({
       status: 'ok',
+      date: '2026-10-18',
       entries,
       hijriDate: 'date',
       stale: true,
@@ -290,6 +315,7 @@ describe('hijri date', () => {
     const result = await repo.read('2026-10-18', 'bruneiMuara')
     expect(result).toEqual({
       status: 'ok',
+      date: '2026-10-18',
       entries,
       hijriDate: '20 Rabiulakhir 1448 H',
       stale: false,

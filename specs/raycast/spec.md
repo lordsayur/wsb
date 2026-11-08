@@ -19,19 +19,26 @@ opened from the launcher. Rendering and platform glue only; no domain rules.
   Isyak, in order.
 - A section header carries the weekday, the Masihi date, the Hijri date and the
   duration until the next entry.
-- The current entry is marked; its row is the list's current focus on open.
+- The current entry is marked; the list focuses it when the command opens. The
+  markers follow a one-second clock, so "Now"/"Next" move while the list stays
+  open; when the Brunei date changes the day is reloaded rather than keeping
+  yesterday's schedule.
 - Each row shows the prayer label and its formatted time; the next entry is
   tagged "Next".
 - A district dropdown sits in the search bar; choosing a district re-renders
   immediately and the choice persists across launches.
 - When the day came from the cache because the source was unreachable, the
-  section subtitle says the app is offline; the list still renders.
-- Language (Malay, Jawi Malay, Arabic, English) and the 12/24-hour choice are
-  extension preferences; changes apply on the next command launch.
-- Arabic-script locales use Arabic-Indic digits (٠١٢…) for times and dates and
-  the source's Hijri date; Raycast has no shell-level right-to-left layout, so
-  text direction is left to the operating system's bidi handling.
-- "Reload data" refetches the current day.
+  section subtitle says the app is offline; the list still renders. A stale day
+  is labelled with the date it was fetched for, never with today's date.
+- The interface is US English only, with no language preference: Raycast
+  supports US English alone and its guidelines forbid custom localization.
+  Labels are literal strings in `src/shared/strings.ts`; domain values
+  (`PrayerName`, `District`) stay identifiers and are mapped to labels there.
+- The 12/24-hour choice is an extension preference; changes apply on the next
+  command launch. Dates and times are formatted with the core helpers at
+  locale `en`, so the shell keeps one date format everywhere.
+- "Reload data" refetches the current day and reports the outcome: success only
+  when fresh data arrived, a failure toast when the source could not be reached.
 - Actions link to the web app and credit the MORA/KHEU source; both open in the
   default browser.
 
@@ -46,8 +53,8 @@ opened from the launcher. Rendering and platform glue only; no domain rules.
 
 ### Settings
 
-- Preferences: language (default `ms`), time format (default `24h`), district
-  (default Brunei & Muara).
+- Preferences: time format (default `24h`) and district (default Brunei &
+  Muara). There is no language preference.
 - The district dropdown's persisted choice wins over the district preference on
   the next launch.
 
@@ -61,8 +68,9 @@ opened from the launcher. Rendering and platform glue only; no domain rules.
   Supabase URL + anon key are committed, and the manifest metadata and defaults
   are English (the Store is US-English only).
 - The export refuses to run if the anon key slot ever holds a service-role key.
-- The manifest omits `platforms`, so the command is offered on every platform
-  Raycast runs on (macOS and Windows); it uses no platform-specific APIs.
+- The manifest declares `"platforms": ["macOS"]`: the screenshots and manual
+  testing are macOS-only, and the Store requires the field. Widen it only after
+  the command is verified on Windows.
 - Distribution is the Raycast Store (a PR against `raycast/extensions`), which
   builds each extension with npm and needs a `package-lock.json`; there is no
   downloaded artifact. Screenshots (2000×1250) are captured manually on macOS.
@@ -71,9 +79,9 @@ opened from the launcher. Rendering and platform glue only; no domain rules.
 
 - No domain rule in the shell; core owns offsets, progress, formatting and the
   reminder schedule.
-- Every runtime user-facing string is a translation key from the same
-  catalogues as the web shell. Manifest text (command title, preference labels)
-  is Raycast metadata, not runtime UI.
+- User-facing text is literal US English in `src/shared/strings.ts`; the shell
+  does not reuse the web catalogues and ships no localization layer. Manifest
+  text (command title, preference labels) is Raycast metadata, not runtime UI.
 - The shell ships only the public Supabase URL + anon key (read-only RLS); no
   service-role key. It never contacts MORA at runtime.
 - The bundle contains no remote code and no analytics.
@@ -84,8 +92,7 @@ opened from the launcher. Rendering and platform glue only; no domain rules.
 - [ ] Selecting Tutong/Belait shifts the entries by +1/+3 minutes.
 - [ ] The current entry is marked and the duration to next is shown.
 - [ ] The district choice survives relaunching the command.
-- [ ] Language and time format preferences change labels and clock format.
-- [ ] Arabic and Jawi render Arabic-Indic digits for times and dates.
+- [ ] The time format preference changes the clock format.
 - [ ] Times fall back to the last known day when the source is unreachable.
 - [ ] The command copies/links the web app and the source, opening each in the
       browser.

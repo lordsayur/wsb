@@ -1,6 +1,13 @@
 {
-  "version": "4.0.0-beta.11",
+  "version": "4.0.0-beta.12",
   "entries": [
+    {
+      "version": "4.0.0-beta.12",
+      "date": "2026-11-08",
+      "changes": [
+        "Fix the Raycast extension review findings: the day keeps its own date when served stale, a partial day is never cached, the list updates its markers while open and reloads at Brunei midnight, the reload reports failures, the header shows the countdown, and the shell is US English only with no custom translation layer."
+      ]
+    },
     {
       "version": "4.0.0-beta.11",
       "date": "2026-11-07",

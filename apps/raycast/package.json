@@ -1,11 +1,14 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "wsb-raycast",
-  "title": "Waktu Sembahyang Brunei",
-  "description": "Waktu sembahyang Brunei untuk Brunei dan Muara, Tutong dan Belait, dari pelancar anda.",
+  "title": "Brunei Prayer Times",
+  "description": "Prayer times for Brunei and Muara, Tutong and Belait, right from your launcher.",
   "icon": "icon.png",
   "author": "lordsayur",
   "license": "MIT",
+  "platforms": [
+    "macOS"
+  ],
   "categories": [
     "Productivity"
   ],
@@ -19,66 +22,40 @@
   "commands": [
     {
       "name": "prayer-times",
-      "title": "Waktu Sembahyang",
-      "description": "Lihat waktu sembahyang hari ini untuk daerah anda.",
+      "title": "View Prayer Times",
+      "description": "Show today's prayer times for a district in Brunei.",
       "mode": "view"
     }
   ],
   "preferences": [
     {
-      "name": "locale",
-      "title": "Bahasa",
-      "description": "Bahasa untuk label dan tarikh.",
-      "type": "dropdown",
-      "required": false,
-      "default": "ms",
-      "data": [
-        {
-          "title": "Bahasa Melayu",
-          "value": "ms"
-        },
-        {
-          "title": "بهاس ملايو (Jawi)",
-          "value": "ms-Arab"
-        },
-        {
-          "title": "العربية",
-          "value": "ar"
-        },
-        {
-          "title": "English",
-          "value": "en"
-        }
-      ]
-    },
-    {
       "name": "timeFormat",
-      "title": "Format masa",
-      "description": "Format 24 jam atau 12 jam.",
+      "title": "Time Format",
+      "description": "Use a 24-hour or 12-hour clock.",
       "type": "dropdown",
       "required": false,
       "default": "24h",
       "data": [
         {
-          "title": "24 jam",
+          "title": "24-hour",
           "value": "24h"
         },
         {
-          "title": "12 jam",
+          "title": "12-hour",
           "value": "12h"
         }
       ]
     },
     {
       "name": "district",
-      "title": "Daerah lalai",
-      "description": "Daerah yang dipilih semasa pertama kali dibuka.",
+      "title": "Default District",
+      "description": "District selected when the command first opens.",
       "type": "dropdown",
       "required": false,
       "default": "bruneiMuara",
       "data": [
         {
-          "title": "Brunei dan Muara",
+          "title": "Brunei and Muara",
           "value": "bruneiMuara"
         },
         {
@@ -106,8 +83,8 @@
   },
   "scripts": {
     "build": "node --env-file-if-exists=../../.env scripts/build.mjs",
-    "typecheck": "node scripts/build.mjs --config-only && tsc -p tsconfig.json --noEmit",
-    "lint": "node scripts/build.mjs --config-only && tsc -p tsconfig.json --noEmit",
+    "typecheck": "node scripts/build.mjs --config-only && ray build -e dist -o dist --exit-on-error",
+    "lint": "node scripts/build.mjs --config-only && ray lint",
     "test": "node scripts/build.mjs --config-only && vitest run",
     "dev": "node scripts/build.mjs --dev",
     "store:export": "node --env-file-if-exists=../../.env scripts/store.mjs"
