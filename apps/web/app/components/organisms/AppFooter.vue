@@ -121,6 +121,13 @@
               :options="handModeOptions"
               @update:mode="emit('update:handMode', $event)"
             />
+            <BackgroundControls
+              v-if="showBackground"
+              :label="backgroundLabel"
+              :background="background"
+              :options="backgroundOptions"
+              @update:background="emit('update:background', $event)"
+            />
             <hr class="divider" />
             <p class="menu-heading">{{ languageLabel }}</p>
             <div class="languages">
@@ -186,8 +193,12 @@ import TimeFormatControls, {
 import HandModeControls, {
   type HandModeOption,
 } from '../molecules/HandModeControls.vue'
+import BackgroundControls, {
+  type BackgroundOption,
+} from '../molecules/BackgroundControls.vue'
 import type { TimeFormat } from '@wsb/core'
 import type { HandMode } from '~/utils/handMode'
+import type { BackgroundStyle } from '~/utils/background'
 import type { PaletteId, ThemeMode } from '~/utils/theme'
 import { focusables, onGroupKeydown } from '~/utils/rovingFocus'
 
@@ -220,6 +231,11 @@ defineProps<{
   handModeLabel: string
   handMode: HandMode
   handModeOptions: HandModeOption[]
+  /** The summary's backdrop choice; only that slide offers it. */
+  showBackground?: boolean
+  backgroundLabel: string
+  background: BackgroundStyle
+  backgroundOptions: BackgroundOption[]
   downloadsLabel: string
   prayerTimesLabel: string
   notificationsLabel: string
@@ -250,6 +266,7 @@ const emit = defineEmits<{
   'update:customColor': [value: string]
   'update:timeFormat': [value: TimeFormat]
   'update:handMode': [value: HandMode]
+  'update:background': [value: BackgroundStyle]
   share: [format: 'formatted' | 'raw']
   downloads: []
   prayerTimes: []

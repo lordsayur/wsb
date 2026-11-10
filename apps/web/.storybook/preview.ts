@@ -1,7 +1,7 @@
 import type { Preview } from '@storybook/vue3'
 import { setup } from '@storybook/vue3'
 import { createI18n } from 'vue-i18n'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, inject } from 'vue'
 import { Icon, addIcon } from '@iconify/vue'
 import { icons as lucide } from '@iconify-json/lucide'
 import ms from '../i18n/locales/ms.json'
@@ -9,6 +9,7 @@ import en from '../i18n/locales/en.json'
 import ar from '../i18n/locales/ar.json'
 import msArab from '../i18n/locales/ms-Arab.json'
 import { ICONS } from '../app/utils/icons'
+import { CLIENT_ONLY, withClientOnly } from './clientOnly'
 import '../app/assets/css/theme.css'
 
 // specs/web/spec.md — stories render through the real catalogues and the
@@ -48,6 +49,19 @@ const StoryIcon = defineComponent({
 })
 
 /**
+ * Stand-in for Nuxt's `<ClientOnly>`. There is no server pass in a story, so by
+ * default the slot stays empty and the component's CSS fallback is what shows.
+ * A story that opts in with `parameters: { clientOnly: true }` gets the real
+ * slot, which is how the WebGL wall is exercised.
+ */
+const StoryClientOnly = defineComponent({
+  setup(_, { slots }) {
+    const enabled = inject(CLIENT_ONLY, false)
+    return () => (enabled ? slots.default?.() : null)
+  },
+})
+
+/**
  * Nuxt auto-imports that components reach for directly. Stories run without the
  * Nuxt runtime, so give them the same shape with in-memory state and a cookie
  * that lives for the session. Nothing persists, which is what a story wants.
@@ -72,6 +86,7 @@ const storyState = new Map<string, { value: unknown }>()
 setup((app) => {
   app.component('Icon', StoryIcon)
   app.component('NuxtLink', StoryLink)
+  app.component('ClientOnly', StoryClientOnly)
   app.use(
     createI18n({
       legacy: false,
@@ -83,6 +98,7 @@ setup((app) => {
 })
 
 const preview: Preview = {
+  decorators: [withClientOnly],
   parameters: {
     controls: { expanded: true },
   },

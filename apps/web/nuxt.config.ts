@@ -1,8 +1,12 @@
+import templateCompilerOptions from "@tresjs/core/template-compiler-options";
 import { ICONS } from "./app/utils/icons";
 
 export default defineNuxtConfig({
   modules: ["@nuxtjs/i18n", "@vite-pwa/nuxt", "@nuxt/icon"],
   compatibilityDate: "2024-11-01",
+  // specs/web/spec.md — `<TresMesh>` and friends belong to the TresJS custom
+  // renderer, not to Vue's component registry, so the compiler leaves them alone.
+  vue: { compilerOptions: templateCompilerOptions.template.compilerOptions },
   // specs/web/spec.md — icons ship with the app so they render offline.
   icon: {
     mode: "svg",

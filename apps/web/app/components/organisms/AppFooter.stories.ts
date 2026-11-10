@@ -39,6 +39,18 @@ const meta: Meta<typeof AppFooter> = {
       { value: '24h', label: '24 jam' },
       { value: '12h', label: '12 jam' },
     ],
+    handModeLabel: 'Mod tangan',
+    handMode: 'right',
+    handModeOptions: [
+      { value: 'right', label: 'Tangan kanan' },
+      { value: 'left', label: 'Tangan kiri' },
+    ],
+    backgroundLabel: 'Latar belakang',
+    background: 'wall',
+    backgroundOptions: [
+      { value: 'wall', label: 'Dinding' },
+      { value: 'aurora', label: 'Aurora' },
+    ],
     languages: [
       { code: 'ms', name: 'Bahasa Melayu' },
       { code: 'en', name: 'English' },
@@ -68,6 +80,8 @@ const meta: Meta<typeof AppFooter> = {
     'onUpdate:palette': fn(),
     'onUpdate:customColor': fn(),
     'onUpdate:timeFormat': fn(),
+    'onUpdate:handMode': fn(),
+    'onUpdate:background': fn(),
     onShare: fn(),
     onDownloads: fn(),
     onPrayerTimes: fn(),
@@ -155,6 +169,29 @@ export const SwitchTo12Hour: Story = {
     await userEvent.click(canvas.getByRole('menuitem', { name: 'Tetapan' }))
     await userEvent.click(canvas.getByRole('button', { name: '12 jam' }))
     await expect(args['onUpdate:timeFormat']).toHaveBeenCalledWith('12h')
+  },
+}
+
+// specs/web/spec.md — the summary dock offers the backdrop choice; the deck's
+// other footers do not, so the control only appears when asked for.
+export const SwitchBackground: Story = {
+  args: { showBackground: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Tetapan' }))
+    await expect(canvas.getByText('Latar belakang')).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: 'Aurora' }))
+    await expect(args['onUpdate:background']).toHaveBeenCalledWith('aurora')
+  },
+}
+
+export const BackgroundHidden: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Menu' }))
+    await userEvent.click(canvas.getByRole('menuitem', { name: 'Tetapan' }))
+    await expect(canvas.queryByText('Latar belakang')).toBeNull()
   },
 }
 

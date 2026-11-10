@@ -493,5 +493,10 @@
       "alternatives": "البدائل",
       "message": "الرسالة"
     }
+  },
+  "background": {
+    "label": "الخلفية",
+    "wall": "جدار",
+    "aurora": "الشفق"
   }
 }

@@ -41,7 +41,19 @@ const router = useRouter()
 const { t, locale, locales, setLocale } = useI18n()
 
 const { theme, setMode, setPalette, setCustom } = useTheme()
-const { timeFormat, setTimeFormat, handMode, setHandMode } = useSettings()
+const {
+  timeFormat,
+  setTimeFormat,
+  handMode,
+  setHandMode,
+  background,
+  setBackground,
+} = useSettings()
+
+const backgroundOptions = computed(() => [
+  { value: 'wall' as const, label: t('background.wall') },
+  { value: 'aurora' as const, label: t('background.aurora') },
+])
 
 const timeFormatOptions = computed(() => [
   { value: '24h' as const, label: t('settings.timeFormat.h24') },
@@ -419,6 +431,11 @@ const footerProps = computed(() => ({
   handModeLabel: t('settings.handMode.label'),
   handMode: handMode.value,
   handModeOptions: handModeOptions.value,
+  // specs/web/spec.md — the backdrop is a summary-slide choice, so only the
+  // dashboard's dock offers it; the other slides keep the plain footer.
+  backgroundLabel: t('background.label'),
+  background: background.value,
+  backgroundOptions: backgroundOptions.value,
   downloadsLabel: t('action.downloads'),
   prayerTimesLabel: t('action.prayerTimes'),
   notificationsLabel: t('action.notifications'),
@@ -454,6 +471,7 @@ const footerHandlers = {
   'update:customColor': setCustom,
   'update:timeFormat': setTimeFormat,
   'update:handMode': setHandMode,
+  'update:background': setBackground,
   downloads: openDownloads,
   prayerTimes: openPrayerTimes,
   notifications: openNotifications,
@@ -574,7 +592,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         role="menu"
         :aria-label="t('action.menu')"
       >
-        <AppFooter v-bind="footerProps" v-on="footerHandlers" />
+        <AppFooter v-bind="footerProps" v-on="footerHandlers" show-background />
         <div class="fs-actions">
           <button
             v-if="!fullscreen"

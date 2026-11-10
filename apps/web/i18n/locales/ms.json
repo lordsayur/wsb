@@ -493,5 +493,10 @@
       "alternatives": "Pilihan lain",
       "message": "Mesej"
     }
+  },
+  "background": {
+    "label": "Latar belakang",
+    "wall": "Dinding",
+    "aurora": "Aurora"
   }
 }

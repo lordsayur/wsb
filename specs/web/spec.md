@@ -184,9 +184,36 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   next entry is 15 minutes or less away. Before the day's first entry there is
   no hero, only the next entry. The slide is a surface for future additions
   (for example the nearest mosque); the simplified view leaves that room
-  without adding them yet. A decorative background (soft colour orbs and a
-  faint lattice) sits behind the text, respects `prefers-reduced-motion`, and
-  carries no information.
+  without adding them yet.
+- **Summary backdrop.** The card is a wall split across two bands. The top 60%
+  is a matte peach cement texture that carries the text; the bottom 40% is a
+  glazed Islamic tile pattern. It is a Three.js scene (TresJS) with PBR
+  materials: the cement uses `MeshStandardMaterial` (base and normal maps,
+  roughness `0.9`), the tiles `MeshPhysicalMaterial` (base and normal maps,
+  roughness `0.1`, metalness `0.1`, clearcoat) so they read as glazed ceramic.
+  A directional light follows the reader's local clock: warm sun
+  (`#ffe5b4`) between 6 AM and 6 PM, cooler moon (`#a3c1ff`) otherwise, with an
+  ambient/hemisphere floor so neither band ever goes black. The camera drifts a
+  few centimetres with the pointer and the device's `deviceorientation` tilt
+  (`gamma`/`beta`), eased and clamped, and the planes overfill the card so the
+  drift never shows an edge. The scene renders on demand: it draws when the
+  light changes, the size changes or the camera is still travelling, and costs
+  no frames when idle.
+- **Backdrop loading.** The two bands are painted first as a CSS fallback (flat
+  gradient colours of the same textures, same 60/40 split), server-rendered, so
+  the text and the day paint immediately. The WebGL scene is client-only and
+  arrives over that fallback; the scene and Three.js are their own lazy chunk,
+  never part of the first-paint bundle, so nothing blocks on them. Without
+  WebGL, or under `prefers-reduced-motion`, the flat bands are the whole
+  backdrop and no scene mounts. The text always sits over the cement band in
+  both looks.
+- **Backdrop choice.** The wall is the default. The settings panel in the
+  summary dock (see **Summary menu**) offers **Background**: **Wall** or
+  **Aurora**. Aurora is the earlier decorative backdrop (soft colour orbs and a
+  faint lattice over the theme's own colours). The choice is stored in a cookie
+  (`wsb.background`) and applied during SSR, so the first paint already uses the
+  saved look; it is offered only on the summary slide, where it applies. A
+  decorative backdrop carries no information in either look.
 - **Summary menu.** The dashboard never shows the deck footer. Instead a
   floating menu button sits bottom-right and opens a dock over the card holding
   the same footer the other slides use (district selector, share, settings)
@@ -618,6 +645,11 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - Every atom, molecule and organism ships with Storybook stories covering
   default, loading, error and edge values. Stories double as tests via `play`
   functions run headless in CI.
+- The summary's wall stories opt into the real client-only slot
+  (`parameters.clientOnly`), so the Three.js scene mounts in the browser test
+  instead of only its CSS fallback. `WallMorning` and `WallNight` pin the
+  scene's light with a fixed `hour`, so the sun and moon looks are identical on
+  every run.
 
 ### Keyboard
 
@@ -669,6 +701,20 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
       records three separate pages.
 - [ ] The summary shows the next entry with its countdown and a progress bar,
       the day's eight entries in a grid, and a link to every prayer time.
+- [ ] The summary backdrop defaults to the wall: a cement band over a tile band
+      at a 60/40 split, with the prayer text over the cement.
+- [ ] The backdrop paints as flat CSS bands before any scene loads, and the
+      summary text is readable with the scene absent.
+- [ ] The scene mounts only on the client, never enters the first-paint bundle,
+      and does not mount without WebGL or under `prefers-reduced-motion`.
+- [ ] The wall's light is warm between 6 AM and 6 PM and cool otherwise; both
+      bands stay visible at every hour.
+- [ ] The camera drifts with the pointer and the device tilt without ever
+      showing the edge of either plane.
+- [ ] The summary settings offer **Background** (Wall / Aurora), default Wall,
+      and the choice survives a reload with the first paint already using it.
+- [ ] The background choice appears only in the summary dock, not on the other
+      slides' footers.
 - [ ] The weekly table puts the eight entries down the y axis and seven days
       across the x axis, marks today's column, and names its week.
 - [ ] The weekly footer steps one week and returns to this week without
@@ -986,3 +1032,6 @@ None published. Consumes core and the Data port.
   GitHub account is needed; linked from the footer menu and `/about`.
 - 2026-11-10 — show seconds in the countdown for the last 15 minutes (and in the
   passed-entry note), and phrase the note as "<duration> passed".
+- 2026-11-10 — mount the real Three.js wall in Storybook behind a
+  `clientOnly` opt-in, and split the wall into `Wall Morning` and `Wall Night`
+  stories lit by a fixed hour.

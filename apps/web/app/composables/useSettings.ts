@@ -3,9 +3,15 @@
 import type { TimeFormat } from '@wsb/core'
 import { DEFAULT_TIME_FORMAT, isTimeFormat } from '@wsb/core'
 import { DEFAULT_HAND_MODE, isHandMode, type HandMode } from '~/utils/handMode'
+import {
+  DEFAULT_BACKGROUND,
+  isBackgroundStyle,
+  type BackgroundStyle,
+} from '~/utils/background'
 
 export const TIME_FORMAT_COOKIE = 'wsb.timeFormat'
 export const HAND_MODE_COOKIE = 'wsb.handMode'
+export const BACKGROUND_COOKIE = 'wsb.background'
 
 const cookieOptions = {
   path: '/',
@@ -16,11 +22,20 @@ const cookieOptions = {
 export function useSettings() {
   const cookie = useCookie<string | null>(TIME_FORMAT_COOKIE, cookieOptions)
   const handCookie = useCookie<string | null>(HAND_MODE_COOKIE, cookieOptions)
+  const backgroundCookie = useCookie<string | null>(
+    BACKGROUND_COOKIE,
+    cookieOptions,
+  )
   const timeFormat = useState<TimeFormat>('wsb:timeFormat', () =>
     isTimeFormat(cookie.value) ? cookie.value : DEFAULT_TIME_FORMAT,
   )
   const handMode = useState<HandMode>('wsb:handMode', () =>
     isHandMode(handCookie.value) ? handCookie.value : DEFAULT_HAND_MODE,
+  )
+  const background = useState<BackgroundStyle>('wsb:background', () =>
+    isBackgroundStyle(backgroundCookie.value)
+      ? backgroundCookie.value
+      : DEFAULT_BACKGROUND,
   )
 
   function setTimeFormat(next: TimeFormat) {
@@ -35,5 +50,18 @@ export function useSettings() {
     handCookie.value = next
   }
 
-  return { timeFormat, setTimeFormat, handMode, setHandMode }
+  function setBackground(next: BackgroundStyle) {
+    if (!isBackgroundStyle(next)) return
+    background.value = next
+    backgroundCookie.value = next
+  }
+
+  return {
+    timeFormat,
+    setTimeFormat,
+    handMode,
+    setHandMode,
+    background,
+    setBackground,
+  }
 }

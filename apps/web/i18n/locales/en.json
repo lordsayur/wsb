@@ -493,5 +493,10 @@
       "alternatives": "Alternatives",
       "message": "Message"
     }
+  },
+  "background": {
+    "label": "Background",
+    "wall": "Wall",
+    "aurora": "Aurora"
   }
 }

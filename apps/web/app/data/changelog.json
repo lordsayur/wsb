@@ -1,6 +1,13 @@
 {
-  "version": "4.0.0-beta.13",
+  "version": "4.0.0-beta.14",
   "entries": [
+    {
+      "version": "4.0.0-beta.14",
+      "date": "2026-11-10",
+      "changes": [
+        "Give the summary a 3D wall backdrop: peach cement over glazed Islamic tiles, lit by the local clock, with a Wall/Aurora choice in the summary settings."
+      ]
+    },
     {
       "version": "4.0.0-beta.13",
       "date": "2026-11-10",

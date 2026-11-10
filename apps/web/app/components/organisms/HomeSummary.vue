@@ -1,18 +1,28 @@
 <template>
   <section
+    ref="rootEl"
     class="dashboard"
-    :class="{ fullscreen }"
+    :class="{ fullscreen, 'is-wall': background === 'wall' }"
     :role="fullscreen ? 'dialog' : undefined"
     :aria-modal="fullscreen ? 'true' : undefined"
     :tabindex="fullscreen ? -1 : undefined"
   >
-    <div class="aura" aria-hidden="true">
-      <span class="gradient" />
-      <span class="orb orb-a" />
-      <span class="orb orb-b" />
-      <span class="orb orb-c" />
-      <span class="pattern" />
-    </div>
+    <SummaryBackdrop :style="background" />
+
+    <!-- The wall is client-only and sits over the CSS bands above, so the text
+         and the day paint first and the scene arrives without blocking them. -->
+    <ClientOnly>
+      <div
+        v-if="background === 'wall' && canRenderWall && !reducedMotion"
+        class="wall"
+      >
+        <WallScene
+          :aspect="aspect"
+          :reduced-motion="reducedMotion"
+          :hour="hour"
+        />
+      </div>
+    </ClientOnly>
 
     <div class="content">
       <BasmalahText class="basmalah" />
@@ -43,15 +53,22 @@
 </template>
 
 <script setup lang="ts">
-// specs/web/spec.md — organism: the summary slide, a calm dashboard. The
-// running entry is the focus; the next entry and how long is left sit under it
-// in a quieter size. Decorative layers are purely visual. Fullscreen is the
-// layout's: it owns the toggle and the menu, this card only fills the screen.
-import { computed } from 'vue'
+// specs/web/spec.md — organism: the summary slide. Over the wall, the text
+// rides the top cement band (60%) while the glazed tiles keep the bottom (40%).
+// The running entry is the focus; the next entry and how long is left sit under
+// it in a quieter size. The backdrop is decorative and carries no information.
+// Fullscreen is the layout's: it owns the toggle and the menu.
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue'
 import BasmalahText from '../atoms/BasmalahText.vue'
 import DateDisplay from '../molecules/DateDisplay.vue'
 import DayStatus from '../molecules/DayStatus.vue'
 import TimeText from '../atoms/TimeText.vue'
+import SummaryBackdrop from './SummaryBackdrop.vue'
+import type { BackgroundStyle } from '~/utils/background'
+
+// specs/web/spec.md — the 3D scene is its own chunk: a reader on the aurora (or
+// without WebGL) never downloads three.js, and the wall arrives after paint.
+const WallScene = defineAsyncComponent(() => import('./WallScene.vue'))
 
 const props = withDefaults(
   defineProps<{
@@ -73,6 +90,13 @@ const props = withDefaults(
     passedNote?: string
     nextSoon?: boolean
     pendingTime?: string
+    /** Which decorative backdrop the reader chose. */
+    background?: BackgroundStyle
+    /**
+     * Fixed hour of day for the wall's light. Absent, the wall follows the
+     * reader's clock; stories pin it so the morning and night looks hold still.
+     */
+    hour?: number
     /** Fills the screen with the card alone; the deck chrome steps aside. */
     fullscreen?: boolean
   }>(),
@@ -85,6 +109,7 @@ const props = withDefaults(
     passedNote: '',
     nextSoon: false,
     pendingTime: '--:--',
+    background: 'wall',
     fullscreen: false,
   },
 )
@@ -93,6 +118,57 @@ const props = withDefaults(
 // and replaces the countdown, so the two never appear at once.
 const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
 
+// The wall lays its bands out from the card's own aspect, so it must know the
+// box before the first frame and whenever it changes.
+const rootEl = ref<HTMLElement | null>(null)
+const aspect = ref(1)
+let observer: ResizeObserver | null = null
+
+function measure() {
+  const el = rootEl.value
+  if (!el) return
+  const { width, height } = el.getBoundingClientRect()
+  if (height > 0 && width > 0) aspect.value = width / height
+}
+
+// A reader who asks for less motion gets the flat bands and no WebGL at all.
+const reducedMotion = ref(false)
+let motionQuery: MediaQueryList | null = null
+
+function onMotionChange(event: MediaQueryListEvent) {
+  reducedMotion.value = event.matches
+}
+
+/** No WebGL means no scene: the CSS bands are the whole backdrop then. */
+function supportsWebGL(): boolean {
+  try {
+    const canvas = document.createElement('canvas')
+    const context =
+      canvas.getContext('webgl2') ?? canvas.getContext('webgl')
+    return context != null
+  } catch {
+    return false
+  }
+}
+
+const canRenderWall = ref(false)
+
+onMounted(() => {
+  measure()
+  canRenderWall.value = supportsWebGL()
+  if (typeof ResizeObserver !== 'undefined') {
+    observer = new ResizeObserver(measure)
+    if (rootEl.value) observer.observe(rootEl.value)
+  }
+  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  reducedMotion.value = motionQuery.matches
+  motionQuery.addEventListener('change', onMotionChange)
+})
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  motionQuery?.removeEventListener('change', onMotionChange)
+})
 </script>
 
 <style scoped>
@@ -104,6 +180,14 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   overflow: hidden;
   border-radius: 24px;
   isolation: isolate;
+  /* Text tokens: the aurora keeps the theme's own colours. */
+  --summary-fg: var(--fg);
+  --summary-strong: var(--fg);
+  --summary-muted: var(--muted);
+  --summary-accent: var(--primary);
+  --summary-chip: color-mix(in srgb, var(--surface) 62%, transparent);
+  --summary-chip-border: var(--border);
+  --summary-shadow: none;
   background:
     radial-gradient(
       130% 110% at 50% -10%,
@@ -113,90 +197,23 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
     color-mix(in srgb, var(--surface) 55%, var(--bg));
 }
 
-/* Ambient decoration: a slowly turning colour wash under drifting orbs. */
-.aura {
+/* Over the light cement, the text turns dark so it stays legible in both
+   themes; the accent darkens to keep the "soon" note readable there. */
+.dashboard.is-wall {
+  --summary-fg: #3a2a1e;
+  --summary-strong: #2f2116;
+  --summary-muted: rgb(58 42 30 / 62%);
+  --summary-accent: #8a4413;
+  --summary-chip: rgb(255 246 236 / 46%);
+  --summary-chip-border: rgb(58 42 30 / 18%);
+  --summary-shadow: 0 1px 0 rgb(255 255 255 / 28%);
+}
+
+/* The 3D wall fills the card, above the CSS bands, below the text. */
+.wall {
   position: absolute;
   inset: 0;
   z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-/* A very large, very slow colour wheel: as it turns, the card's tint drifts
-   between the palette's warm and cool neighbours without ever flashing. */
-.gradient {
-  position: absolute;
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-  inline-size: 180vmax;
-  block-size: 180vmax;
-  margin-block-start: -90vmax;
-  margin-inline-start: -90vmax;
-  border-radius: 50%;
-  opacity: 0.5;
-  background: conic-gradient(
-    from 0deg,
-    color-mix(in srgb, var(--primary) 24%, transparent),
-    color-mix(in srgb, var(--primary) 6%, var(--surface-2)),
-    color-mix(in srgb, var(--primary) 18%, transparent),
-    transparent 72%,
-    color-mix(in srgb, var(--primary) 24%, transparent)
-  );
-  animation: turn 90s linear infinite;
-}
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(46px);
-  opacity: 0.55;
-}
-.orb-a {
-  inline-size: clamp(20rem, 52vmax, 60rem);
-  aspect-ratio: 1;
-  top: -22%;
-  inset-inline-start: -18%;
-  background: color-mix(in srgb, var(--primary) 55%, transparent);
-  animation: drift-a 22s ease-in-out infinite alternate;
-}
-.orb-b {
-  inline-size: clamp(18rem, 44vmax, 52rem);
-  aspect-ratio: 1;
-  bottom: -20%;
-  inset-inline-end: -14%;
-  background: color-mix(in srgb, var(--primary) 32%, var(--surface-2));
-  animation: drift-b 28s ease-in-out infinite alternate;
-}
-.orb-c {
-  inline-size: clamp(12rem, 26vmax, 30rem);
-  aspect-ratio: 1;
-  top: 34%;
-  inset-inline-end: 22%;
-  background: color-mix(in srgb, var(--primary) 24%, transparent);
-  opacity: 0.5;
-  animation: drift-a 34s ease-in-out infinite alternate-reverse;
-}
-/* A faint geometric lattice, the print on a prayer mat. */
-.pattern {
-  position: absolute;
-  inset: 0;
-  opacity: 0.11;
-  background-image:
-    radial-gradient(
-      circle at 50% 50%,
-      color-mix(in srgb, var(--fg) 45%, transparent) 1px,
-      transparent 1.5px
-    ),
-    repeating-linear-gradient(
-      45deg,
-      color-mix(in srgb, var(--fg) 16%, transparent) 0 1px,
-      transparent 1px 26px
-    );
-  background-size: 26px 26px, 26px 26px;
-  mask-image: radial-gradient(120% 90% at 50% 45%, #000 24%, transparent 72%);
-  -webkit-mask-image: radial-gradient(
-    120% 90% at 50% 45%,
-    #000 24%,
-    transparent 72%
-  );
 }
 
 .content {
@@ -207,18 +224,25 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(1rem, 4vh, 2.2rem);
+  gap: clamp(0.75rem, 3vh, 1.7rem);
   padding: clamp(1rem, 4vh, 2rem) 1rem;
   text-align: center;
+  color: var(--summary-fg);
+  text-shadow: var(--summary-shadow);
+}
+/* The cement band owns the text; the tiles stay a picture underneath. */
+.dashboard.is-wall .content {
+  block-size: 60%;
+  padding-block-end: 0.75rem;
 }
 
-/* specs/web/spec.md — the basmalah heads the card itself, not the deck: it
-   sits at the card's top edge while the day's content stays centred. */
+/* The basmalah heads the card itself, at the top edge of the cement band. */
 .basmalah {
   position: absolute;
   inset-inline: 0;
   top: clamp(0.9rem, 3vh, 1.5rem);
   text-align: center;
+  color: var(--summary-muted);
 }
 
 .hero {
@@ -233,7 +257,7 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--fg) 82%, transparent);
+  color: var(--summary-muted);
 }
 
 /* The running entry: the loudest thing on the screen. */
@@ -249,29 +273,22 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--summary-muted);
 }
 .current-name {
   margin: 0;
-  font-size: clamp(2.6rem, 11vh, 4.6rem);
+  font-size: clamp(2.4rem, 10vh, 4.4rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.02em;
-  background: linear-gradient(
-    160deg,
-    var(--fg),
-    color-mix(in srgb, var(--primary) 55%, var(--fg))
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--summary-strong);
   text-wrap: balance;
 }
 .current-time {
   font-size: clamp(1.1rem, 3.6vh, 1.6rem);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: color-mix(in srgb, var(--fg) 72%, transparent);
+  color: var(--summary-fg);
 }
 .current-meta {
   display: flex;
@@ -285,14 +302,12 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   font-size: clamp(0.8rem, 2.2vh, 1rem);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--primary);
+  color: var(--summary-accent);
   white-space: nowrap;
 }
 /* The next entry is close: warm the hero up. */
 .current.soon .current-name {
-  background: linear-gradient(160deg, var(--primary), var(--fg));
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: var(--summary-accent);
 }
 
 /* The next entry and its countdown: deliberately quieter. */
@@ -304,8 +319,8 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   gap: 0.4rem 0.6rem;
   padding: 0.55rem 1.1rem;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  border: 1px solid var(--summary-chip-border);
+  background: var(--summary-chip);
   backdrop-filter: blur(8px);
   font-size: clamp(0.9rem, 2.6vh, 1.15rem);
 }
@@ -314,27 +329,50 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--summary-muted);
 }
 .next-name {
   font-weight: 700;
 }
 .next-time {
   font-variant-numeric: tabular-nums;
-  color: color-mix(in srgb, var(--fg) 78%, transparent);
+  color: var(--summary-fg);
 }
 .next-note {
   font-size: 0.82em;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--muted);
+  color: var(--summary-muted);
   white-space: nowrap;
 }
 .next.soon {
-  border-color: color-mix(in srgb, var(--primary) 60%, transparent);
+  border-color: color-mix(in srgb, var(--summary-accent) 55%, transparent);
 }
 .next.soon .next-note {
-  color: var(--primary);
+  color: var(--summary-accent);
+}
+
+/* The aurora keeps the look it had before the wall: a little more air between
+   the blocks and the hero's palette-tinted gradient rather than a flat colour. */
+.dashboard:not(.is-wall) .content {
+  gap: clamp(1rem, 4vh, 2.2rem);
+}
+.dashboard:not(.is-wall) .current-name {
+  font-size: clamp(2.6rem, 11vh, 4.6rem);
+  background: linear-gradient(
+    160deg,
+    var(--fg),
+    color-mix(in srgb, var(--primary) 55%, var(--fg))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dashboard:not(.is-wall) .current.soon .current-name {
+  background: linear-gradient(160deg, var(--primary), var(--fg));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Fullscreen: the card alone, edge to edge, above the deck's chrome. */
@@ -349,36 +387,6 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
   gap: clamp(1.2rem, 5vh, 2.6rem);
 }
 
-@keyframes turn {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes drift-a {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(8%, 10%, 0) scale(1.12);
-  }
-}
-@keyframes drift-b {
-  from {
-    transform: translate3d(0, 0, 0) scale(1.05);
-  }
-  to {
-    transform: translate3d(-10%, -8%, 0) scale(0.95);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gradient,
-  .orb {
-    animation: none;
-  }
-}
-
 @media (max-height: 520px) {
   .content {
     gap: 0.6rem;
@@ -388,7 +396,7 @@ const nextNote = computed(() => (props.passedNote ? '' : props.countdown))
     display: none;
   }
   .current-name {
-    font-size: clamp(2rem, 12vh, 3rem);
+    font-size: clamp(1.8rem, 10vh, 2.6rem);
   }
 }
 </style>

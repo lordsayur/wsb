@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.14 — 2026-11-10
+
+- Give the summary a 3D wall backdrop: peach cement over glazed Islamic tiles, lit by the local clock, with a Wall/Aurora choice in the summary settings.
+
 ## 4.0.0-beta.13 — 2026-11-10
 
 - Show seconds in the countdown for the last 15 minutes, tick the passed-entry note in seconds and phrase it as "<duration> passed" in every shell.
