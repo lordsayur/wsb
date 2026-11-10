@@ -5,6 +5,7 @@ import {
   adjustForDistrict,
   bruneiNow,
   durationParts,
+  durationUnits,
   formatDate,
   formatHijriDate,
   formatNumber,
@@ -53,10 +54,17 @@ export function formatDuration(seconds: number, locale: Locale): string {
   const total = Math.max(0, seconds)
   const parts = durationParts(total)
   const n = (value: number) => formatNumber(value, locale)
-  if (total < 60) {
+  const units = durationUnits(total)
+  if (units === 'seconds') {
     return t(locale, 'duration.seconds', { seconds: n(parts.seconds) })
   }
-  if (parts.hours > 0) {
+  if (units === 'minutesSeconds') {
+    return t(locale, 'duration.minutesSeconds', {
+      minutes: n(parts.minutes),
+      seconds: n(parts.seconds),
+    })
+  }
+  if (units === 'hoursMinutes') {
     return t(locale, 'duration.hoursMinutes', {
       hours: n(parts.hours),
       minutes: n(parts.minutes),

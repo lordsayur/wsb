@@ -164,6 +164,21 @@ export function durationParts(seconds: number): {
   }
 }
 
+/**
+ * specs/core/spec.md — which unit phrase a duration renders with. Seconds show
+ * on their own under a minute, and alongside minutes from the near-time
+ * threshold down, so the last quarter hour visibly ticks.
+ */
+export function durationUnits(
+  seconds: number,
+): 'seconds' | 'minutesSeconds' | 'hoursMinutes' | 'minutes' {
+  const total = Math.max(0, seconds)
+  if (total < 60) return 'seconds'
+  if (total <= NEXT_SOON_MINUTES * 60) return 'minutesSeconds'
+  const { hours } = durationParts(total)
+  return hours > 0 ? 'hoursMinutes' : 'minutes'
+}
+
 /** Resolves the active interval: last entry passed, next entry, and duration. */
 export function prayerProgress(
   entries: readonly PrayerEntry[],
@@ -204,6 +219,8 @@ export interface PassedPrayer {
   prayer: PrayerName
   /** Whole minutes since that entry's time; 0 at the exact minute. */
   minutes: number
+  /** Whole seconds since that entry's time; 0 at the exact second. */
+  seconds: number
 }
 
 /**
@@ -224,7 +241,11 @@ export function passedPrayer(
   if (!latest || latest.prayer === 'imsak') return null
   const elapsed = nowSeconds - latest.minutes * 60
   if (elapsed >= PASSED_WINDOW_MINUTES * 60) return null
-  return { prayer: latest.prayer, minutes: Math.floor(elapsed / 60) }
+  return {
+    prayer: latest.prayer,
+    minutes: Math.floor(elapsed / 60),
+    seconds: Math.floor(elapsed),
+  }
 }
 
 /**

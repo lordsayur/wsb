@@ -8,7 +8,7 @@
     "asar": "عصر",
     "maghrib": "مغرب",
     "isyak": "عشاء",
-    "passed": "{minutes} مينيت سالڤس",
+    "passed": "{duration} سالڤس",
     "passedNow": "بارو ماسوق"
   },
   "district": {
@@ -53,6 +53,7 @@
   "duration": {
     "hoursMinutes": "{hours} جم {minutes} مينيت",
     "minutes": "{minutes} مينيت",
+    "minutesSeconds": "{minutes} مينيت {seconds} ساعت",
     "seconds": "{seconds} ساعت"
   },
   "next": {

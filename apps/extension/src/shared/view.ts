@@ -5,6 +5,7 @@ import {
   adjustForDistrict,
   bruneiNow,
   durationParts,
+  durationUnits,
   formatDate,
   formatNumber,
   formatHijriDate,
@@ -53,15 +54,21 @@ export function buildDayView(
   const total = progress.secondsToNext
   const parts = durationParts(total)
   const n = (value: number) => formatNumber(value, locale)
+  const units = durationUnits(total)
   const duration =
-    total < 60
+    units === 'seconds'
       ? t(locale, 'duration.seconds', { seconds: n(parts.seconds) })
-      : parts.hours > 0
-        ? t(locale, 'duration.hoursMinutes', {
-            hours: n(parts.hours),
+      : units === 'minutesSeconds'
+        ? t(locale, 'duration.minutesSeconds', {
             minutes: n(parts.minutes),
+            seconds: n(parts.seconds),
           })
-        : t(locale, 'duration.minutes', { minutes: n(parts.minutes) })
+        : units === 'hoursMinutes'
+          ? t(locale, 'duration.hoursMinutes', {
+              hours: n(parts.hours),
+              minutes: n(parts.minutes),
+            })
+          : t(locale, 'duration.minutes', { minutes: n(parts.minutes) })
   const label = (prayer: string) => t(locale, `prayer.${prayer}`)
 
   return {

@@ -8,7 +8,7 @@
     "asar": "Asar",
     "maghrib": "Maghrib",
     "isyak": "Isyak",
-    "passed": "{minutes}m after",
+    "passed": "{duration} passed",
     "passedNow": "Just started"
   },
   "district": {
@@ -53,6 +53,7 @@
   "duration": {
     "hoursMinutes": "{hours}h {minutes}m",
     "minutes": "{minutes}m",
+    "minutesSeconds": "{minutes}m {seconds}s",
     "seconds": "{seconds}s"
   },
   "next": {

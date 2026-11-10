@@ -44,11 +44,11 @@ export const PassedInline: Story = {
     label: 'Zuhur',
     time: '12:05',
     current: true,
-    note: '3 minit selepas',
+    note: '3 minit 12 saat lalu',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('3 minit selepas')).toBeVisible()
+    await expect(canvas.getByText('3 minit 12 saat lalu')).toBeVisible()
     await expect(canvasElement.querySelector('.line .note')).not.toBeNull()
   },
 }

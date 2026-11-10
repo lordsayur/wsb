@@ -180,3 +180,4 @@ platform glue only; no domain rules.
   with week/month/year ranges, centre the content, and align x labels.
 - 2026-10-22 — draw the trend with line glyphs instead of braille dots, which
   read as filled bars.
+- 2026-11-10 — show seconds in the duration for the last 15 minutes.

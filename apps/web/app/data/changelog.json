@@ -1,6 +1,13 @@
 {
-  "version": "4.0.0-beta.12",
+  "version": "4.0.0-beta.13",
   "entries": [
+    {
+      "version": "4.0.0-beta.13",
+      "date": "2026-11-10",
+      "changes": [
+        "Show seconds in the countdown for the last 15 minutes, tick the passed-entry note in seconds and phrase it as \"<duration> passed\" in every shell."
+      ]
+    },
     {
       "version": "4.0.0-beta.12",
       "date": "2026-11-08",

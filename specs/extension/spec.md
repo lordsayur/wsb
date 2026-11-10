@@ -16,7 +16,8 @@ glue only; no domain rules.
 ### Popup
 
 - The toolbar popup shows the same eight entries, day, dates, current highlight
-  and duration to the next as the web shell, for the selected district.
+  and duration to the next as the web shell, for the selected district,
+  including the seconds that show from one minute up to 15 minutes out.
 - A district selector, language selector (default Malay; Malay, Jawi Malay,
   Arabic, English) and 12/24-hour choice live in the popup; each choice is
   stored with `chrome.storage.local` and restored on the next open.
@@ -128,3 +129,4 @@ glue only; no domain rules.
 - 2026-10-19 — hide the header's "Next" caption when all entries are shown;
   keep it in the narrow fallback.
 - 2026-10-20 — show Imsak in the popup and on-page header.
+- 2026-11-10 — show seconds in the countdown for the last 15 minutes.

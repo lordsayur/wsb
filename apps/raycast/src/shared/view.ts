@@ -5,6 +5,7 @@ import {
   adjustForDistrict,
   bruneiNow,
   durationParts,
+  durationUnits,
   formatDate,
   formatHijriDate,
   formatNumber,
@@ -56,12 +57,15 @@ export function buildDayView(
   const total = progress.secondsToNext
   const parts = durationParts(total)
   const n = (value: number) => formatNumber(value, locale)
+  const units = durationUnits(total)
   const duration =
-    total < 60
+    units === 'seconds'
       ? `${n(parts.seconds)}s`
-      : parts.hours > 0
-        ? `${n(parts.hours)}h ${n(parts.minutes)}m`
-        : `${n(parts.minutes)}m`
+      : units === 'minutesSeconds'
+        ? `${n(parts.minutes)}m ${n(parts.seconds)}s`
+        : units === 'hoursMinutes'
+          ? `${n(parts.hours)}h ${n(parts.minutes)}m`
+          : `${n(parts.minutes)}m`
 
   return {
     weekday: formatWeekday(day.date, locale),

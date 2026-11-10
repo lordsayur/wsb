@@ -138,3 +138,4 @@ only; no domain rules.
   the release workflow when tokens are present (was out of scope).
 - 2026-10-21 — within 15 minutes of the next entry the status bar shows the
   duration to it instead of the current entry's time.
+- 2026-11-10 — show seconds in the duration for the last 15 minutes.

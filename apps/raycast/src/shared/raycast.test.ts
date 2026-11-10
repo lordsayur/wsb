@@ -121,7 +121,7 @@ describe('buildDayView', () => {
 describe('strings', () => {
   it('keeps the interface US English with no lookup layer', () => {
     const view = buildDayView(day, resolveSettings(undefined), 0)
-    expect(view.next).toMatch(/^\d+(h \d+m|m|s) until [A-Z]\w+$/)
+    expect(view.next).toMatch(/^\d+((h )?\d+m( \d+s)?|s) until [A-Z]\w+$/)
   })
 })
 

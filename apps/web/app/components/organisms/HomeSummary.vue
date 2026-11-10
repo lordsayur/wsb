@@ -69,7 +69,7 @@ const props = withDefaults(
     nextTime: string
     /** Countdown to the next entry. */
     countdown?: string
-    /** "N minutes after" note while the passed-entry window is open. */
+    /** Elapsed-duration note while the passed-entry window is open. */
     passedNote?: string
     nextSoon?: boolean
     pendingTime?: string

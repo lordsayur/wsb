@@ -6,6 +6,7 @@ import {
   DISTRICTS,
   NEXT_SOON_MINUTES,
   durationParts,
+  durationUnits,
   formatNumber,
   formatTime,
   formatWeekday,
@@ -218,25 +219,39 @@ const nextCountdown = computed(() => {
   const total = progress.value.secondsToNext
   const { hours, minutes, seconds } = durationParts(total)
   const n = (value: number) => formatNumber(value, locale.value)
+  const units = durationUnits(total)
   const duration =
-    total < 60
+    units === 'seconds'
       ? t('duration.seconds', { seconds: n(seconds) })
-      : hours > 0
-        ? t('duration.hoursMinutes', {
-            hours: n(hours),
+      : units === 'minutesSeconds'
+        ? t('duration.minutesSeconds', {
             minutes: n(minutes),
+            seconds: n(seconds),
           })
-        : t('duration.minutes', { minutes: n(minutes) })
+        : units === 'hoursMinutes'
+          ? t('duration.hoursMinutes', {
+              hours: n(hours),
+              minutes: n(minutes),
+            })
+          : t('duration.minutes', { minutes: n(minutes) })
   return t('next.countdown', { duration })
 })
 
 const passedNote = computed(() => {
   const passedValue = passed.value
   if (state.value !== 'ready' || !passedValue) return ''
-  if (passedValue.minutes <= 0) return t('prayer.passedNow')
-  return t('prayer.passed', {
-    minutes: formatNumber(passedValue.minutes, locale.value),
-  })
+  if (passedValue.seconds <= 0) return t('prayer.passedNow')
+  const total = passedValue.seconds
+  const { minutes, seconds } = durationParts(total)
+  const n = (value: number) => formatNumber(value, locale.value)
+  const duration =
+    total < 60
+      ? t('duration.seconds', { seconds: n(seconds) })
+      : t('duration.minutesSeconds', {
+          minutes: n(minutes),
+          seconds: n(seconds),
+        })
+  return t('prayer.passed', { duration })
 })
 
 const countdownKey = computed(() =>

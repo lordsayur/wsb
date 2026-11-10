@@ -63,18 +63,20 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   separate card or progress bar. Only that note turns primary with 15 minutes or
   less left.
 - For the first 20 minutes after an entry (Imsak excepted) that entry's row
-  reports how long ago it passed ("<minutes> after", or "just started" in its
-  first minute) inline beside its time; while it shows, the countdown is hidden,
-  so only one note is ever visible. The yellow near-time styling applies only to
-  a real countdown.
+  reports how long ago it passed as a localized duration ("<duration> passed",
+  or "just started" in its first seconds) inline beside its time; while it shows,
+  the countdown is hidden, so only one note is ever visible. The yellow near-time
+  styling applies only to a real countdown.
 - Every entry renders at the same type size; only the countdown line is
   secondary in weight and tone.
 - Entries moved to the bottom — the next day's Imsak and Subuh after Asar, or
   today's own before Subuh — follow the rest of the list without a divider.
 - The day's data state is one status line directly under the dates, with a
   spinner while loading or revalidating.
-- Durations under one minute render in seconds; otherwise in whole minutes (and
-  hours when non-zero).
+- Durations under one minute render in seconds; from one minute up to the
+  15-minute near-time threshold they render minutes and seconds, so the
+  countdown ticks; beyond that they render whole minutes (and hours when
+  non-zero).
 - The highlight and duration update while the app is open, without a reload.
 - The whole day page fits the viewport without scrolling, at any screen size.
   The prayer-times table scrolls inside its own area, never the page.
@@ -764,6 +766,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Notifications fire at each prayer and 15 minutes before; syuruk never
       notifies.
 - [ ] A duration under 60 seconds renders in seconds.
+- [ ] A duration from one minute to 15 minutes renders minutes and seconds.
+- [ ] The passed-entry note reads as a duration plus "passed" and ticks in
+      seconds.
 - [ ] The page fits the viewport without scrolling.
 - [ ] The viewport disables pinch-zoom and double-tap zoom.
 - [ ] The highlight and duration refresh as time passes.
@@ -979,3 +984,5 @@ None published. Consumes core and the Data port.
 
 - 2026-11-04 — add `/feedback`, filed as a GitHub issue by the server so no
   GitHub account is needed; linked from the footer menu and `/about`.
+- 2026-11-10 — show seconds in the countdown for the last 15 minutes (and in the
+  passed-entry note), and phrase the note as "<duration> passed".

@@ -112,8 +112,9 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
   are not obligatory prayers.
 - Duration is resolved in core as a non-negative second count; the shell renders
   it with translated unit labels (all visible text stays in the locale files).
-  Durations under one minute are shown in seconds; a whole minute is the
-  smallest minute unit otherwise.
+  Durations under one minute are shown in seconds; from one minute up to and
+  including the near-time threshold (15 minutes) they show minutes and seconds;
+  beyond it they show whole minutes (and hours when non-zero).
 
 ### The passed-entry window
 
@@ -123,6 +124,8 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
 - Imsak never opens a passed window, because it sits only ten minutes before
   Subuh and would hide the Subuh countdown.
 - At 20 minutes the window closes and the next-entry countdown returns.
+- The window reports whole seconds, so the note ticks: under a minute it shows
+  seconds alone, then minutes and seconds.
 
 ### Phase of the day and the daily list
 
@@ -178,11 +181,12 @@ See [`../glossary.md`](../glossary.md). Owned terms: *District*, *Prayer*,
 - [ ] Before imsak, there is no current entry for today and the next is imsak.
 - [ ] Between entries, the current entry is the last one whose time has passed.
 - [ ] The duration to the next entry wraps past midnight and is under 24h.
-- [ ] An entry opens a passed window at its exact minute, reports whole minutes
+- [ ] An entry opens a passed window at its exact minute, reports whole seconds
       since, and closes at 20 minutes.
 - [ ] Imsak opens no passed window.
 - [ ] Duration is a non-negative second count under 24 hours.
 - [ ] A duration under 60 seconds is reported in seconds.
+- [ ] A duration from one minute to 15 minutes reports minutes and seconds.
 - [ ] Reminders are scheduled 15 minutes before and at each of the five prayers.
 - [ ] Imsak, Syuruk and Dhuha have no reminder.
 - [ ] Reminder durations roll past midnight and are ordered nearest first.
@@ -255,3 +259,5 @@ Names only; shapes finalized in code.
   remaining prayers plus tomorrow's Imsak and Subuh; show tomorrow's Hijri date
   from Maghrib.
 - 2026-10-31 — add the 20-minute passed-entry window (Imsak excepted).
+- 2026-11-10 — show seconds in durations from one minute up to the 15-minute
+  near-time threshold, and report the passed-entry window in whole seconds.

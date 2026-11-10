@@ -6,6 +6,7 @@ import {
   bruneiNow,
   districtOffsetMinutes,
   durationParts,
+  durationUnits,
   formatDate,
   formatHijriDate,
   formatNumber,
@@ -219,6 +220,7 @@ describe('passedPrayer', () => {
     expect(passedPrayer(entries, (12 * 60 + 5) * 60)).toEqual({
       prayer: 'zuhur',
       minutes: 0,
+      seconds: 0,
     })
   })
 
@@ -226,6 +228,9 @@ describe('passedPrayer', () => {
     expect(
       passedPrayer(entries, (12 * 60 + 5) * 60 + 19 * 60)?.minutes,
     ).toBe(19)
+    expect(
+      passedPrayer(entries, (12 * 60 + 5) * 60 + 19 * 60)?.seconds,
+    ).toBe(19 * 60)
     expect(passedPrayer(entries, (12 * 60 + 5) * 60 + 20 * 60)).toBeNull()
   })
 
@@ -242,6 +247,7 @@ describe('passedPrayer', () => {
     expect(passedPrayer(entries, (19 * 60 + 25) * 60)).toEqual({
       prayer: 'isyak',
       minutes: 5,
+      seconds: 5 * 60,
     })
   })
 })
@@ -445,6 +451,24 @@ describe('durationParts', () => {
     })
     expect(durationParts(42)).toEqual({ hours: 0, minutes: 0, seconds: 42 })
     expect(durationParts(-5)).toEqual({ hours: 0, minutes: 0, seconds: 0 })
+  })
+})
+
+// specs/core/spec.md — seconds tick through the last quarter hour.
+describe('durationUnits', () => {
+  it('picks second-based units under a minute', () => {
+    expect(durationUnits(0)).toBe('seconds')
+    expect(durationUnits(59)).toBe('seconds')
+  })
+
+  it('adds seconds from a minute up to the near-time threshold', () => {
+    expect(durationUnits(60)).toBe('minutesSeconds')
+    expect(durationUnits(15 * 60)).toBe('minutesSeconds')
+  })
+
+  it('drops seconds beyond the near-time threshold', () => {
+    expect(durationUnits(15 * 60 + 1)).toBe('minutes')
+    expect(durationUnits(90 * 60)).toBe('hoursMinutes')
   })
 })
 

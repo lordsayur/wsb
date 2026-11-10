@@ -40,7 +40,7 @@ const props = withDefaults(
     countdown?: string
     /** The entry that just passed, if its 20-minute window is open. */
     passedKey?: string
-    /** "N minutes after" line for that entry. */
+    /** Elapsed-duration note ("N m S s passed") for that entry. */
     passedNote?: string
     /** Turns the countdown primary when the next entry is close. */
     noteSoon?: boolean

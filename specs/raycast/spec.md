@@ -116,3 +116,4 @@ opened from the launcher. Rendering and platform glue only; no domain rules.
 - 2026-10-21 — add a self-contained Store export (vendored core/data, committed
   public config, English metadata) with the `pnpm raycast:store` script.
 - 2026-10-21 — drop the macOS-only platform restriction; the whole spec applies.
+- 2026-11-10 — show seconds in the duration for the last 15 minutes.

@@ -51,12 +51,12 @@ export const NextSoon: Story = {
 }
 
 export const JustPassed: Story = {
-  args: { passedNote: '2 minit selepas' },
+  args: { passedNote: '2 minit 5 saat lalu' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
       canvasElement.querySelector('.current-note'),
-    ).toHaveTextContent('2 minit selepas')
+    ).toHaveTextContent('2 minit 5 saat lalu')
     await expect(canvas.queryByText('3 jam 13 minit lagi')).toBeNull()
   },
 }

@@ -95,7 +95,8 @@ describe('buildDayView', () => {
 describe('formatDuration', () => {
   it('uses seconds, minutes and hours form', () => {
     expect(formatDuration(30, 'en')).toBe('30s')
-    expect(formatDuration(5 * 60 + 20, 'en')).toBe('5m')
+    expect(formatDuration(5 * 60 + 20, 'en')).toBe('5m 20s')
+    expect(formatDuration(20 * 60, 'en')).toBe('20m')
     expect(formatDuration(2 * 3600 + 7 * 60, 'en')).toBe('2h 7m')
   })
 })

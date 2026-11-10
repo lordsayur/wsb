@@ -8,7 +8,7 @@
     "asar": "Asar",
     "maghrib": "Maghrib",
     "isyak": "Isyak",
-    "passed": "{minutes} minit selepas",
+    "passed": "{duration} lalu",
     "passedNow": "Baru masuk"
   },
   "district": {
@@ -53,6 +53,7 @@
   "duration": {
     "hoursMinutes": "{hours} jam {minutes} minit",
     "minutes": "{minutes} minit",
+    "minutesSeconds": "{minutes} minit {seconds} saat",
     "seconds": "{seconds} saat"
   },
   "next": {

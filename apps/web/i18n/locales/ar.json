@@ -8,7 +8,7 @@
     "asar": "العصر",
     "maghrib": "المغرب",
     "isyak": "العشاء",
-    "passed": "بعد {minutes} دقيقة",
+    "passed": "مضت {duration}",
     "passedNow": "بدأ للتو"
   },
   "district": {
@@ -53,6 +53,7 @@
   "duration": {
     "hoursMinutes": "{hours} ساعة {minutes} دقيقة",
     "minutes": "{minutes} دقيقة",
+    "minutesSeconds": "{minutes} دقيقة {seconds} ثانية",
     "seconds": "{seconds} ثانية"
   },
   "next": {

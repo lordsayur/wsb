@@ -151,13 +151,13 @@ export const JustPassed: Story = {
     countdownKey: 'asar',
     countdown: '2 jam 59 minit lagi',
     passedKey: 'zuhur',
-    passedNote: '3 minit selepas',
+    passedNote: '3 minit 12 saat lalu',
   },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelectorAll('.prayer-row')).toHaveLength(8)
     const current = canvasElement.querySelector('article[aria-current="true"]')
     await expect(current?.querySelector('.note')).toHaveTextContent(
-      '3 minit selepas',
+      '3 minit 12 saat lalu',
     )
     // The passed note replaces the countdown rather than showing both.
     await expect(canvasElement.querySelectorAll('.note')).toHaveLength(1)
