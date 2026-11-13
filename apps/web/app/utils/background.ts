@@ -30,6 +30,28 @@ export const WALL_OVERSCAN = 1.08
 /** The text band takes the top 60% of the frame; the tiles keep the rest. */
 export const TEXT_SHARE = 0.6
 
+/** The wooden dado rail that bridges the seam, in wall units. */
+export const RAIL_HEIGHT = 0.085
+/** The rail is a squashed half-cylinder: how far that half bulges forward. */
+export const RAIL_DEPTH = 0.028
+/** How deep the rail sinks into the wall, so its edges never z-fight. */
+export const RAIL_BITE = 0.006
+/** World length covered by one tile of the rail's grain texture. */
+export const RAIL_GRAIN_LENGTH = 1.2
+
+/**
+ * How many times the rail's grain texture repeats along the wall, so a long
+ * moulding keeps a natural grain scale instead of smearing one strip. Whole
+ * tiles only: the tile is seamless along its length, so integer repeats join
+ * invisibly.
+ */
+export function railRepeats(
+  railWidth: number,
+  grainLength: number = RAIL_GRAIN_LENGTH,
+): number {
+  return Math.max(1, Math.round(railWidth / Math.max(grainLength, 0.0001)))
+}
+
 const SUN_COLOR = '#ffe5b4'
 const MOON_COLOR = '#a3c1ff'
 const SUN_INTENSITY = 2.4

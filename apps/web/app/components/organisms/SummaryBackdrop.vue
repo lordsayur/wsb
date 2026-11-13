@@ -13,6 +13,7 @@
     <template v-else>
       <span class="band band-top" />
       <span class="band band-bottom" />
+      <span class="rail" />
     </template>
   </div>
 </template>
@@ -71,6 +72,25 @@ withDefaults(
 /* A hairline of light where the two materials meet, like a ceramic edge. */
 .band-bottom {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 28%);
+}
+
+/* The wooden trim over the seam, before the scene's own rail arrives: the same
+   brown, the same thin shadow falling on the tiles. */
+.rail {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 60%;
+  block-size: 1.7%;
+  translate: 0 -50%;
+  background: linear-gradient(
+    to bottom,
+    #7d5836,
+    #5b3a22 45%,
+    #3b2514 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 226 190 / 25%),
+    0 3px 6px rgb(0 0 0 / 22%);
 }
 
 /* Aurora: the backdrop that came before the wall, kept whole. */

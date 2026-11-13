@@ -3,6 +3,7 @@ import {
   DEFAULT_BACKGROUND,
   coverRepeat,
   isBackgroundStyle,
+  railRepeats,
   wallLight,
 } from './background'
 
@@ -71,5 +72,16 @@ describe('cover repeat', () => {
 
   it('leaves a matching aspect untouched', () => {
     expect(coverRepeat(1.5, 1.5).repeat).toEqual([1, 1])
+  })
+})
+
+describe('rail repeats', () => {
+  it('repeats a grain strip along a long board, one tile per grain length', () => {
+    expect(railRepeats(12, 1.2)).toBe(10)
+  })
+
+  it('never asks for a fraction of a repeat', () => {
+    expect(railRepeats(0.4, 1.2)).toBe(1)
+    expect(railRepeats(4.7, 1.2)).toBe(4)
   })
 })

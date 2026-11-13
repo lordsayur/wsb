@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.15 — 2026-11-12
+
+- Add a wooden dado rail over the summary wall's cement/tile seam: a soft moulding that casts a thin shadow on the tiles, with seam-free wood grain and a matching strip in the CSS fallback. The wall's cement and tiles now also use roughness maps, the tiles a specular colour map, and every normal map is registered to its own colour render so each groove sits on the line it belongs to.
+
 ## 4.0.0-beta.14 — 2026-11-10
 
 - Give the summary a 3D wall backdrop: peach cement over glazed Islamic tiles, lit by the local clock, with a Wall/Aurora choice in the summary settings.

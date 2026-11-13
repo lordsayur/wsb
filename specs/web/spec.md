@@ -188,10 +188,24 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - **Summary backdrop.** The card is a wall split across two bands. The top 60%
   is a matte peach cement texture that carries the text; the bottom 40% is a
   glazed Islamic tile pattern. It is a Three.js scene (TresJS) with PBR
-  materials: the cement uses `MeshStandardMaterial` (base and normal maps,
-  roughness `0.9`), the tiles `MeshPhysicalMaterial` (base and normal maps,
-  roughness `0.1`, metalness `0.1`, clearcoat) so they read as glazed ceramic.
-  A directional light follows the reader's local clock: warm sun
+  materials: the cement uses `MeshStandardMaterial` and the tiles
+  `MeshPhysicalMaterial` (metalness `0.1`, clearcoat), each carrying the base,
+  normal and roughness maps of the same source image, and the tiles a specular
+  colour map as well. Every map of a material shares one UV transform, so a
+  groove in the normal map sits on the same pixel as the feature it belongs to;
+  base and specular-colour maps are sRGB, normal and roughness maps linear.
+  A wooden dado rail bridges the seam: a soft moulding, the front half of a
+  squashed cylinder, standing proud of both planes along the whole width. Its
+  grain runs along the moulding's length and its tile mirrors about its middle,
+  so one edge mirrors into the next and the colour and roughness joins are
+  invisible however many whole repeats the wall needs; the normal map's green
+  channel is negated on the mirrored half so the bump keeps facing the same way
+  rather than inverting. It carries base, normal and roughness maps too, so the
+  light catches its crown and it drops a thin shadow on the tiles just below it.
+  Every band's normal map is registered to its own base image: the tiles' comes
+  from the same 2752×1536 render as the colour, so each embossed line sits on
+  the line it belongs to. A directional
+  light follows the reader's local clock: warm sun
   (`#ffe5b4`) between 6 AM and 6 PM, cooler moon (`#a3c1ff`) otherwise, with an
   ambient/hemisphere floor so neither band ever goes black. The camera drifts a
   few centimetres with the pointer and the device's `deviceorientation` tilt
@@ -200,7 +214,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   light changes, the size changes or the camera is still travelling, and costs
   no frames when idle.
 - **Backdrop loading.** The two bands are painted first as a CSS fallback (flat
-  gradient colours of the same textures, same 60/40 split), server-rendered, so
+  gradient colours of the same textures, same 60/40 split, with a flat brown
+  strip and a soft drop shadow standing in for the rail), server-rendered, so
   the text and the day paint immediately. The WebGL scene is client-only and
   arrives over that fallback; the scene and Three.js are their own lazy chunk,
   never part of the first-paint bundle, so nothing blocks on them. Without
@@ -702,7 +717,10 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] The summary shows the next entry with its countdown and a progress bar,
       the day's eight entries in a grid, and a link to every prayer time.
 - [ ] The summary backdrop defaults to the wall: a cement band over a tile band
-      at a 60/40 split, with the prayer text over the cement.
+      at a 60/40 split, with the prayer text over the cement, and a wooden rail
+      covering the seam between them.
+- [ ] The rail is lit by the same directional light as the wall and casts a
+      thin shadow onto the tiles below it.
 - [ ] The backdrop paints as flat CSS bands before any scene loads, and the
       summary text is readable with the scene absent.
 - [ ] The scene mounts only on the client, never enters the first-paint bundle,
@@ -1035,3 +1053,12 @@ None published. Consumes core and the Data port.
 - 2026-11-10 — mount the real Three.js wall in Storybook behind a
   `clientOnly` opt-in, and split the wall into `Wall Morning` and `Wall Night`
   stories lit by a fixed hour.
+- 2026-11-11 — add the wooden dado rail over the cement/tile seam: a shadow
+  casting box with wood grain and normal maps, with a matching CSS strip in the
+  fallback.
+- 2026-11-12 — the rail becomes a flattened half-cylinder moulding with a
+  seam-free grain tile; every material gains its roughness map, and all maps of
+  a material now share the base map's UV transform so they stay aligned.
+- 2026-11-13 — the tiles gain a specular colour map, and their normal map is
+  regenerated so it registers to the colour render: each embossed grout line
+  now sits on the line it belongs to instead of a shifted copy.
