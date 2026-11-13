@@ -32,6 +32,12 @@ const meta: Meta<typeof HomeSummary> = {
     nextSoon: false,
     pendingTime: '--:--',
     background: 'aurora',
+    pages: [
+      { id: 'summary', label: 'Ringkasan' },
+      { id: 'today', label: 'Harian' },
+      { id: 'week', label: 'Mingguan' },
+    ],
+    current: 'summary',
   },
 }
 export default meta
@@ -167,12 +173,14 @@ export const Morning: Story = {
   },
 }
 
-export const Fullscreen: Story = {
-  args: { fullscreen: true },
+// The card carries the deck's dots at its own top, under the basmalah.
+export const WithPages: Story = {
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector('.dashboard')).toHaveClass(
-      'fullscreen',
-    )
+    const canvas = within(canvasElement)
+    await expect(canvas.getAllByRole('button')).toHaveLength(3)
+    await expect(
+      canvas.getByRole('button', { name: 'Ringkasan' }),
+    ).toHaveAttribute('aria-current', 'page')
   },
 }
 

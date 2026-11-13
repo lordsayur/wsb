@@ -3,6 +3,14 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.17 — 2026-11-13
+
+- The summary is always full screen: its card now fills the viewport and carries the basmalah and page dots at its own top edge, so the fullscreen action is gone; the daily and weekly slides read basmalah, then page dots, then the data-source note.
+
+## 4.0.0-beta.16 — 2026-11-13
+
+- On a phone the summary wall's parallax follows the device's tilt, measured from the pose the wall appeared in, and the light swings with the view so the relief and the glazed highlights move as the reader moves; the mouse steers on desktop.
+
 ## 4.0.0-beta.15 — 2026-11-12
 
 - Add a wooden dado rail over the summary wall's cement/tile seam: a soft moulding that casts a thin shadow on the tiles, with seam-free wood grain and a matching strip in the CSS fallback. The wall's cement and tiles now also use roughness maps, the tiles a specular colour map, and every normal map is registered to its own colour render so each groove sits on the line it belongs to.

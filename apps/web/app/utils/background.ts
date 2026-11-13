@@ -57,6 +57,48 @@ const MOON_COLOR = '#a3c1ff'
 const SUN_INTENSITY = 2.4
 const MOON_INTENSITY = 0.9
 
+/** How far the phone is tilted before the wall reaches its full drift, degrees. */
+export const TILT_RANGE = 30
+
+/** How far the lamp swings, in wall units, at the edge of the drift. */
+export const LIGHT_SWAY = 0.9
+
+const clampUnit = (value: number) => Math.min(1, Math.max(-1, value))
+/** Negation turns 0 into -0, which is not the same number to a strict compare. */
+const negate = (value: number) => (value === 0 ? 0 : -value)
+
+/**
+ * The wall drift for a device-orientation reading, as a share of the way to
+ * full drift on each axis (-1..1). Measured against the pose the phone was held
+ * in when it calibrated, so it works however the reader holds it, and the axes
+ * swap when the screen is turned on its side.
+ */
+export function tiltDrift(
+  beta: number,
+  gamma: number,
+  baselineBeta: number,
+  baselineGamma: number,
+  landscape = false,
+  range: number = TILT_RANGE,
+): { x: number; y: number } {
+  const span = Math.max(range, 0.0001)
+  const across = clampUnit((gamma - baselineGamma) / span)
+  const along = clampUnit((beta - baselineBeta) / span)
+  return landscape ? { x: along, y: negate(across) } : { x: across, y: along }
+}
+
+/**
+ * Where the lamp sits for a drift: it travels with the view, so the light rakes
+ * across the normals and the specular highlights slide as the reader moves.
+ */
+export function lightSway(
+  x: number,
+  y: number,
+  sway: number = LIGHT_SWAY,
+): [number, number, number] {
+  return [clampUnit(x) * sway, clampUnit(y) * sway * 0.6, 0]
+}
+
 /**
  * The light for a local time: the sun arcs over the wall from 6 AM to 6 PM,
  * the moon over the other half of the day. `hours` is the local hour of day.

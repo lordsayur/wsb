@@ -3,7 +3,9 @@ import {
   DEFAULT_BACKGROUND,
   coverRepeat,
   isBackgroundStyle,
+  lightSway,
   railRepeats,
+  tiltDrift,
   wallLight,
 } from './background'
 
@@ -83,5 +85,34 @@ describe('rail repeats', () => {
   it('never asks for a fraction of a repeat', () => {
     expect(railRepeats(0.4, 1.2)).toBe(1)
     expect(railRepeats(4.7, 1.2)).toBe(4)
+  })
+})
+
+describe('tilt drift', () => {
+  it('is still in the pose it calibrated in', () => {
+    expect(tiltDrift(40, 0, 40, 0)).toEqual({ x: 0, y: 0 })
+  })
+
+  it('reads gamma as left/right and beta as front/back when upright', () => {
+    expect(tiltDrift(40, 30, 40, 0, false, 30)).toEqual({ x: 1, y: 0 })
+    expect(tiltDrift(10, 0, 40, 0, false, 30)).toEqual({ x: 0, y: -1 })
+  })
+
+  it('swaps the axes when the screen is landscape', () => {
+    expect(tiltDrift(70, 0, 40, 0, true, 30)).toEqual({ x: 1, y: 0 })
+    expect(tiltDrift(40, 30, 40, 0, true, 30)).toEqual({ x: 0, y: -1 })
+  })
+
+  it('clamps a big tilt to full drift', () => {
+    expect(tiltDrift(180, 180, 0, 0, false, 30)).toEqual({ x: 1, y: 1 })
+    expect(tiltDrift(-180, -180, 0, 0, false, 30)).toEqual({ x: -1, y: -1 })
+  })
+})
+
+describe('light sway', () => {
+  it('follows the drift and stays clamped', () => {
+    expect(lightSway(0, 0)).toEqual([0, 0, 0])
+    expect(lightSway(1, 1, 0.9)).toEqual([0.9, 0.54, 0])
+    expect(lightSway(-4, 4, 0.9)).toEqual([-0.9, 0.54, 0])
   })
 })

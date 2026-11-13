@@ -151,14 +151,6 @@ a {
   text-underline-offset: 2px;
 }
 
-/* specs/web/spec.md — the dashboard's fullscreen mode shows the card alone:
-   the deck's chrome (source note, page dots, footer) steps aside. */
-html.wsb-fullscreen .source-note,
-html.wsb-fullscreen .page-indicator,
-html.wsb-fullscreen .layout > .app-footer {
-  visibility: hidden;
-}
-html.wsb-fullscreen-locked,
-html.wsb-fullscreen-locked body {
-  overflow: hidden;
-}
+/* specs/web/spec.md — the dashboard is always the whole screen, so nothing in
+   the deck needs a fullscreen state any more; the class stays cleared in case a
+   saved page still carries it. */

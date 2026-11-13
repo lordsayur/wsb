@@ -33,8 +33,10 @@ export interface HomeDeckContext {
   passedKey: ComputedRef<string>
   dayStatus: ComputedRef<string>
   dayBusy: ComputedRef<boolean>
-  /** The dashboard fills the screen and the deck chrome steps aside. */
-  fullscreen: Ref<boolean>
+  /** The slides, in swipe order, for the page indicator. */
+  pages: ComputedRef<{ id: string; label: string }[]>
+  /** Opens a slide by id. */
+  goTo: (id: string) => void
 }
 
 export const HOME_DECK_KEY: InjectionKey<HomeDeckContext> =

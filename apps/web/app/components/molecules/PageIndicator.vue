@@ -5,7 +5,7 @@
       :key="page.id"
       type="button"
       class="dot"
-      :class="{ current: page.id === modelValue }"
+      :class="{ 'is-current': page.id === modelValue }"
       :aria-label="page.label"
       :aria-current="page.id === modelValue ? 'page' : undefined"
       :aria-pressed="page.id === modelValue"
@@ -38,13 +38,16 @@ const emit = defineEmits<{ 'update:modelValue': [id: string] }>()
   align-items: center;
   justify-content: center;
   gap: 1.6rem;
+  /* The dots follow the surface they sit on: the deck's chrome uses the
+     theme's accent, the summary's overlay sets its own on the wall. */
+  --dot-color: var(--primary);
 }
 .dot {
   width: 0.6rem;
   height: 0.6rem;
   padding: 0;
   border-radius: 50%;
-  border: 1px solid var(--primary);
+  border: 1px solid var(--dot-color);
   background: transparent;
   cursor: pointer;
   transition: background 0.15s ease-out, transform 0.15s ease-out;
@@ -53,8 +56,8 @@ const emit = defineEmits<{ 'update:modelValue': [id: string] }>()
   outline-offset: 0;
   box-sizing: content-box;
 }
-.dot.current {
-  background: var(--primary);
+.dot.is-current {
+  background: var(--dot-color);
   transform: scale(1.25);
 }
 .visually-hidden {

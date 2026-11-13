@@ -15,7 +15,10 @@
     :next-soon="nextSoon"
     :pending-time="t('state.pending')"
     :background="background"
-    :fullscreen="fullscreen"
+    :pages="pages"
+    :current="'summary'"
+    :pages-label="t('home.pages')"
+    @select="goTo"
   />
 </template>
 
@@ -26,8 +29,8 @@ import { useHomeDeckContext } from '~/composables/useHomeDeck'
 import { useSettings } from '~/composables/useSettings'
 
 // specs/web/spec.md — `/summary` is the dashboard slide: the running entry,
-// then the next one with its countdown. The grid and the shortcut are gone, so
-// the day reads at a glance and leaves room for future additions.
+// then the next one with its countdown. The card is the whole screen, so it
+// carries the basmalah and the page dots at its own top.
 definePageMeta({ layout: 'home' })
 
 const { t } = useI18n()
@@ -37,7 +40,8 @@ const {
   dates,
   dayStatus,
   dayBusy,
-  fullscreen,
+  pages,
+  goTo,
   currentName,
   currentTime,
   nextName,

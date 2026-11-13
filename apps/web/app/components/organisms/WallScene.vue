@@ -17,9 +17,11 @@
     <TresAmbientLight :intensity="0.9" />
     <TresHemisphereLight :args="['#fff4e3', '#6b4d33', 0.55]" />
 
-    <!-- The sun by day, the moon by night, moved by the reader's own clock.
-         It casts the rail's shadow; the bias keeps the thin trim clean. -->
+    <!-- The sun by day, the moon by night, moved by the reader's own clock and
+         swayed with the view, so the rails and tiles show their relief as you
+         move. It casts the rail's shadow; the bias keeps the thin trim clean. -->
     <TresDirectionalLight
+      ref="lamp"
       :color="light.color"
       :intensity="light.intensity"
       :position="light.position"
@@ -118,6 +120,8 @@
       :half-width="bands.width / 2"
       :half-height="viewHeight / 2"
       :reduced-motion="reducedMotion"
+      :lamp="lamp"
+      :lamp-base="light.position"
     />
     </TresCanvas>
   </div>
@@ -135,6 +139,7 @@ import {
   NoToneMapping,
   RepeatWrapping,
   SRGBColorSpace,
+  type Object3D,
   type Texture,
 } from 'three'
 import WallParallax from './WallParallax.vue'
@@ -289,6 +294,13 @@ const now = ref(new Date())
 const light = computed<WallLight>(() =>
   typeof props.hour === 'number' ? wallLight(props.hour) : wallLightAt(now.value),
 )
+
+/**
+ * The lamp itself. The rig sways it directly from the same frame that moves the
+ * camera, so the angle the reader sees already includes the drift.
+ */
+const lamp = ref<Object3D | null>(null)
+
 let clock = 0
 
 onMounted(() => {

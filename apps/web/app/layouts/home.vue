@@ -342,11 +342,10 @@ function openFeedback() {
   void navigateTo({ path: '/feedback', query: { from: route.path } })
 }
 
-// specs/web/spec.md — the dashboard never shows the footer. A floating menu
-// button opens a dock with the district selector and the settings menu; from
-// there the reader can fill the screen with the card alone. Escape closes the
-// dock first, then leaves fullscreen.
-const fullscreen = ref(false)
+// specs/web/spec.md — the dashboard always fills the screen: its card is the
+// whole viewport and the deck chrome lives inside it, so the dots sit under the
+// basmalah exactly as they do on the other slides. A floating menu button opens
+// a dock with the district selector and the settings menu. Escape closes it.
 const fsMenu = ref(false)
 
 const { supported: wakeLockSupported, enabled: keepAwake, toggle: toggleKeepAwake, hydrate: hydrateWakeLock } =
@@ -356,31 +355,8 @@ function toggleDock() {
   fsMenu.value = !fsMenu.value
 }
 
-function enterFullscreen() {
-  fullscreen.value = true
-}
-
-function exitFullscreen() {
-  fullscreen.value = false
-}
-
 watch(slide, () => {
-  if (slide.value !== 'summary') {
-    fsMenu.value = false
-    fullscreen.value = false
-  }
-})
-
-watch(fullscreen, (on) => {
-  if (!import.meta.client) return
-  document.documentElement.classList.toggle('wsb-fullscreen', on)
-  document.body.classList.toggle('wsb-fullscreen-locked', on)
-})
-
-onBeforeUnmount(() => {
-  if (!import.meta.client) return
-  document.documentElement.classList.remove('wsb-fullscreen')
-  document.body.classList.remove('wsb-fullscreen-locked')
+  fsMenu.value = false
 })
 
 provideHomeDeck({
@@ -400,9 +376,9 @@ provideHomeDeck({
   passedNote,
   dayStatus,
   dayBusy,
-  fullscreen,
+  pages: slidePages,
+  goTo: goToSlide,
 })
-
 
 // specs/web/spec.md — the footer's props and handlers live in one place: the
 // daily and weekly slides render it inline, the dashboard renders the same
@@ -488,17 +464,12 @@ const footerHandlers = {
 const rootEl = ref<HTMLElement | null>(null)
 const { offset: dragOffset } = useSwipe(
   { right: () => goSlide(-1), left: () => goSlide(1) },
-  () => (fullscreen.value ? null : rootEl.value),
+  () => rootEl.value,
 )
 
 function onKeydown(event: KeyboardEvent) {
-  if (event.key !== 'Escape') return
-  if (!fsMenu.value && !fullscreen.value) return
-  if (fsMenu.value) {
-    fsMenu.value = false
-    return
-  }
-  if (fullscreen.value) exitFullscreen()
+  if (event.key !== 'Escape' || !fsMenu.value) return
+  fsMenu.value = false
 }
 
 onMounted(async () => {
@@ -532,28 +503,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
     <div
       ref="rootEl"
       class="layout"
+      :class="{ 'is-full': slide === 'summary' }"
       :style="{ transform: pull ? `translateY(${pull}px)` : undefined }"
     >
       <a class="skip-link" href="#main">{{ t('a11y.skipToContent') }}</a>
 
-      <!-- specs/web/spec.md — the summary card carries the basmalah itself and
-           hides the source note, so its top is the card edge. The other slides
-           keep both in the deck chrome. -->
-      <BasmalahText v-if="slide !== 'summary'" class="basmalah" />
+      <!-- specs/web/spec.md — the summary card is the whole screen and carries
+           its own basmalah and page dots, so the deck's chrome is skipped there.
+           The other slides read basmalah, dots, then the data-source note. -->
+      <template v-if="slide !== 'summary'">
+        <BasmalahText class="basmalah" />
 
-      <SourceNote
-        v-if="slide !== 'summary'"
-        :label="t('source.label')"
-        :name="t('source.name')"
-        :url="MORA_PAGE_URL"
-      />
+        <PageIndicator
+          :label="t('home.pages')"
+          :pages="slidePages"
+          :model-value="slide"
+          @update:model-value="goToSlide"
+        />
 
-      <PageIndicator
-        :label="t('home.pages')"
-        :pages="slidePages"
-        :model-value="slide"
-        @update:model-value="goToSlide"
-      />
+        <SourceNote
+          :label="t('source.label')"
+          :name="t('source.name')"
+          :url="MORA_PAGE_URL"
+        />
+      </template>
 
       <div
         id="main"
@@ -575,7 +548,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         v-if="slide === 'summary'"
         type="button"
         class="fs-fab"
-        :class="{ fullscreen, open: fsMenu }"
+        :class="{ open: fsMenu }"
         :aria-label="t('action.menu')"
         aria-haspopup="true"
         :aria-expanded="fsMenu"
@@ -593,23 +566,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         :aria-label="t('action.menu')"
       >
         <AppFooter v-bind="footerProps" v-on="footerHandlers" show-background />
-        <div class="fs-actions">
+        <div v-if="wakeLockSupported" class="fs-actions">
           <button
-            v-if="!fullscreen"
-            type="button"
-            class="fs-action"
-            @click="enterFullscreen"
-          >
-            <Icon name="lucide:maximize-2" aria-hidden="true" />
-            <span>{{ t('home.fullscreen') }}</span>
-          </button>
-          <button v-else type="button" class="fs-action" @click="exitFullscreen">
-            <Icon name="lucide:minimize-2" aria-hidden="true" />
-            <span>{{ t('home.exitFullscreen') }}</span>
-          </button>
-
-          <button
-            v-if="wakeLockSupported"
             type="button"
             class="fs-action"
             :class="{ on: keepAwake }"
@@ -658,6 +616,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   gap: 0.6rem;
   overflow: hidden;
   transition: transform 0.15s ease-out;
+}
+/* The summary card is the whole screen: no deck padding, no chrome above it. */
+.layout.is-full {
+  max-width: none;
+  padding: 0;
+  gap: 0;
 }
 .basmalah {
   flex: none;
@@ -716,7 +680,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   opacity: 1 !important;
 }
 /* specs/web/spec.md — the dashboard's floating menu: it docks the deck's own
-   footer (district, settings) over the card and carries the fullscreen step. */
+   footer (district, settings) over the card and carries keep-screen-on. */
 .fs-fab {
   position: fixed;
   inset-block-end: 0.9rem;

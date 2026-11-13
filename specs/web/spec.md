@@ -106,7 +106,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   keep working: `/?view=month` and a bare `/?month=YYYY-MM` open
   `/prayer-times`, `/?view=day` opens `/today`, and `district` carries over.
 - The page indicator sits above the slide area: one dot per slide, the current
-  one marked and named for assistive tech. Tapping a dot opens that slide.
+  one marked and named for assistive tech. Tapping a dot opens that slide. On
+  the summary the card is the whole screen, so the card carries the dots at its
+  own top rather than the layout; the dots are in the same place on every slide.
 - A horizontal swipe moves one slide left or right and wraps at the ends.
   Swipes that start on a control or a selectable table area do not navigate.
 - Every slide keeps the district in the address (`district=<district>`, only
@@ -135,10 +137,13 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   their saved district, so it returns them to the deck rather than forcing the
   summary. The header is flat: a single bottom rule, no card and no pill.
 - The daily and weekly slides carry the basmalah alone at the top of the deck,
-  centred, with no back link (the deck is home) and no rule under it.
-- The summary slide hides that deck chrome: its card carries the basmalah at its
-  own top edge and the data-source note is not shown, so the card is the whole
-  screen below the page dots.
+  centred, with no back link (the deck is home) and no rule under it. Under the
+  basmalah come the page dots, then the data-source note; the text and the day
+  sit below them.
+- The summary is always full screen: its card is the whole viewport and carries
+  the basmalah and the page dots at its own top edge, in the same order and
+  position as the other slides. The deck's chrome is not repeated above it, and
+  there is no separate fullscreen state to enter or leave.
 - The basmalah is centred in both navs, whatever the hand mode and writing
   direction do to the controls on either side of it. The nav row always spans
   the full header width, so the menu lands on the real edge even where the page
@@ -204,15 +209,21 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   light catches its crown and it drops a thin shadow on the tiles just below it.
   Every band's normal map is registered to its own base image: the tiles' comes
   from the same 2752×1536 render as the colour, so each embossed line sits on
-  the line it belongs to. A directional
+  the   line it belongs to. A directional
   light follows the reader's local clock: warm sun
   (`#ffe5b4`) between 6 AM and 6 PM, cooler moon (`#a3c1ff`) otherwise, with an
   ambient/hemisphere floor so neither band ever goes black. The camera drifts a
-  few centimetres with the pointer and the device's `deviceorientation` tilt
-  (`gamma`/`beta`), eased and clamped, and the planes overfill the card so the
-  drift never shows an edge. The scene renders on demand: it draws when the
-  light changes, the size changes or the camera is still travelling, and costs
-  no frames when idle.
+  few centimetres and the lamp swings with it, so the reader sees the relief
+  and the glazed highlights move rather than only the framing. On a phone the
+  drift is the device's `deviceorientation` tilt, measured from the pose the
+  wall first appeared in, so it is neutral however the reader holds it, and the
+  axes swap when the screen turns on its side; a coarse pointer steers by tilt
+  once tilt arrives and by drag until then. On a fine pointer the mouse steers.
+  Both are eased and clamped, and the planes overfill the card so the drift
+  never shows an edge. The scene renders on demand: it draws when the light
+  changes, the size changes or the camera is still travelling, and costs no
+  frames when idle.
+
 - **Backdrop loading.** The two bands are painted first as a CSS fallback (flat
   gradient colours of the same textures, same 60/40 split, with a flat brown
   strip and a soft drop shadow standing in for the rail), server-rendered, so
@@ -230,23 +241,19 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   saved look; it is offered only on the summary slide, where it applies. A
   decorative backdrop carries no information in either look.
 - **Summary menu.** The dashboard never shows the deck footer. Instead a
-  floating menu button sits bottom-right and opens a dock over the card holding
-  the same footer the other slides use (district selector, share, settings)
-  plus a **fullscreen** action; the deck's chrome (source note, page dots)
-  stays. Choosing fullscreen makes the card fill the screen and the chrome
-  step aside; the same dock then offers **exit fullscreen**. Escape closes the
-  dock first, then leaves fullscreen; leaving the summary slide (swipe or dot)
-  closes the dock and leaves fullscreen. The button is absent on the other
-  slides, which keep their inline footer.
-- **Keep screen on.** The dock's action row pairs the fullscreen step with a
-  **keep screen on** toggle, offered only where the Screen Wake Lock API
-  exists. Turning it on requests a screen wake lock so the phone does not
-  sleep while the dashboard is on show; turning it off releases the lock. The
-  choice is remembered across visits; the browser may drop the lock (for
-  example when the tab is hidden), so it is re-requested when the page becomes
-  visible again. A refused request leaves the preference stored and the UI
-  quiet. The toggle carries `aria-pressed` and a single label; while on it is
-  marked primary.
+  floating menu button sits on the hand-mode side and opens a dock over the
+  card holding the same footer the other slides use (district selector, share,
+  settings). Escape closes the dock, and so does leaving the summary slide by
+  swipe or dot. The button is absent on the other slides, which keep their
+  inline footer.
+- **Keep screen on.** The dock carries a **keep screen on** toggle, offered
+  only where the Screen Wake Lock API exists. Turning it on requests a screen
+  wake lock so the phone does not sleep while the dashboard is on show;
+  turning it off releases the lock. The choice is remembered across visits; the
+  browser may drop the lock (for example when the tab is hidden), so it is
+  re-requested when the page becomes visible again. A refused request leaves
+  the preference stored and the UI quiet. The toggle carries `aria-pressed` and
+  a single label; while on it is marked primary.
 - **Today (`/today`)** is the daily page exactly as it was: the phase-aware
   list, the current-entry highlight, the countdown, the passed-entry note and
   the loading/offline status.
@@ -729,6 +736,15 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
       bands stay visible at every hour.
 - [ ] The camera drifts with the pointer and the device tilt without ever
       showing the edge of either plane.
+- [ ] On a phone the drift follows the device tilt, neutral in the pose the
+      wall appeared in, and the lamp swings with the view so the relief and the
+      glazed highlights move; on a fine pointer the mouse steers and the lamp
+      swings the same way.
+- [ ] The summary is always full screen, with its card the whole viewport and
+      the basmalah then the page dots at its own top, in the same order and
+      place as the other slides; there is no fullscreen action to toggle.
+- [ ] On the daily and weekly slides the basmalah comes first, then the page
+      dots, then the data-source note.
 - [ ] The summary settings offer **Background** (Wall / Aurora), default Wall,
       and the choice survives a reload with the first paint already using it.
 - [ ] The background choice appears only in the summary dock, not on the other
@@ -1062,3 +1078,7 @@ None published. Consumes core and the Data port.
 - 2026-11-13 — the tiles gain a specular colour map, and their normal map is
   regenerated so it registers to the colour render: each embossed grout line
   now sits on the line it belongs to instead of a shifted copy.
+- 2026-11-13 — the summary is always full screen: its card is the whole
+  viewport and carries the basmalah and the page dots at its own top edge like
+  the other slides, so the fullscreen action is gone. The daily and weekly
+  slides read basmalah, then page dots, then the data-source note.

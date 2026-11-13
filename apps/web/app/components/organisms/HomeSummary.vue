@@ -1,12 +1,5 @@
 <template>
-  <section
-    ref="rootEl"
-    class="dashboard"
-    :class="{ fullscreen, 'is-wall': background === 'wall' }"
-    :role="fullscreen ? 'dialog' : undefined"
-    :aria-modal="fullscreen ? 'true' : undefined"
-    :tabindex="fullscreen ? -1 : undefined"
-  >
+  <section ref="rootEl" class="dashboard" :class="{ 'is-wall': background === 'wall' }">
     <SummaryBackdrop :style="background" />
 
     <!-- The wall is client-only and sits over the CSS bands above, so the text
@@ -24,44 +17,60 @@
       </div>
     </ClientOnly>
 
-    <div class="content">
-      <BasmalahText class="basmalah" />
-
-      <header class="hero">
-        <p class="weekday">{{ weekday }}</p>
-        <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
-        <DayStatus :text="status" :busy="busy" />
-      </header>
-
-      <div v-if="currentName" class="current" :class="{ soon: nextSoon }">
-        <p class="current-label">{{ currentLabel }}</p>
-        <p class="current-name">{{ currentName }}</p>
-        <p class="current-meta">
-          <TimeText v-if="currentTime" class="current-time" :text="currentTime" />
-          <span v-if="passedNote" class="current-note">{{ passedNote }}</span>
-        </p>
+    <!-- The card is the whole screen, so it carries the deck's top chrome
+         itself: the basmalah, then the page dots just as the other slides.
+         Chrome and text share the cement band; the tiles stay a picture. -->
+    <div class="band">
+      <div class="chrome">
+        <BasmalahText class="basmalah" />
+        <PageIndicator
+          class="pages"
+          :label="pagesLabel"
+          :pages="pages"
+          :model-value="current"
+          @update:model-value="emit('select', $event)"
+        />
       </div>
 
-      <div class="next" :class="{ soon: nextSoon }">
-        <span class="next-label">{{ nextLabel }}</span>
-        <span class="next-name">{{ nextName }}</span>
-        <TimeText class="next-time" :text="nextTime || pendingTime" />
-        <span v-if="nextNote" class="next-note">{{ nextNote }}</span>
+      <div class="content">
+        <header class="hero">
+          <p class="weekday">{{ weekday }}</p>
+          <DateDisplay :masihi="dates.masihi" :hijri="dates.hijri" />
+          <DayStatus :text="status" :busy="busy" />
+        </header>
+
+        <div v-if="currentName" class="current" :class="{ soon: nextSoon }">
+          <p class="current-label">{{ currentLabel }}</p>
+          <p class="current-name">{{ currentName }}</p>
+          <p class="current-meta">
+            <TimeText v-if="currentTime" class="current-time" :text="currentTime" />
+            <span v-if="passedNote" class="current-note">{{ passedNote }}</span>
+          </p>
+        </div>
+
+        <div class="next" :class="{ soon: nextSoon }">
+          <span class="next-label">{{ nextLabel }}</span>
+          <span class="next-name">{{ nextName }}</span>
+          <TimeText class="next-time" :text="nextTime || pendingTime" />
+          <span v-if="nextNote" class="next-note">{{ nextNote }}</span>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-// specs/web/spec.md — organism: the summary slide. Over the wall, the text
-// rides the top cement band (60%) while the glazed tiles keep the bottom (40%).
-// The running entry is the focus; the next entry and how long is left sit under
-// it in a quieter size. The backdrop is decorative and carries no information.
-// Fullscreen is the layout's: it owns the toggle and the menu.
+// specs/web/spec.md — organism: the summary slide. It always fills the screen:
+// the card is the whole viewport, and its own top chrome carries the basmalah
+// and the page dots, so the deck's dots are not repeated above it. Over the
+// wall, the text rides the top cement band (60%) while the glazed tiles keep
+// the bottom (40%). The running entry is the focus; the next entry and how long
+// is left sit under it in a quieter size. The backdrop is decorative.
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue'
 import BasmalahText from '../atoms/BasmalahText.vue'
 import DateDisplay from '../molecules/DateDisplay.vue'
 import DayStatus from '../molecules/DayStatus.vue'
+import PageIndicator from '../molecules/PageIndicator.vue'
 import TimeText from '../atoms/TimeText.vue'
 import SummaryBackdrop from './SummaryBackdrop.vue'
 import type { BackgroundStyle } from '~/utils/background'
@@ -97,8 +106,12 @@ const props = withDefaults(
      * reader's clock; stories pin it so the morning and night looks hold still.
      */
     hour?: number
-    /** Fills the screen with the card alone; the deck chrome steps aside. */
-    fullscreen?: boolean
+    /** The deck's slides, for the dots the card carries at its own top. */
+    pages?: { id: string; label: string }[]
+    /** Which slide the dots mark as current. */
+    current?: string
+    /** Accessible name for the dots. */
+    pagesLabel?: string
   }>(),
   {
     status: '',
@@ -110,9 +123,13 @@ const props = withDefaults(
     nextSoon: false,
     pendingTime: '--:--',
     background: 'wall',
-    fullscreen: false,
+    pages: () => [],
+    current: 'summary',
+    pagesLabel: 'Pages',
   },
 )
+
+const emit = defineEmits<{ select: [id: string] }>()
 
 // While the passed-entry window is open, the note sits with the running entry
 // and replaces the countdown, so the two never appear at once.
@@ -178,8 +195,10 @@ onBeforeUnmount(() => {
   min-height: 0;
   width: 100%;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 0;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
   /* Text tokens: the aurora keeps the theme's own colours. */
   --summary-fg: var(--fg);
   --summary-strong: var(--fg);
@@ -216,31 +235,60 @@ onBeforeUnmount(() => {
   z-index: -1;
 }
 
-.content {
+/* Chrome and text share the card's top band, so the wall's cement keeps them
+   both legible; the tiles below are just a picture. */
+.band {
   position: relative;
   z-index: 1;
-  block-size: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* The wall's cement band is the top 60% of the card. */
+.dashboard.is-wall .band {
+  flex: 0 0 60%;
+}
+
+/* The card's own top chrome: the basmalah, then the page dots, matching the
+   order the other slides get from the deck. */
+.chrome {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding-block-start: clamp(0.75rem, 2.6vh, 1.35rem);
+  padding-inline: 1rem;
+  color: var(--summary-muted);
+  text-shadow: var(--summary-shadow);
+}
+/* On the wall the dots need the darker accent to read over cement. */
+.chrome .pages {
+  --dot-color: var(--summary-accent);
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: clamp(0.75rem, 3vh, 1.7rem);
-  padding: clamp(1rem, 4vh, 2rem) 1rem;
+  padding: clamp(0.5rem, 2vh, 1rem) 1rem clamp(1rem, 3vh, 1.6rem);
   text-align: center;
   color: var(--summary-fg);
   text-shadow: var(--summary-shadow);
 }
-/* The cement band owns the text; the tiles stay a picture underneath. */
+/* The cement band is the top 60% of the card, so the text keeps its room
+   under the chrome and never crosses the rail. */
 .dashboard.is-wall .content {
-  block-size: 60%;
   padding-block-end: 0.75rem;
 }
 
-/* The basmalah heads the card itself, at the top edge of the cement band. */
+/* The basmalah heads the card, in the chrome block above the dots. */
 .basmalah {
-  position: absolute;
-  inset-inline: 0;
-  top: clamp(0.9rem, 3vh, 1.5rem);
   text-align: center;
   color: var(--summary-muted);
 }
@@ -373,18 +421,6 @@ onBeforeUnmount(() => {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-/* Fullscreen: the card alone, edge to edge, above the deck's chrome. */
-.dashboard.fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  border-radius: 0;
-  max-inline-size: none;
-}
-.dashboard.fullscreen .content {
-  gap: clamp(1.2rem, 5vh, 2.6rem);
 }
 
 @media (max-height: 520px) {
