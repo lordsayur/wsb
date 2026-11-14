@@ -331,6 +331,9 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
   permission; the choice is stored on the device.
 - When enabled, the app raises one notification 15 minutes before each prayer
   and one at the prayer time. `syuruk` never notifies.
+- Each reminder occurs exactly once: a reminder already shown is not raised
+  again while the clock is still on its second, across a reload, or after the
+  data revalidates. Fired reminders are remembered on the device.
 - Notification titles and bodies are localised; the prayer time shown is the
   entry time for the selected district.
 - Notifications use the service worker where available so they work while the
@@ -845,6 +848,8 @@ Uses core terms from [`../glossary.md`](../glossary.md). Owns none.
 - [ ] Enabling notifications requests permission and persists the choice.
 - [ ] Notifications fire at each prayer and 15 minutes before; syuruk never
       notifies.
+- [ ] A reminder that already fired raises no second notification, even while
+      the clock stays on its second, after a reload, or after a data refresh.
 - [ ] A duration under 60 seconds renders in seconds.
 - [ ] A duration from one minute to 15 minutes renders minutes and seconds.
 - [ ] The passed-entry note reads as a duration plus "passed" and ticks in

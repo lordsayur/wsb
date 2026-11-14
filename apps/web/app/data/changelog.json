@@ -1,6 +1,13 @@
 {
-  "version": "4.0.0-beta.17",
+  "version": "4.0.0-beta.18",
   "entries": [
+    {
+      "version": "4.0.0-beta.18",
+      "date": "2026-11-14",
+      "changes": [
+        "Fix duplicate prayer notifications: each reminder fires once and remembers that it fired, so the timer no longer re-arms the same reminder for the rest of its second, and a reload or data refresh cannot repeat it."
+      ]
+    },
     {
       "version": "4.0.0-beta.17",
       "date": "2026-11-13",

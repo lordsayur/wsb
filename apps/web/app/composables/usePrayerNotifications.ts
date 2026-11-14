@@ -17,15 +17,41 @@ import {
 } from '~/utils/notify'
 
 const ENABLED_KEY = NOTIFICATIONS_ENABLED_KEY
+/** Reminders already shown, so a reload in the same second cannot repeat one. */
+const FIRED_KEY = 'wsb.prayerReminders.fired'
+/** How many fired reminder ids to remember; the 24-hour schedule is ten. */
+const FIRED_LIMIT = 40
 
 export type NotificationStatus = 'unsupported' | 'default' | 'granted' | 'denied'
+
+/**
+ * Stable id for one reminder occurrence. `atSeconds` carries the day, so the
+ * same prayer tomorrow is a different reminder.
+ */
+export function reminderKey(event: PrayerNotification): string {
+  return `${event.prayer}:${event.kind}:${event.atSeconds}`
+}
+
+/**
+ * The reminder to put on the timer: the nearest event that has not fired yet.
+ * The schedule still lists the event that just fired (its `secondsUntil` is
+ * 0), so without the fired set the timer re-arms it and repeats itself for
+ * the rest of that second.
+ */
+export function pendingReminder(
+  events: readonly PrayerNotification[],
+  fired: ReadonlySet<string> = new Set(),
+): PrayerNotification | undefined {
+  return events.find((event) => !fired.has(reminderKey(event)))
+}
 
 export function usePrayerNotifications(
   entries: () => readonly PrayerEntry[],
   locale: () => string,
   t: (key: string, args?: Record<string, unknown>) => string,
   timeFormat: () => TimeFormat = () => DEFAULT_TIME_FORMAT,
-) {  const supported =
+) {
+  const supported =
     typeof window !== 'undefined' && 'Notification' in window
   const enabled = ref(false)
   const status = ref<NotificationStatus>(
@@ -33,6 +59,31 @@ export function usePrayerNotifications(
   )
   let timer: ReturnType<typeof setTimeout> | undefined
   let pending: PrayerNotification | undefined
+  /** Recent reminder ids, so one occurrence never notifies twice. */
+  const fired = new Set<string>()
+
+  function loadFired() {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(FIRED_KEY) ?? '[]')
+      if (Array.isArray(stored)) {
+        for (const id of stored) if (typeof id === 'string') fired.add(id)
+      }
+    } catch {
+      // A corrupt entry only costs a duplicate reminder; start clean.
+    }
+  }
+
+  function remember(id: string) {
+    fired.add(id)
+    while (fired.size > FIRED_LIMIT) {
+      fired.delete(fired.values().next().value as string)
+    }
+    try {
+      window.localStorage.setItem(FIRED_KEY, JSON.stringify([...fired]))
+    } catch {
+      // Storage can be full or blocked; the in-memory set still dedupes.
+    }
+  }
 
   // ponytail: in-app timers only reach the user while the app runs. Upgrade
   // path is Web Push with a scheduled backend, which needs a server.
@@ -40,7 +91,8 @@ export function usePrayerNotifications(
     clearTimeout(timer)
     pending = undefined
     if (!enabled.value || status.value !== 'granted') return
-    const [next] = notificationSchedule(entries(), bruneiNow().seconds)
+    const now = bruneiNow().seconds
+    const next = pendingReminder(notificationSchedule(entries(), now), fired)
     if (!next) return
     pending = next
     timer = setTimeout(fire, Math.max(0, next.secondsUntil) * 1_000)
@@ -50,6 +102,9 @@ export function usePrayerNotifications(
     const event = pending
     pending = undefined
     if (event && enabled.value && status.value === 'granted') {
+      // Record before showing: a throw or a slow service worker must not
+      // leave the same occurrence armed for a second notification.
+      remember(reminderKey(event))
       await show(event)
     }
     schedule()
@@ -107,6 +162,7 @@ export function usePrayerNotifications(
       status.value = Notification.permission as NotificationStatus
       if (status.value !== 'granted') enabled.value = false
     }
+    if (enabled.value) loadFired()
     schedule()
   })
 

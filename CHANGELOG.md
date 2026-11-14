@@ -3,6 +3,10 @@
 Every version the web app ships, newest first. `pnpm version:bump` writes a new
 entry; the app renders this list at `/changelog`.
 
+## 4.0.0-beta.18 — 2026-11-14
+
+- Fix duplicate prayer notifications: each reminder fires once and remembers that it fired, so the timer no longer re-arms the same reminder for the rest of its second, and a reload or data refresh cannot repeat it.
+
 ## 4.0.0-beta.17 — 2026-11-13
 
 - The summary is always full screen: its card now fills the viewport and carries the basmalah and page dots at its own top edge, so the fullscreen action is gone; the daily and weekly slides read basmalah, then page dots, then the data-source note.
